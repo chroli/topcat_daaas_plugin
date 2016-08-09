@@ -1,16 +1,4 @@
 
-/bin
 /target
-/plugins/*/
 
-.classpath
-.project
-.settings
-.externalToolBuilders/
-derby.log
-npm-debug.log
-.vagrant
 .DS_Store
-/.pydevproject
-/release.properties
-/pom.xml.releaseBackup
