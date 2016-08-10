@@ -1,0 +1,22 @@
+<div class="modal-content">
+    <div class="modal-header">
+        <h3 class="modal-title">Create Machine</h3>
+    </div>
+    <div class="modal-body">
+        <form novalidate name="createMachineController.form">
+            <div class="form-group">
+                <label class="control-label" for="server">Type</label>
+                <select name="templateId" class="form-control" ng-model="createMachineController.templateId" ng-options="template.id as template.name for template in createMachineController.templates" required>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Name</label>
+                <input name="name" class="form-control" type="text" ng-model="createMachineController.name" required>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" ng-click="createMachineController.create()" ng-disabled="createMachineController.form.$invalid">Create</button>
+        <button class="btn btn-warning" ng-click="createMachineController.close()">Close</button>
+    </div>
+</div>

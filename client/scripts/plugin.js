@@ -3,37 +3,34 @@
 registerTopcatPlugin(function(pluginUrl){
 	return {
 		scripts: [
-			pluginUrl + 'scripts/controllers/my-jobs.controller.js'
+			pluginUrl + 'scripts/controllers/create-machine.js',
+			pluginUrl + 'scripts/controllers/machine.js',
+			pluginUrl + 'scripts/controllers/my-machines.js',
+
+			pluginUrl + 'scripts/directives/fullscreen.js',
+			pluginUrl + 'scripts/directives/vnc.js',
+
+			pluginUrl + 'scripts/services/tc-daaas.js',
 		],
 
 		stylesheets: [],
 
 		configSchema: function(){
-			this.attribute('site', function(){
-				this.attribute('ijp', function(){
-					
-				});
-			});
+			
 		},
 
-		setup: function($uibModal, tc){
+		setup: function(tc, tcDaaas){
 
-			tc.ui().registerMainTab('my-jobs', pluginUrl + 'views/my-jobs.html', {
+			tc.ui().registerMainTab('my-machines', pluginUrl + 'views/my-machines.html', {
 				insertAfter: 'my-data',
-				controller: 'MyJobsController as myJobsController'
+				controller: 'MyMachinesController as myMachinesController'
 			});
 
-			tc.ui().registerCartButton('configure-job', {insertBefore: 'cancel'}, function(){
-				$uibModal.open({
-                    templateUrl : pluginUrl + 'views/my-jobs.html',
-                    controller: 'MyJobsController as myJobsController',
-                    size : 'lg'
-                })
-			});
-
-			tc.ui().registerEntityActionButton('configure-job', function(){
-				alert("Hello");
-			});
+			var daaas;
+			tc.daaas = function(){
+				if(!daaas) daaas = tcDaaas.create(pluginUrl);
+				return daaas;
+			};
 
 		}
 	};
