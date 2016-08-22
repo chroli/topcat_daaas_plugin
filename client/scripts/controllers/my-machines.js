@@ -12,7 +12,7 @@
 	    this.machines = [];
 
         function pollMachines(){
-            tc.daaas().machines(timeout).then(function(machines){
+            tc.daaas().machines({timeout: timeout.promise, bypassInterceptors: true}).then(function(machines){
                 that.machines = machines;
             });
         }

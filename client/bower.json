@@ -1,0 +1,20 @@
+{
+  "name": "DAaaS",
+  "homepage": "https://github.com/DAaaS/topcat_daaas_plugin",
+  "authors": [
+    "Jody Salt <jody.salt@stfc.ac.uk>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "jquery-no-vnc": "^0.3.0"
+  }
+}
