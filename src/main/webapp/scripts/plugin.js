@@ -18,8 +18,8 @@ registerTopcatPlugin(function(pluginUrl){
 
 		stylesheets: [],
 
-		configSchema: function(){
-			
+		configSchema: {
+
 		},
 
 		setup: function(tc, tcDaaas){
