@@ -26,7 +26,7 @@ public class Properties extends java.util.Properties {
     public Properties(){
         super();
         try {
-            load(new FileInputStream("tc.daaas().properties"));
+            load(new FileInputStream("topcat_daaas_plugin.properties"));
         } catch(IOException e){
             
         }
