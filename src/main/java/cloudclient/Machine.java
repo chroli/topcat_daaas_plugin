@@ -16,9 +16,8 @@ import org.icatproject.topcatdaaasplugin.Websockify;
 
 public class Machine extends Entity {
     
-    private Integer id;
+    private String id;
     private String name;
-    private String groupName;
     private String state;
     private String host;
     
@@ -26,11 +25,11 @@ public class Machine extends Entity {
         super(cloudClient);
     }
     
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -40,14 +39,6 @@ public class Machine extends Entity {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getGroupName() {
-        return groupName;
-    }
-
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
     }
 
     public String getState() {
@@ -68,7 +59,8 @@ public class Machine extends Entity {
     
     public String getWebsockifyToken(){
         try {
-            return Websockify.getInstance().getToken(cloudClient.getUser().getUsername(), getHost());
+            //return Websockify.getInstance().getToken(cloudClient.getUser().getUsername(), getHost());
+            return "";
         } catch(Exception e) {
             return e.toString();
         }
@@ -80,7 +72,6 @@ public class Machine extends Entity {
         out.add("id", getId());
         out.add("name", getName());
         out.add("state", getState());
-        out.add("groupName", getGroupName());
         out.add("host", getHost());
         out.add("websockifyToken", getWebsockifyToken());
         return out;

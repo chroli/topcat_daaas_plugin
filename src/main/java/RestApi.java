@@ -39,99 +39,111 @@ import org.icatproject.topcatdaaasplugin.cloudclient.CloudClientException;
 public class RestApi {
     
     private static final Logger logger = LoggerFactory.getLogger(RestApi.class);
-    
-    @GET
-    @Path("/login")
-    @Produces({MediaType.APPLICATION_JSON})
-    public Response login(
-            @QueryParam("username") String username,
-            @QueryParam("password") String password) {
-        
-        try {
-            return new CloudClient().login(username, password).toResponse();
-        } catch(CloudClientException e) {
-            return e.toResponse();
-        }
-        
-    }
-    
-    @GET
-    @Path("/user")
-    @Produces({MediaType.APPLICATION_JSON})
-    public Response getUser(
-            @QueryParam("sessionId") String sessionId,
-            @QueryParam("userId") String userId) {
-        
-        try {
-            if(userId != null){
-                return new CloudClient(sessionId).getUser(Integer.parseInt(userId)).toResponse();
-            } else {
-                return new CloudClient(sessionId).getUser().toResponse();
-            }
-        } catch(CloudClientException e) {
-            return e.toResponse();
-        }
-        
-    }
-    
+
     @GET
     @Path("/machines")
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getMachines(
-            @QueryParam("sessionId") String sessionId) {
-        
+    public Response getMachines() {
         try {
-            return new CloudClient(sessionId).getMachines().toResponse();
+            return new CloudClient().getMachines().toResponse();
         } catch(CloudClientException e) {
             return e.toResponse();
         }
         
     }
     
+    // @GET
+    // @Path("/login")
+    // @Produces({MediaType.APPLICATION_JSON})
+    // public Response login(
+    //         @QueryParam("username") String username,
+    //         @QueryParam("password") String password) {
+        
+    //     try {
+    //         return new CloudClient().login(username, password).toResponse();
+    //     } catch(CloudClientException e) {
+    //         return e.toResponse();
+    //     }
+        
+    // }
     
-    @POST
-    @Path("/machines")
-    @Produces({MediaType.APPLICATION_JSON})
-    public Response createMachine(
-            @FormParam("sessionId") String sessionId,
-            @FormParam("templateId") Integer templateId,
-            @FormParam("name") String name) {
+    // @GET
+    // @Path("/user")
+    // @Produces({MediaType.APPLICATION_JSON})
+    // public Response getUser(
+    //         @QueryParam("sessionId") String sessionId,
+    //         @QueryParam("userId") String userId) {
         
-        try {
-            return new CloudClient(sessionId).createMachine(templateId, name).toResponse();
-        } catch(CloudClientException e) {
-            return e.toResponse();
-        }
+    //     try {
+    //         if(userId != null){
+    //             return new CloudClient(sessionId).getUser(Integer.parseInt(userId)).toResponse();
+    //         } else {
+    //             return new CloudClient(sessionId).getUser().toResponse();
+    //         }
+    //     } catch(CloudClientException e) {
+    //         return e.toResponse();
+    //     }
         
-    }
+    // }
     
-    @DELETE
-    @Path("/machines/{machineId}")
-    @Produces({MediaType.APPLICATION_JSON})
-    public Response deleteMachine(
-            @PathParam("machineId") Integer machineId,
-            @QueryParam("sessionId") String sessionId) {
+    // @GET
+    // @Path("/machines")
+    // @Produces({MediaType.APPLICATION_JSON})
+    // public Response getMachines(
+    //         @QueryParam("sessionId") String sessionId) {
         
-        try {
-            return new CloudClient(sessionId).deleteMachine(machineId).toResponse();
-        } catch(CloudClientException e) {
-            return e.toResponse();
-        }
+    //     try {
+    //         return new CloudClient(sessionId).getMachines().toResponse();
+    //     } catch(CloudClientException e) {
+    //         return e.toResponse();
+    //     }
         
-    }
+    // }
     
     
-    @GET
-    @Path("/templates")
-    @Produces({MediaType.APPLICATION_JSON})
-    public Response getTemplates(
-            @QueryParam("sessionId") String sessionId) {
+    // @POST
+    // @Path("/machines")
+    // @Produces({MediaType.APPLICATION_JSON})
+    // public Response createMachine(
+    //         @FormParam("sessionId") String sessionId,
+    //         @FormParam("templateId") Integer templateId,
+    //         @FormParam("name") String name) {
         
-        try {
-            return new CloudClient(sessionId).getTemplates().toResponse();
-        } catch(CloudClientException e) {
-            return e.toResponse();
-        }
+    //     try {
+    //         return new CloudClient(sessionId).createMachine(templateId, name).toResponse();
+    //     } catch(CloudClientException e) {
+    //         return e.toResponse();
+    //     }
         
-    }
+    // }
+    
+    // @DELETE
+    // @Path("/machines/{machineId}")
+    // @Produces({MediaType.APPLICATION_JSON})
+    // public Response deleteMachine(
+    //         @PathParam("machineId") Integer machineId,
+    //         @QueryParam("sessionId") String sessionId) {
+        
+    //     try {
+    //         return new CloudClient(sessionId).deleteMachine(machineId).toResponse();
+    //     } catch(CloudClientException e) {
+    //         return e.toResponse();
+    //     }
+        
+    // }
+    
+    
+    // @GET
+    // @Path("/templates")
+    // @Produces({MediaType.APPLICATION_JSON})
+    // public Response getTemplates(
+    //         @QueryParam("sessionId") String sessionId) {
+        
+    //     try {
+    //         return new CloudClient(sessionId).getTemplates().toResponse();
+    //     } catch(CloudClientException e) {
+    //         return e.toResponse();
+    //     }
+        
+    // }
 }
