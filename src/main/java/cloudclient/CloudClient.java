@@ -49,11 +49,11 @@ public class CloudClient {
 
     private static final Logger logger = LoggerFactory.getLogger(CloudClient.class);
     
-    private static String authToken;
-    private static String project;
-    private static HttpClient identityHttpClient;
-    private static HttpClient computeHttpClient;
-    private static HttpClient imageHttpClient;
+    private String authToken;
+    private String project;
+    private HttpClient identityHttpClient;
+    private HttpClient computeHttpClient;
+    private HttpClient imageHttpClient;
     
 
     @PostConstruct
@@ -147,6 +147,54 @@ public class CloudClient {
                     }
 
                     out.add(machine);
+                }
+            } else {
+                throw new BadRequestException(response.toString());
+            }
+        } catch(CloudClientException e){
+            throw e;
+        } catch(Exception e){
+            String message = e.getMessage();
+            if(message == null){
+                message = e.toString();
+            }
+            throw new UnexpectedException(message);
+        }
+
+        return out;
+    }
+
+    public Void deleteMachine(String machineId) throws CloudClientException {
+        try {
+            Response response = computeHttpClient.delete("servers/" + machineId, generateStandardHeaders());
+            if(response.getCode() != 200){
+                throw new BadRequestException(response.toString());
+            }
+        } catch(CloudClientException e){
+            throw e;
+        } catch(Exception e){
+            String message = e.getMessage();
+            if(message == null){
+                message = e.toString();
+            }
+            throw new UnexpectedException(message);
+        }
+        return new Void();
+    }
+
+    public EntityList<Template> getTemplates()  throws CloudClientException {
+        EntityList<Template> out = new EntityList<Template>();
+        
+        try {
+            Response response = imageHttpClient.get("images", generateStandardHeaders());
+            if(response.getCode() == 200){
+                JsonObject results = parseJson(response.toString());
+                for(JsonValue imageValue : results.getJsonArray("images")){
+                    JsonObject image = (JsonObject) imageValue;
+                    Template template = new Template(this);
+                    template.setId(image.getString("id"));
+                    template.setName(image.getString("name"));
+                    out.add(template);
                 }
             } else {
                 throw new BadRequestException(response.toString());

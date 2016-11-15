@@ -8,7 +8,7 @@ import javax.json.JsonValue;
 
 import java.net.URL;
 import java.net.URLEncoder;
-import javax.net.ssl.HttpsURLConnection;
+import java.net.HttpURLConnection;
 
 import java.io.*;
 
@@ -48,11 +48,11 @@ public class HttpClient {
 	private Response send(String method, String offset, Map<String, String> headers, String body) throws Exception {
 		StringBuilder url = new StringBuilder(this.url + "/" + offset);
 
-		HttpsURLConnection connection = null;
+		HttpURLConnection connection = null;
 
 		try {
 		    //Create connection
-		    connection = (HttpsURLConnection) (new URL(url.toString())).openConnection();
+		    connection = (HttpURLConnection) (new URL(url.toString())).openConnection();
 		    connection.setRequestMethod(method);
     		connection.setUseCaches(false);
     		connection.setDoInput(true);

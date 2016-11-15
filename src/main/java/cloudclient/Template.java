@@ -15,21 +15,19 @@ import javax.json.JsonObjectBuilder;
 public class Template extends Entity {
     
     
-    private Integer id;
+    private String id;
     private String name;
-    private String description;
-    private Integer cpuCount;
-    private Integer memoryAllocation;
+
     
     public Template(CloudClient cloudClient){
         super(cloudClient);
     }
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -40,38 +38,11 @@ public class Template extends Entity {
     public void setName(String name) {
         this.name = name;
     }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Integer getCpuCount() {
-        return cpuCount;
-    }
-
-    public void setCpuCount(Integer cpuCount) {
-        this.cpuCount = cpuCount;
-    }
-
-    public Integer getMemoryAllocation() {
-        return memoryAllocation;
-    }
-
-    public void setMemoryAllocation(Integer memoryAllocation) {
-        this.memoryAllocation = memoryAllocation;
-    }
     
     public JsonObjectBuilder toJsonObjectBuilder(){
         JsonObjectBuilder out = Json.createObjectBuilder();
         out.add("id", getId());
         out.add("name", getName());
-        out.add("description", getDescription());
-        out.add("cpuCount", getCpuCount());
-        out.add("memoryAllocation", getMemoryAllocation());
         return out;
     }
 }

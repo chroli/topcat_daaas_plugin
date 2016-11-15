@@ -73,13 +73,13 @@
       });
 
       this.deleteMachine = helpers.overload({
-        'number, object': function(machineId, options){
+        'string, object': function(machineId, options){
           return this.delete('machines/' + machineId, {sessionId: this.sessionId()}, options);
         },
-        'number,  promise': function(machineId, timeout){
+        'string,  promise': function(machineId, timeout){
           return this.deleteMachine(machineId, {timeout: timeout});
         },
-        'number, string': function(machineId){
+        'string, string': function(machineId){
           return this.deleteMachine(machineId, {});
         }
       });
