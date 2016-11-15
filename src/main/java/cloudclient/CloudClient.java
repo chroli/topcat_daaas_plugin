@@ -31,20 +31,33 @@ import org.icatproject.topcatdaaasplugin.httpclient.HttpClient;
 import org.icatproject.topcatdaaasplugin.httpclient.Response;
 import org.icatproject.topcatdaaasplugin.Properties;
 
+import javax.annotation.PostConstruct;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
+import javax.ejb.Stateful;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  *
  * @author elz24996
  */
-
+@Singleton
+@Startup
 public class CloudClient {
+
+    private static final Logger logger = LoggerFactory.getLogger(CloudClient.class);
     
-    private String authToken;
-    private String project;
-    private HttpClient identityHttpClient;
-    private HttpClient computeHttpClient;
-    private HttpClient imageHttpClient;
+    private static String authToken;
+    private static String project;
+    private static HttpClient identityHttpClient;
+    private static HttpClient computeHttpClient;
+    private static HttpClient imageHttpClient;
     
-    public CloudClient() throws CloudClientException {
+
+    @PostConstruct
+    public void init() {
         try {
             Properties properties = new Properties();
             project = properties.getProperty("project");
@@ -106,8 +119,10 @@ public class CloudClient {
 
             this.authToken = identityHttpClient.post("auth/tokens", headers, data).getHeader("X-Subject-Token");
 
+            logger.info("created authToken " + this.authToken);
+
         } catch(Exception e){
-            throw new UnexpectedException(e.getMessage());
+            throw new IllegalStateException(e.getMessage());
         }
     }
 
@@ -124,7 +139,13 @@ public class CloudClient {
                     machine.setId(server.getString("id"));
                     machine.setName(server.getString("name"));
                     machine.setState(server.getString("status"));
-                    machine.setHost(server.getJsonObject("addresses").getJsonArray("public").getJsonObject(0).getString("addr"));
+                    JsonArray addresses = server.getJsonObject("addresses").getJsonArray("public");
+                    if(addresses != null){
+                        machine.setHost(addresses.getJsonObject(0).getString("addr"));
+                    } else {
+                        machine.setHost("");
+                    }
+
                     out.add(machine);
                 }
             } else {

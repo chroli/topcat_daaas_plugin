@@ -40,6 +40,9 @@ public class RestApi {
     
     private static final Logger logger = LoggerFactory.getLogger(RestApi.class);
 
+    @EJB
+    CloudClient cloudClient;
+
     @GET
     @Path("/machines")
     @Produces({MediaType.APPLICATION_JSON})

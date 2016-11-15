@@ -15,7 +15,7 @@
 					<tr>
 						<th>Name</th>
 						<th>State</th>
-						<th>Group</th>
+						<th>Host</th>
 						<th>&nbsp;</th>
 					</tr>
 				</thead>
@@ -23,7 +23,7 @@
 					<tr ng-repeat="machine in myMachinesController.machines">
 						<td>{{machine.name}}</td>
 						<td>{{machine.state}}</td>
-						<td>{{machine.groupName}}</td>
+						<td>{{machine.host}}</td>
 						<td>
 							<button class="btn btn-xs btn-primary" ng-click="myMachinesController.view(machine)">View</button>
 							<button class="btn btn-xs btn-primary" ng-click="myMachinesController.delete(machine)">Delete</button>
