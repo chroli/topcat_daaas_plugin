@@ -73,21 +73,20 @@ public class RestApi {
     //     }
     
     
-    // @POST
-    // @Path("/machines")
-    // @Produces({MediaType.APPLICATION_JSON})
-    // public Response createMachine(
-    //         @FormParam("sessionId") String sessionId,
-    //         @FormParam("templateId") Integer templateId,
-    //         @FormParam("name") String name) {
+    @POST
+    @Path("/machines")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response createMachine(
+            @FormParam("templateId") String templateId,
+            @FormParam("name") String name) {
         
-    //     try {
-    //         return new CloudClient(sessionId).createMachine(templateId, name).toResponse();
-    //     } catch(CloudClientException e) {
-    //         return e.toResponse();
-    //     }
+        try {
+            return cloudClient.createMachine(templateId, name).toResponse();
+        } catch(CloudClientException e) {
+            return e.toResponse();
+        }
         
-    // }
+    }
     
     @DELETE
     @Path("/machines/{machineId}")

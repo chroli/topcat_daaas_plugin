@@ -56,7 +56,7 @@
     	});
 
       this.createMachine = helpers.overload({
-        'number, string, object': function(templateId, name, options){
+        'string, string, object': function(templateId, name, options){
           var params = {
             templateId: templateId,
             name:  name,
@@ -64,10 +64,10 @@
           };
           return this.post('machines', params, options);
         },
-        'number, string, promise': function(templateId, name, timeout){
+        'string, string, promise': function(templateId, name, timeout){
           return this.createMachine(templateId, name, {timeout: timeout});
         },
-        'number, string': function(templateId, name){
+        'string, string': function(templateId, name){
           return this.createMachine(templateId, name, {});
         }
       });

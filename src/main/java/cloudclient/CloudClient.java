@@ -212,6 +212,46 @@ public class CloudClient {
         return out;
     }
 
+     public Void createMachine(String templateId, String name) throws CloudClientException {
+        try {
+
+            // {
+            //     "server" => {
+            //         "name" => "auto-allocate-network",
+            //         "imageRef" => "ba123970-efbd-4a91-885a-b069e03e003d",
+            //         "flavorRef" => "http://openstack.nubes.rl.ac.uk:8774/v2.1/8eeb4eaf23a3462dbb18b98ce0f1c6a6/flavors/8a34f302-4cdc-459c-9e45-c5655c94382f",
+            //         "metadata" => {
+            //             "username" => "elz24996"
+            //         }
+            //     }
+            // }
+
+            JsonObjectBuilder server = Json.createObjectBuilder();
+            server.add("name", name);
+            server.add("imageRef", templateId);
+            server.add("flavorRef", "http://openstack.nubes.rl.ac.uk:8774/v2.1/8eeb4eaf23a3462dbb18b98ce0f1c6a6/flavors/8a34f302-4cdc-459c-9e45-c5655c94382f");            
+            JsonObjectBuilder metadata = Json.createObjectBuilder();
+            metadata.add("username", "elz24996");
+            server.add("metadata", metadata);
+
+            String data = Json.createObjectBuilder().add("server", server).build().toString();
+
+            Response response = computeHttpClient.post("servers", generateStandardHeaders(), data);
+            if(response.getCode() > 400){
+                throw new BadRequestException(response.toString());
+            }
+        } catch(CloudClientException e){
+            throw e;
+        } catch(Exception e){
+            String message = e.getMessage();
+            if(message == null){
+                message = e.toString();
+            }
+            throw new UnexpectedException(message);
+        }
+        return new Void();
+    }
+
     private Map<String, String> generateStandardHeaders(){
         Map<String, String> out = new HashMap<String, String>();
         out.put("Content-Type", "application/json");
