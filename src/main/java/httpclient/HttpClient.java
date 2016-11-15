@@ -51,7 +51,6 @@ public class HttpClient {
 		HttpsURLConnection connection = null;
 
 		try {
-			logger.info(method + " " + url);
 		    //Create connection
 		    connection = (HttpsURLConnection) (new URL(url.toString())).openConnection();
 		    connection.setRequestMethod(method);

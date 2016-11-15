@@ -103,7 +103,7 @@ public class CloudClient {
             auth.add("scope", scope);
 
             String data = Json.createObjectBuilder().add("auth", auth).build().toString();
-            
+
             this.authToken = identityHttpClient.post("auth/tokens", headers, data).getHeader("X-Subject-Token");
 
         } catch(Exception e){
@@ -113,9 +113,7 @@ public class CloudClient {
 
     public EntityList<Machine> getMachines()  throws CloudClientException {
         EntityList<Machine> out = new EntityList<Machine>();
-
         
-
         try {
             Response response = computeHttpClient.get("servers/detail", generateStandardHeaders());
             if(response.getCode() == 200){
