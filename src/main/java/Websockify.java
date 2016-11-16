@@ -17,6 +17,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.charset.Charset;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  *
  * @author elz24996
@@ -24,7 +27,9 @@ import java.nio.charset.Charset;
 
 
 public class Websockify {
-   
+    
+    private static final Logger logger = LoggerFactory.getLogger(Websockify.class);
+    
     private static Websockify instance = null;
 
     public synchronized static Websockify getInstance() {

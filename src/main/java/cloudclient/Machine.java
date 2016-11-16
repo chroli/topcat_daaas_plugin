@@ -59,8 +59,7 @@ public class Machine extends Entity {
     
     public String getWebsockifyToken(){
         try {
-            //return Websockify.getInstance().getToken(cloudClient.getUser().getUsername(), getHost());
-            return "";
+            return Websockify.getInstance().getToken("elz24996", getHost());
         } catch(Exception e) {
             return e.toString();
         }

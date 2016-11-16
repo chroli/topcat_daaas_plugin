@@ -34,15 +34,17 @@ import org.icatproject.topcatdaaasplugin.Properties;
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
-import javax.ejb.Stateful;
+import javax.ejb.DependsOn;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  *
  * @author elz24996
  */
+//@DependsOn("TrustManagerInstaller")
 @Singleton
 @Startup
 public class CloudClient {
