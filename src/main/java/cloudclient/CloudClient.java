@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author elz24996
  */
-//@DependsOn("TrustManagerInstaller")
+@DependsOn("TrustManagerInstaller")
 @Singleton
 @Startup
 public class CloudClient {
