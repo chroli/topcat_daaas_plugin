@@ -44,6 +44,9 @@ public class HttpClient {
 		return send("PUT", offset, headers, data);
 	}
 
+	public Response head(String offset, Map<String, String> headers) throws Exception {
+		return send("HEAD", offset, headers);
+	}
 
 	private Response send(String method, String offset, Map<String, String> headers, String body) throws Exception {
 		StringBuilder url = new StringBuilder(this.url + "/" + offset);

@@ -35,6 +35,7 @@ import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.ejb.DependsOn;
+import javax.ejb.Schedule;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,18 +58,10 @@ public class CloudClient {
     private HttpClient computeHttpClient;
     private HttpClient imageHttpClient;
     
+    public void createSession() throws Exception {
+        Properties properties = new Properties();
 
-    @PostConstruct
-    public void init() {
-        try {
-            Properties properties = new Properties();
-            project = properties.getProperty("project");
-            identityHttpClient = new HttpClient(properties.getProperty("identityEndpoint") + "/v3");
-            computeHttpClient = new HttpClient(properties.getProperty("computeEndpoint") + "/v2/" + project);
-            imageHttpClient = new HttpClient(properties.getProperty("imageEndpoint") + "/v2");
-
-
-            Map<String, String> headers = new HashMap<String, String>();
+        Map<String, String> headers = new HashMap<String, String>();
             headers.put("Content-Type", "application/json");
             
             // {
@@ -122,9 +115,30 @@ public class CloudClient {
             this.authToken = identityHttpClient.post("auth/tokens", headers, data).getHeader("X-Subject-Token");
 
             logger.info("created authToken " + this.authToken);
+    }
 
+    @PostConstruct
+    public void init() {
+        try {
+            Properties properties = new Properties();
+            project = properties.getProperty("project");
+            identityHttpClient = new HttpClient(properties.getProperty("identityEndpoint") + "/v3");
+            computeHttpClient = new HttpClient(properties.getProperty("computeEndpoint") + "/v2/" + project);
+            imageHttpClient = new HttpClient(properties.getProperty("imageEndpoint") + "/v2");
+
+            createSession();
         } catch(Exception e){
             throw new IllegalStateException(e.getMessage());
+        }
+    }
+
+    @Schedule(hour="*", minute="*")
+    public void keepSessionAlive() throws Exception{
+        Map<String, String> headers = generateStandardHeaders();
+        headers.put("X-Subject-Token", authToken);
+        Response response = identityHttpClient.head("auth/tokens", headers);
+        if(response.getCode() >= 400){
+            createSession();
         }
     }
 
