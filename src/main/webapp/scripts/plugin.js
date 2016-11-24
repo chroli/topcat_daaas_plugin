@@ -22,6 +22,26 @@ registerTopcatPlugin(function(pluginUrl){
 
 		},
 
+		extend: {
+			tc: function(){
+
+			},
+			icat: function(){
+
+			},
+			facility: function(){
+
+			},
+			ids: function(){
+
+			},
+			entities:{
+				investigation: function(){
+
+				}
+			}
+		},
+
 		setup: function(tc, tcDaaas){
 
 			tc.ui().registerMainTab('my-machines', pluginUrl + 'views/my-machines.html', {
@@ -35,7 +55,20 @@ registerTopcatPlugin(function(pluginUrl){
 				return daaas;
 			};
 
+		},
+
+		login: function(){
+			//'this' is the facility
+			//potentually register tabs etc
+			//can return promise
+		},
+
+		logout: function(){
+			//'this' is the facility
+			//potentually un register tabs etc
+			//can return promise
 		}
+
 	};
 });
 

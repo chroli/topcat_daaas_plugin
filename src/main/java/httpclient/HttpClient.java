@@ -80,11 +80,13 @@ public class HttpClient {
 	    		responseHeaders.put(key, connection.getHeaderField(key));
 	    	}
 
-	    	String responseBody;
+	    	String responseBody = "";
 	    	try {
 	    		responseBody = inputStreamToString(connection.getInputStream());
-	    	} catch(Exception e){
-	    		responseBody = inputStreamToString(connection.getErrorStream());
+	    	} catch(Exception e1){
+	    		try {
+	    			responseBody = inputStreamToString(connection.getErrorStream());
+	    		} catch(Exception e2){}
 	    	}
 
 		    return new Response(responseCode, responseHeaders, responseBody);

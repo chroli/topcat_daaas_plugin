@@ -114,4 +114,8 @@ public class RestApi {
         }
         
     }
+
+    // private String getUsername(String sessionId){
+        
+    // }
 }
