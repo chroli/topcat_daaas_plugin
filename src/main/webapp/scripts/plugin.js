@@ -9,11 +9,12 @@ registerTopcatPlugin(function(pluginUrl){
 			pluginUrl + 'scripts/controllers/create-machine.js',
 			pluginUrl + 'scripts/controllers/machine.js',
 			pluginUrl + 'scripts/controllers/my-machines.js',
+			pluginUrl + 'scripts/controllers/admin-machine-templates.js',
 
 			pluginUrl + 'scripts/directives/fullscreen.js',
 			pluginUrl + 'scripts/directives/vnc.js',
 
-			pluginUrl + 'scripts/services/tc-daaas.js',
+			pluginUrl + 'scripts/services/tc-daaas.js'
 		],
 
 		stylesheets: [],
@@ -23,22 +24,8 @@ registerTopcatPlugin(function(pluginUrl){
 		},
 
 		extend: {
-			tc: function(){
-
-			},
-			icat: function(){
-
-			},
 			facility: function(){
 
-			},
-			ids: function(){
-
-			},
-			entities:{
-				investigation: function(){
-
-				}
 			}
 		},
 
@@ -47,6 +34,12 @@ registerTopcatPlugin(function(pluginUrl){
 			tc.ui().registerMainTab('my-machines', pluginUrl + 'views/my-machines.html', {
 				insertAfter: 'my-data',
 				controller: 'MyMachinesController as myMachinesController'
+			});
+
+			tc.ui().registerAdminTab('machine-templates', pluginUrl + 'views/admin-machine-templates.html', {
+				insertAfter: 'downloads',
+				controller: 'AdminMachineTemplatesController as adminMachineTemplatesController',
+				multiFacility: true
 			});
 
 			var daaas;
