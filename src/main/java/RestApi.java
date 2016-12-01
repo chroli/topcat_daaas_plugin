@@ -115,6 +115,17 @@ public class RestApi {
         
     }
 
+    @GET
+    @Path("/test")
+    @Produces({MediaType.TEXT_PLAIN})
+    public Response test(){
+        try {
+            return Response.ok().entity(new SshClient("glassfish", "topcat-dev.esc.rl.ac.uk", "/home/vagrant/id_rsa").exec("ping -c 1 google.com")).build();
+        } catch(Exception e) {
+            return Response.status(400).entity(e.getMessage()).build();
+        }
+    }
+
     // private String getUsername(String sessionId){
         
     // }
