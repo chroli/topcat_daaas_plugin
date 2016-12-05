@@ -58,63 +58,68 @@ public class CloudClient {
     private HttpClient computeHttpClient;
     private HttpClient imageHttpClient;
     
+    @Schedule(hour="*", minute="*")
     public void createSession() throws Exception {
-        Properties properties = new Properties();
 
-        Map<String, String> headers = new HashMap<String, String>();
-        headers.put("Content-Type", "application/json");
-        
-        // {
-        //     "auth" => {
-        //         "identity" => {
-        //             "methods" => [
-        //                 "password"
-        //             ],
-        //             "password" => {
-        //                 "user" => {
-        //                     "name" => "elz24996",
-        //                     "domain" => {
-        //                         "name" => "stfc"
-        //                     },
-        //                     "password" => "saadsad"
-        //                 }
-        //             }
-        //         },
-        //         "scope" => {
-        //             "project" => {
-        //                 "id" => "3242342342344ada"
-        //             }
-        //         }
-        //     }
-        // }
+        try {
+            Properties properties = new Properties();
 
-        JsonObjectBuilder auth = Json.createObjectBuilder();
-        JsonObjectBuilder identity = Json.createObjectBuilder();
-        JsonArrayBuilder methods = Json.createArrayBuilder();
-        methods.add("password");
-        identity.add("methods", methods);
-        JsonObjectBuilder password = Json.createObjectBuilder();
-        JsonObjectBuilder user = Json.createObjectBuilder();
-        user.add("name", properties.getProperty("username"));
-        JsonObjectBuilder domain = Json.createObjectBuilder();
-        domain.add("name", properties.getProperty("domain"));
-        user.add("domain", domain);
-        user.add("password", properties.getProperty("password"));
-        password.add("user", user);
-        identity.add("password", password);
-        auth.add("identity", identity);
-        JsonObjectBuilder scope = Json.createObjectBuilder();
-        JsonObjectBuilder project = Json.createObjectBuilder();
-        project.add("id", properties.getProperty("project"));
-        scope.add("project", project);
-        auth.add("identity", identity);
-        auth.add("scope", scope);
+            Map<String, String> headers = new HashMap<String, String>();
+            headers.put("Content-Type", "application/json");
+            
+            // {
+            //     "auth" => {
+            //         "identity" => {
+            //             "methods" => [
+            //                 "password"
+            //             ],
+            //             "password" => {
+            //                 "user" => {
+            //                     "name" => "elz24996",
+            //                     "domain" => {
+            //                         "name" => "stfc"
+            //                     },
+            //                     "password" => "saadsad"
+            //                 }
+            //             }
+            //         },
+            //         "scope" => {
+            //             "project" => {
+            //                 "id" => "3242342342344ada"
+            //             }
+            //         }
+            //     }
+            // }
 
-        String data = Json.createObjectBuilder().add("auth", auth).build().toString();
+            JsonObjectBuilder auth = Json.createObjectBuilder();
+            JsonObjectBuilder identity = Json.createObjectBuilder();
+            JsonArrayBuilder methods = Json.createArrayBuilder();
+            methods.add("password");
+            identity.add("methods", methods);
+            JsonObjectBuilder password = Json.createObjectBuilder();
+            JsonObjectBuilder user = Json.createObjectBuilder();
+            user.add("name", properties.getProperty("username"));
+            JsonObjectBuilder domain = Json.createObjectBuilder();
+            domain.add("name", properties.getProperty("domain"));
+            user.add("domain", domain);
+            user.add("password", properties.getProperty("password"));
+            password.add("user", user);
+            identity.add("password", password);
+            auth.add("identity", identity);
+            JsonObjectBuilder scope = Json.createObjectBuilder();
+            JsonObjectBuilder project = Json.createObjectBuilder();
+            project.add("id", properties.getProperty("project"));
+            scope.add("project", project);
+            auth.add("identity", identity);
+            auth.add("scope", scope);
 
-        this.authToken = identityHttpClient.post("auth/tokens", headers, data).getHeader("X-Subject-Token");
+            String data = Json.createObjectBuilder().add("auth", auth).build().toString();
 
-        logger.info("created authToken " + this.authToken);
+            this.authToken = identityHttpClient.post("auth/tokens", headers, data).getHeader("X-Subject-Token");
+
+        } catch(Exception e){
+            logger.error(e.getMessage());
+        }
     }
 
     @PostConstruct
@@ -129,20 +134,6 @@ public class CloudClient {
             createSession();
         } catch(Exception e){
             throw new IllegalStateException(e.getMessage());
-        }
-    }
-
-    @Schedule(hour="*", minute="*")
-    public void keepSessionAlive() throws Exception {
-        try {
-            Map<String, String> headers = generateStandardHeaders();
-            headers.put("X-Subject-Token", authToken);
-            Response response = identityHttpClient.head("auth/tokens", headers);
-            if(response.getCode() >= 400){
-                createSession();
-            }
-        } catch(Exception e){
-            logger.error(e.getMessage());
         }
     }
 

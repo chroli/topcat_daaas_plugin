@@ -23,6 +23,10 @@ import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +46,9 @@ public class RestApi {
 
     @EJB
     CloudClient cloudClient;
+
+    @PersistenceContext(unitName = "topcat")
+    EntityManager em;
 
     @GET
     @Path("/machines")
@@ -114,6 +121,22 @@ public class RestApi {
         }
         
     }
+
+    /*
+    @GET
+    @Path("/machineTypes")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response machineTypes(
+            @QueryParam("sessionId") String sessionId) {
+        
+        try {
+            return cloudClient.getTemplates().toResponse();
+        } catch(CloudClientException e) {
+            return e.toResponse();
+        }
+        
+    }
+    */
 
     @GET
     @Path("/test")

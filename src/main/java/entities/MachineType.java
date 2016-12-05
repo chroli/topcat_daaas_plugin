@@ -1,12 +1,6 @@
 package org.icatproject.topcatdoiplugin;
 
 
-public class MachineTemplate  {
-
-
-}
-
-/*
 import java.io.Serializable;
 import java.util.Date;
 
@@ -29,9 +23,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 
 @Entity
-@Table(name = "MACHINETEMPLATE")
+@Table(name = "MACHINETYPE")
 @XmlRootElement
-public class MachineTemplate implements Serializable {
+public class MachineType implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,7 +46,7 @@ public class MachineTemplate implements Serializable {
     private Date createdAt;
 
 
-    public MachineTemplate() {
+    public MachineType() {
 
     }
 
@@ -65,44 +59,28 @@ public class MachineTemplate implements Serializable {
     }
 
     public String getName() {
-        return email;
+        return name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getPreparedId() {
-        return preparedId;
+    public String getImageId() {
+        return imageId;
     }
 
-    public void setPreparedId(String preparedId) {
-        this.preparedId = preparedId;
+    public void setImageId(String imageId) {
+        this.imageId = imageId;
     }
 
-    public String getTransportUrl() {
-        return transportUrl;
+    public String getFlavorId() {
+        return flavorId;
     }
 
-    public void setTransportUrl(String transportUrl) {
-        this.transportUrl = transportUrl;
-    }
-
-    public Boolean getIsEmailSent() {
-        return isEmailSent;
-    }
-
-    public void setIsEmailSent(Boolean isEmailSent) {
-        this.isEmailSent = isEmailSent;
-    }
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
+    public void setFlavorId(String flavorId) {
+        this.flavorId = flavorId;
+    }    
 
     public Date getCreatedAt() {
         return createdAt;
@@ -119,4 +97,4 @@ public class MachineTemplate implements Serializable {
 
 }
 
-*/
+
