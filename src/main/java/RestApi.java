@@ -122,7 +122,6 @@ public class RestApi {
         
     }
 
-    /*
     @GET
     @Path("/machineTypes")
     @Produces({MediaType.APPLICATION_JSON})
@@ -130,13 +129,14 @@ public class RestApi {
             @QueryParam("sessionId") String sessionId) {
         
         try {
+            
+            
             return cloudClient.getTemplates().toResponse();
         } catch(CloudClientException e) {
             return e.toResponse();
         }
         
     }
-    */
 
     @GET
     @Path("/test")
