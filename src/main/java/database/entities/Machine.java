@@ -3,11 +3,12 @@
  * To change this template file, choose Tools | Images
  * and open the template in the editor.
  */
-package org.icatproject.topcatdaaasplugin.cloudclient;
+package org.icatproject.topcatdoiplugin.database.entities;
 
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
-import org.icatproject.topcatdaaasplugin.Websockify;
+
+import org.icatproject.topcatdaaasplugin.responseproducer.Entity;
 
 /**
  *

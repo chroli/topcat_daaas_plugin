@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.icatproject.topcatdaaasplugin.cloudclient;
+package org.icatproject.topcatdaaasplugin.responseproducer;
 
 import javax.ws.rs.core.Response;
 import javax.json.JsonObjectBuilder;
@@ -13,12 +13,6 @@ import javax.json.JsonObjectBuilder;
  * @author elz24996
  */
 public abstract class Entity implements ResponseProducer {
-    
-    protected CloudClient cloudClient;
-    
-    public Entity(CloudClient cloudClient){
-        this.cloudClient  = cloudClient;
-    }
    
     public abstract JsonObjectBuilder toJsonObjectBuilder();
     

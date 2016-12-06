@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.icatproject.topcatdaaasplugin;
+package org.icatproject.topcatdaaasplugin.restapi;
 
 import javax.ejb.Stateless;
 import javax.ejb.LocalBean;
@@ -23,15 +23,11 @@ import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.icatproject.topcatdaaasplugin.cloudclient.CloudClient;
-import org.icatproject.topcatdaaasplugin.cloudclient.CloudClientException;
+import org.icatproject.topcatdaaasplugin.CloudClient;
+import org.icatproject.topcatdaaasplugin.exceptions.DaaasException;
 
 /**
  *
@@ -39,7 +35,7 @@ import org.icatproject.topcatdaaasplugin.cloudclient.CloudClientException;
  */
 @Stateless
 @LocalBean
-@Path("")
+@Path("user")
 public class RestApi {
     
     private static final Logger logger = LoggerFactory.getLogger(RestApi.class);
@@ -47,16 +43,13 @@ public class RestApi {
     @EJB
     CloudClient cloudClient;
 
-    @PersistenceContext(unitName = "topcat")
-    EntityManager em;
-
     @GET
     @Path("/machines")
     @Produces({MediaType.APPLICATION_JSON})
     public Response getMachines() {
         try {
             return cloudClient.getMachines().toResponse();
-        } catch(CloudClientException e) {
+        } catch(DaaasException e) {
             return e.toResponse();
         }
         
@@ -75,7 +68,7 @@ public class RestApi {
     //         } else {
     //             return new CloudClient(sessionId).getUser().toResponse();
     //         }
-    //     } catch(CloudClientException e) {
+    //     } catch(DaaasException e) {
     //         return e.toResponse();
     //     }
     
@@ -89,7 +82,7 @@ public class RestApi {
         
         try {
             return cloudClient.createMachine(templateId, name).toResponse();
-        } catch(CloudClientException e) {
+        } catch(DaaasException e) {
             return e.toResponse();
         }
         
@@ -102,7 +95,7 @@ public class RestApi {
             @PathParam("machineId") String machineId) {
         try {
             return cloudClient.deleteMachine(machineId).toResponse();
-        } catch(CloudClientException e) {
+        } catch(DaaasException e) {
             return e.toResponse();
         }
     }
@@ -116,7 +109,7 @@ public class RestApi {
         
         try {
             return cloudClient.getTemplates().toResponse();
-        } catch(CloudClientException e) {
+        } catch(DaaasException e) {
             return e.toResponse();
         }
         
@@ -132,7 +125,7 @@ public class RestApi {
             
             
             return cloudClient.getTemplates().toResponse();
-        } catch(CloudClientException e) {
+        } catch(DaaasException e) {
             return e.toResponse();
         }
         

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.icatproject.topcatdaaasplugin.cloudclient;
+package org.icatproject.topcatdaaasplugin;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -137,7 +137,7 @@ public class CloudClient {
         }
     }
 
-    public EntityList<Machine> getMachines()  throws CloudClientException {
+    public EntityList<Machine> getMachines()  throws DaaasException {
         EntityList<Machine> out = new EntityList<Machine>();
         
         try {
@@ -153,6 +153,7 @@ public class CloudClient {
                     JsonArray addresses = server.getJsonObject("addresses").getJsonArray("public");
                     if(addresses != null){
                         machine.setHost(addresses.getJsonObject(0).getString("addr"));
+                        //Websockify.getInstance().getToken("elz24996", getHost()
                     } else {
                         machine.setHost("");
                     }
@@ -162,7 +163,7 @@ public class CloudClient {
             } else {
                 throw new BadRequestException(response.toString());
             }
-        } catch(CloudClientException e){
+        } catch(DaaasException e){
             throw e;
         } catch(Exception e){
             String message = e.getMessage();
@@ -175,13 +176,13 @@ public class CloudClient {
         return out;
     }
 
-    public Void deleteMachine(String machineId) throws CloudClientException {
+    public Void deleteMachine(String machineId) throws DaaasException {
         try {
             Response response = computeHttpClient.delete("servers/" + machineId, generateStandardHeaders());
             if(response.getCode() != 200){
                 throw new BadRequestException(response.toString());
             }
-        } catch(CloudClientException e){
+        } catch(DaaasException e){
             throw e;
         } catch(Exception e){
             String message = e.getMessage();
@@ -193,7 +194,7 @@ public class CloudClient {
         return new Void();
     }
 
-    public EntityList<Template> getTemplates()  throws CloudClientException {
+    public EntityList<Template> getTemplates()  throws DaaasException {
         EntityList<Template> out = new EntityList<Template>();
         
         try {
@@ -210,7 +211,7 @@ public class CloudClient {
             } else {
                 throw new BadRequestException(response.toString());
             }
-        } catch(CloudClientException e){
+        } catch(DaaasException e){
             throw e;
         } catch(Exception e){
             String message = e.getMessage();
@@ -223,7 +224,7 @@ public class CloudClient {
         return out;
     }
 
-     public Void createMachine(String templateId, String name) throws CloudClientException {
+     public Void createMachine(String templateId, String name) throws DaaasException {
         try {
 
             // {
@@ -251,7 +252,7 @@ public class CloudClient {
             if(response.getCode() > 400){
                 throw new BadRequestException(response.toString());
             }
-        } catch(CloudClientException e){
+        } catch(DaaasException e){
             throw e;
         } catch(Exception e){
             String message = e.getMessage();

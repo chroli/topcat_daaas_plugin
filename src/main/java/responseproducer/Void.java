@@ -3,16 +3,18 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.icatproject.topcatdaaasplugin.cloudclient;
+package org.icatproject.topcatdaaasplugin.responseproducer;
+
+import javax.ws.rs.core.Response;
 
 /**
  *
  * @author elz24996
  */
-public class BadRequestException extends CloudClientException {
+public class Void implements ResponseProducer {
     
-    public BadRequestException(String message){
-        super(message);
+    public Response toResponse(){
+        return Response.ok().build();
     }
     
 }

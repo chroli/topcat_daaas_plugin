@@ -3,13 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.icatproject.topcatdaaasplugin.cloudclient;
+package org.icatproject.topcatdaaasplugin.exceptions;
 
 /**
  *
  * @author elz24996
  */
-public class UnexpectedException extends CloudClientException {
+public class UnexpectedException extends DaaasException {
     
     public UnexpectedException(String message){
         super(message);

@@ -1,4 +1,4 @@
-package org.icatproject.topcatdoiplugin;
+package org.icatproject.topcatdoiplugin.database.entities;
 
 
 import java.io.Serializable;
@@ -7,7 +7,6 @@ import java.util.Date;
 import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
 import javax.persistence.Column;
-import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -21,11 +20,13 @@ import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.icatproject.topcatdaaasplugin.responseproducer.Entity;
 
-@Entity
+
+@javax.persistence.Entity
 @Table(name = "MACHINETYPE")
 @XmlRootElement
-public class MachineType implements Serializable {
+public class MachineType extends Entity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,11 +45,6 @@ public class MachineType implements Serializable {
     @Column(name = "CREATED_AT", nullable=false, updatable=false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
-
-
-    public MachineType() {
-
-    }
 
     public Long getId() {
         return id;
@@ -93,6 +89,16 @@ public class MachineType implements Serializable {
     @PrePersist
     private void createAt() {
         this.createdAt = new Date();
+    }
+
+    public JsonObjectBuilder toJsonObjectBuilder(){
+        JsonObjectBuilder out = Json.createObjectBuilder();
+        out.add("id", getId());
+        out.add("name", getName());
+        out.add("imageId", getImageId());
+        out.add("flavorId", getFlavorId());
+        out.add("createAt", getCreateAt());
+        return out;
     }
 
 }

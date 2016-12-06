@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Images
  * and open the template in the editor.
  */
-package org.icatproject.topcatdaaasplugin.cloudclient;
+package org.icatproject.topcatdaaasplugin.exceptions;
 
 import javax.ws.rs.core.Response;
 
@@ -13,12 +13,12 @@ import javax.json.Json;
  *
  * @author elz24996
  */
-public class CloudClientException extends Exception implements ResponseProducer {
+public class DaaasException extends Exception implements ResponseProducer {
     
     private String message;
     protected int status;
     
-    public CloudClientException(String message){
+    public DaaasException(String message){
         this.status = 400;
         this.message = message;
     }

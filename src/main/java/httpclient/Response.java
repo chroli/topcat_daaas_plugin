@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 public class Response {
 
-	private static final Logger logger = LoggerFactory.getLogger(HttpClient.class);
+	private static final Logger logger = LoggerFactory.getLogger(Response.class);
 
 	private Integer code;
 	private Map<String, String> headers;
