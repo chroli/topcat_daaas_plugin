@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.icatproject.topcatdaaasplugin;
+package org.icatproject.topcatdaaasplugin.cloudclient;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -40,6 +40,9 @@ import javax.ejb.Schedule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.icatproject.topcatdaaasplugin.database.entities.Machine;
+import org.icatproject.topcatdaaasplugin.exceptions.*;
+import org.icatproject.topcatdaaasplugin.EntityList;
 
 /**
  *
@@ -146,7 +149,7 @@ public class CloudClient {
                 JsonObject results = parseJson(response.toString());
                 for(JsonValue serverValue : results.getJsonArray("servers")){
                     JsonObject server = (JsonObject) serverValue;
-                    Machine machine = new Machine(this);
+                    Machine machine = new Machine();
                     machine.setId(server.getString("id"));
                     machine.setName(server.getString("name"));
                     machine.setState(server.getString("status"));
@@ -175,8 +178,8 @@ public class CloudClient {
 
         return out;
     }
-
-    public Void deleteMachine(String machineId) throws DaaasException {
+    /*
+    public void deleteMachine(String machineId) throws DaaasException {
         try {
             Response response = computeHttpClient.delete("servers/" + machineId, generateStandardHeaders());
             if(response.getCode() != 200){
@@ -191,7 +194,6 @@ public class CloudClient {
             }
             throw new UnexpectedException(message);
         }
-        return new Void();
     }
 
     public EntityList<Template> getTemplates()  throws DaaasException {
@@ -263,6 +265,7 @@ public class CloudClient {
         }
         return new Void();
     }
+    */
 
     private Map<String, String> generateStandardHeaders(){
         Map<String, String> out = new HashMap<String, String>();

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.icatproject.topcatdaaasplugin.restapi;
+package org.icatproject.topcatdaaasplugin.rest;
 
 import javax.ejb.Stateless;
 import javax.ejb.LocalBean;
@@ -23,7 +23,7 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.icatproject.topcatdaaasplugin.CloudClient;
+import org.icatproject.topcatdaaasplugin.cloudclient.CloudClient;
 import org.icatproject.topcatdaaasplugin.exceptions.DaaasException;
 
 /**
@@ -33,9 +33,9 @@ import org.icatproject.topcatdaaasplugin.exceptions.DaaasException;
 @Stateless
 @LocalBean
 @Path("admin")
-public class RestApi {
+public class AdminResource {
     
-    private static final Logger logger = LoggerFactory.getLogger(RestApi.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserResource.class);
 
     @EJB
     CloudClient cloudClient;
@@ -68,7 +68,7 @@ public class RestApi {
     //         return e.toResponse();
     //     }
     
-    
+    /*
     @POST
     @Path("/machines")
     @Produces({MediaType.APPLICATION_JSON})
@@ -90,7 +90,8 @@ public class RestApi {
     public Response deleteMachine(
             @PathParam("machineId") String machineId) {
         try {
-            return cloudClient.deleteMachine(machineId).toResponse();
+            cloudClient.deleteMachine(machineId);
+            return Response.ok().build();
         } catch(DaaasException e) {
             return e.toResponse();
         }
@@ -141,4 +142,5 @@ public class RestApi {
     // private String getUsername(String sessionId){
         
     // }
+    */
 }

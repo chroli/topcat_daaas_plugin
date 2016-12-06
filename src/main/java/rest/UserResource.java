@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.icatproject.topcatdaaasplugin.restapi;
+package org.icatproject.topcatdaaasplugin.rest;
 
 import javax.ejb.Stateless;
 import javax.ejb.LocalBean;
@@ -26,7 +26,8 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.icatproject.topcatdaaasplugin.CloudClient;
+import org.icatproject.topcatdaaasplugin.cloudclient.CloudClient;
+import org.icatproject.topcatdaaasplugin.database.Database;
 import org.icatproject.topcatdaaasplugin.exceptions.DaaasException;
 
 /**
@@ -36,19 +37,22 @@ import org.icatproject.topcatdaaasplugin.exceptions.DaaasException;
 @Stateless
 @LocalBean
 @Path("user")
-public class RestApi {
+public class UserResource {
     
-    private static final Logger logger = LoggerFactory.getLogger(RestApi.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserResource.class);
 
     @EJB
     CloudClient cloudClient;
+
+    @EJB
+    Database database;
 
     @GET
     @Path("/machines")
     @Produces({MediaType.APPLICATION_JSON})
     public Response getMachines() {
         try {
-            return cloudClient.getMachines().toResponse();
+            return database.query("select machineType from MachineType machineType").toResponse();
         } catch(DaaasException e) {
             return e.toResponse();
         }
@@ -72,7 +76,7 @@ public class RestApi {
     //         return e.toResponse();
     //     }
     
-    
+    /*
     @POST
     @Path("/machines")
     @Produces({MediaType.APPLICATION_JSON})
@@ -145,4 +149,6 @@ public class RestApi {
     // private String getUsername(String sessionId){
         
     // }
+
+    */
 }

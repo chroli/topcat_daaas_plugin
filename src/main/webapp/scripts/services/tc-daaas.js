@@ -102,9 +102,9 @@
 
       var matches;
       if(matches = pluginUrl.match(/http:\/\/localhost:10080(.*)/)){
-        helpers.generateRestMethods(this, "https://localhost:8181" + matches[1] + "api/");
+        helpers.generateRestMethods(this, "https://localhost:8181" + matches[1] + "api/user/");
       } else {
-        helpers.generateRestMethods(this, pluginUrl + "api/");
+        helpers.generateRestMethods(this, pluginUrl + "api/user/");
       }
     }
   });

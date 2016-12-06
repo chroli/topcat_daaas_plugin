@@ -3,13 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.icatproject.topcatdaaasplugin.responseproducer;
+package org.icatproject.topcatdaaasplugin;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import javax.ws.rs.core.Response;
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
+
+import org.icatproject.topcatdaaasplugin.rest.ResponseProducer;
 
 /**
  *

@@ -9,6 +9,8 @@ import javax.ws.rs.core.Response;
 
 import javax.json.Json;
 
+import org.icatproject.topcatdaaasplugin.rest.ResponseProducer;
+
 /**
  *
  * @author elz24996

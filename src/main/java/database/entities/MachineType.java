@@ -1,8 +1,10 @@
-package org.icatproject.topcatdoiplugin.database.entities;
+package org.icatproject.topcatdaaasplugin.database.entities;
 
 
 import java.io.Serializable;
 import java.util.Date;
+
+import javax.json.Json;
 
 import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
@@ -19,8 +21,10 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.json.JsonObjectBuilder;
 
-import org.icatproject.topcatdaaasplugin.responseproducer.Entity;
+
+import org.icatproject.topcatdaaasplugin.Entity;
 
 
 @javax.persistence.Entity
@@ -97,7 +101,7 @@ public class MachineType extends Entity implements Serializable {
         out.add("name", getName());
         out.add("imageId", getImageId());
         out.add("flavorId", getFlavorId());
-        out.add("createAt", getCreateAt());
+        out.add("createAt", getCreatedAt().toString());
         return out;
     }
 

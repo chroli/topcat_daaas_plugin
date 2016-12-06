@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Images
  * and open the template in the editor.
  */
-package org.icatproject.topcatdaaasplugin.responseproducer;
+package org.icatproject.topcatdaaasplugin.rest;
 
 import javax.ws.rs.core.Response;
 

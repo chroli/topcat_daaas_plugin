@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Images
  * and open the template in the editor.
  */
-package org.icatproject.topcatdoiplugin.database.entities;
+package org.icatproject.topcatdaaasplugin.database.entities;
 
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
 
-import org.icatproject.topcatdaaasplugin.responseproducer.Entity;
+import org.icatproject.topcatdaaasplugin.Entity;
 
 /**
  *
@@ -18,13 +18,11 @@ import org.icatproject.topcatdaaasplugin.responseproducer.Entity;
 public class Machine extends Entity {
     
     private String id;
+    private String owner;
     private String name;
     private String state;
     private String host;
-    
-    public Machine(CloudClient cloudClient){
-        super(cloudClient);
-    }
+    private String websockifyToken;
     
     public String getId() {
         return id;
@@ -32,6 +30,14 @@ public class Machine extends Entity {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 
     public String getName() {
@@ -59,17 +65,19 @@ public class Machine extends Entity {
     }
     
     public String getWebsockifyToken(){
-        try {
-            return Websockify.getInstance().getToken("elz24996", getHost());
-        } catch(Exception e) {
-            return e.toString();
-        }
+        //return Websockify.getInstance().getToken("elz24996", getHost());
+        return websockifyToken;
+    }
+
+    public void setWebsockifyToken(String websockifyToken) {
+        this.host = websockifyToken;
     }
     
     
     public JsonObjectBuilder toJsonObjectBuilder(){
         JsonObjectBuilder out = Json.createObjectBuilder();
         out.add("id", getId());
+        out.add("owner", getOwner());
         out.add("name", getName());
         out.add("state", getState());
         out.add("host", getHost());
