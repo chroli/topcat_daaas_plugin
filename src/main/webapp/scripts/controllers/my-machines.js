@@ -47,6 +47,22 @@
             $uibModal.open({
                 templateUrl: tc.daaas().pluginUrl() + 'views/create-machine.html',
                 controller: 'CreateMachineController as createMachineController',
+                size : 'lg',
+                scope: $scope
+            }).opened.catch(function (error) {
+                inform.add(error, {
+                    'ttl': 0,
+                    'type': 'danger'
+                });
+            });
+        };
+
+
+        this.share = function(machine){
+            that.machine = machine;
+            $uibModal.open({
+                templateUrl: tc.daaas().pluginUrl() + 'views/share-machine.html',
+                controller: 'CreateMachineController as createMachineController',
                 size : 'md',
                 scope: $scope
             }).opened.catch(function (error) {

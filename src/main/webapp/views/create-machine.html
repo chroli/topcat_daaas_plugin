@@ -1,3 +1,70 @@
+<style>
+    .machine-types {
+        border-width: 1px;
+        border-color: #ddd;
+        border-style: solid;
+        overflow-y: scroll;
+        padding: 14px;
+    }
+
+
+    .machine-types .machine {
+        border-width: 1px;
+        border-color: #ddd;
+        border-style: solid;
+        background: #efefef;
+        padding: 14px;
+        position: relative;
+        margin-bottom: 28px;
+        height: 150px;
+    }
+
+    .machine-types .machine.selected {
+        outline: none;
+        border-color: #9ecaed;
+        box-shadow: 0 0 10px #9ecaed;
+    }
+
+    .machine-types .machine .radio {
+        display: inline-block;
+        width: 5%;
+    }
+
+    .machine-types .machine .radio input {
+        margin-left: 0px;
+    }
+
+    .machine-types .machine .screenshot {
+        display: inline-block;
+        width: 14%;
+    }
+
+    .machine-types .machine .screenshot img {
+        width: 100%;
+        margin: 0px;
+        border-width: 1px;
+        border-color: #ddd;
+        border-style: solid;
+    }
+
+
+    .machine-types .machine .main {
+        display: inline-block;
+        width: 80%;
+        margin: 0px;
+        position: absolute;
+        padding: 0px 14px 0px 14px;
+        height: 100%;
+    }
+
+    .machine-types .machine .info .title {
+        font-size: 28px;
+        margin-bottom: 14px;
+    }
+
+
+</style>
+
 <div class="modal-content">
     <div class="modal-header">
         <h3 class="modal-title">Create Machine</h3>
@@ -6,12 +73,43 @@
         <form novalidate name="createMachineController.form">
             <div class="form-group">
                 <label class="control-label" for="server">Type</label>
-                <select name="templateId" class="form-control" ng-model="createMachineController.templateId" ng-options="template.id as template.name for template in createMachineController.templates" required>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="control-label">Name</label>
-                <input name="name" class="form-control" type="text" ng-model="createMachineController.name" required>
+                <div class="machine-types" take-up-remaining-height>
+
+                    <div class="machine selected">
+                        <div class="radio">
+                            <input type="radio" checked>
+                        </div>
+                        <div class="screenshot">
+                            <img src="http://localhost:10080/topcat_daaas_plugin/images/mantid.png">
+                        </div>
+                        <div class="main">
+                            <div class="info">
+                                <div class="title">Excitations Suit</div>
+                                <div class="description">
+                                    Mantid has been created to manipulate and analyse Neutron and Muon scattering data, but could be applied to many other techniques. Also includes Horace - a suite of programs for the visualisation and analysis of large datasets from time-of-flight neutron inelastic scattering spectrometers 
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="machine">
+                        <div class="radio">
+                            <input type="radio">
+                        </div>
+                        <div class="screenshot">
+                            <img src="http://localhost:10080/topcat_daaas_plugin/images/ccp4.gif">
+                        </div>
+                        <div class="main">
+                            <div class="info">
+                                <div class="title">MX Suit</div>
+                                <div class="description">
+                                    Allows researchers to determine macromolecular structures by X-ray crystallography, and other biophysical techniques.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </form>
     </div>

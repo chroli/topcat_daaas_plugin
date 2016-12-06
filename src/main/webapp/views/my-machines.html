@@ -1,3 +1,65 @@
+<style>
+
+	.machine {
+		border-width: 1px;
+		border-color: #ddd;
+		border-style: solid;
+		background: #efefef;
+		padding: 14px;
+		position: relative;
+		margin-bottom: 28px;
+	}
+
+	.machine .screenshot {
+		display: inline-block;
+		width: 33%;
+	}
+
+	.machine .screenshot img {
+		width: 100%;
+		margin: 0px;
+		border-width: 1px;
+		border-color: #ddd;
+		border-style: solid;
+	}
+
+
+	.machine .main {
+		display: inline-block;
+		width: 66%;
+		margin: 0px;
+		position: absolute;
+		padding-left: 14px;
+		height: 100%;
+	}
+
+	.machine .main .remove {
+		float: right;
+		position: relative;
+		top: -7px;
+	}
+
+	.machine .info .title {
+		font-size: 28px;
+		margin-bottom: 14px;
+	}
+
+
+	.machine .main .actions {
+		position: absolute;
+		bottom: 28px;
+		text-align: right;
+		width: 100%;
+		padding-right: 14px;
+	}
+
+
+	.machine .main .field > * {
+		display: inline-block;
+	}
+
+</style>
+
 <br>
 
 <div class="container-fluid">
@@ -10,27 +72,61 @@
 			<h1>My Machines</h1>
 
 			<br>
-			<table ng-if="myMachinesController.machines.length > 0"  class="table">
-				<thead>
-					<tr>
-						<th>Name</th>
-						<th>State</th>
-						<th>Host</th>
-						<th>&nbsp;</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr ng-repeat="machine in myMachinesController.machines">
-						<td>{{machine.name}}</td>
-						<td>{{machine.state}}</td>
-						<td>{{machine.host}}</td>
-						<td>
-							<button class="btn btn-xs btn-primary" ng-click="myMachinesController.view(machine)">View</button>
-							<button class="btn btn-xs btn-primary" ng-click="myMachinesController.delete(machine)">Delete</button>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+			
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-sm-8 col-sm-push-2">
+			<div class="machine">
+				<div class="screenshot">
+					<img src="http://localhost:10080/topcat_daaas_plugin/images/mantid_running.png">
+				</div>
+				<div class="main">
+					<div class="info">
+						<button class="btn btn-xs btn-default remove"><span class="glyphicon glyphicon-remove"></span></button>
+						<div class="title">Mantid - ISIS Node <button class="btn btn-xs btn-default"><span class="glyphicon glyphicon-pencil"></span></button></div>
+						<div class="field">
+							<label>Date created:</label>
+							<div>10/12/2016</div>
+						</div>
+					</div>
+					<div class="actions">
+						<button class="btn btn-sm btn-default" ng-click="myMachinesController.share()">Share</button>
+					 	<span class="dropdown">
+						  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"> Launch <span class="caret"></span>
+						  </button>
+						  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+						    <li><a href="#">Browser</a></li>
+						    <li><a href="#">RDP</a></li>
+						    <li><a href="#">SSVNC</a></li>
+						  </ul>
+						</span>
+					</div>
+
+
+				</div>
+			</div>
+
+			<div class="machine">
+				<div class="screenshot">
+					<img src="http://localhost:10080/topcat_daaas_plugin/images/coot_running.png">
+				</div>
+				<div class="main">
+					<div class="info">
+						<button class="btn btn-xs btn-default remove"><span class="glyphicon glyphicon-remove"></span> </button>
+						<div class="title">Coot - CCP4 <button class="btn btn-xs btn-default"><span class="glyphicon glyphicon-pencil"></span></button></div>
+						<div class="field">
+							<label>Date created:</label>
+							<div>10/12/2016</div>
+						</div>
+					</div>
+					<div class="actions">
+						<button class="btn btn-default">Share</button>
+						<button class="btn btn-default">Launch  <span class="caret"></button>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
