@@ -40,7 +40,7 @@ import javax.ejb.Schedule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.icatproject.topcatdaaasplugin.database.entities.Machine;
+import org.icatproject.topcatdaaasplugin.cloudclient.entities.*;
 import org.icatproject.topcatdaaasplugin.exceptions.*;
 import org.icatproject.topcatdaaasplugin.EntityList;
 
@@ -140,28 +140,23 @@ public class CloudClient {
         }
     }
 
-    public EntityList<Machine> getMachines()  throws DaaasException {
-        EntityList<Machine> out = new EntityList<Machine>();
+    public EntityList<Flavor> getFlavors()  throws DaaasException {
+        EntityList<Flavor> out = new EntityList<Flavor>();
         
         try {
-            Response response = computeHttpClient.get("servers/detail", generateStandardHeaders());
+            Response response = computeHttpClient.get("flavors/detail ", generateStandardHeaders());
             if(response.getCode() == 200){
                 JsonObject results = parseJson(response.toString());
-                for(JsonValue serverValue : results.getJsonArray("servers")){
-                    JsonObject server = (JsonObject) serverValue;
-                    Machine machine = new Machine();
-                    machine.setId(server.getString("id"));
-                    machine.setName(server.getString("name"));
-                    machine.setState(server.getString("status"));
-                    JsonArray addresses = server.getJsonObject("addresses").getJsonArray("public");
-                    if(addresses != null){
-                        machine.setHost(addresses.getJsonObject(0).getString("addr"));
-                        //Websockify.getInstance().getToken("elz24996", getHost()
-                    } else {
-                        machine.setHost("");
-                    }
+                for(JsonValue flavorValue : results.getJsonArray("flavors")){
+                    JsonObject cloudFlavor = (JsonObject) flavorValue;
+                    Flavor flavor = new Flavor();
+                    flavor.setId(cloudFlavor.getString("id"));
+                    flavor.setName(cloudFlavor.getString("name"));
+                    flavor.setCpus(cloudFlavor.getInt("vcpus"));
+                    flavor.setRam(cloudFlavor.getInt("ram"));
+                    flavor.setDisk(cloudFlavor.getInt("disk"));
 
-                    out.add(machine);
+                    out.add(flavor);
                 }
             } else {
                 throw new BadRequestException(response.toString());
@@ -178,6 +173,80 @@ public class CloudClient {
 
         return out;
     }
+
+    public EntityList<Image> getImages()  throws DaaasException {
+        EntityList<Image> out = new EntityList<Image>();
+        
+        try {
+            Response response = imageHttpClient.get("images", generateStandardHeaders());
+            if(response.getCode() == 200){
+                JsonObject results = parseJson(response.toString());
+                for(JsonValue imageValue : results.getJsonArray("images")){
+                    JsonObject cloudImage = (JsonObject) imageValue;
+                    Image image = new Image();
+                    image.setId(cloudImage.getString("id"));
+                    image.setName(cloudImage.getString("name"));
+                    image.setSize(cloudImage.getInt("size"));
+
+                    out.add(image);
+                }
+            } else {
+                throw new BadRequestException(response.toString());
+            }
+        } catch(DaaasException e){
+            throw e;
+        } catch(Exception e){
+            String message = e.getMessage();
+            if(message == null){
+                message = e.toString();
+            }
+            throw new UnexpectedException(message);
+        }
+
+        return out;
+    }
+
+    // public EntityList<Machine> getMachines()  throws DaaasException {
+    //     EntityList<Machine> out = new EntityList<Machine>();
+        
+    //     try {
+    //         Response response = computeHttpClient.get("servers/detail", generateStandardHeaders());
+    //         if(response.getCode() == 200){
+    //             JsonObject results = parseJson(response.toString());
+    //             for(JsonValue serverValue : results.getJsonArray("servers")){
+    //                 JsonObject server = (JsonObject) serverValue;
+    //                 Machine machine = new Machine();
+    //                 machine.setId(server.getString("id"));
+    //                 machine.setName(server.getString("name"));
+    //                 machine.setState(server.getString("status"));
+    //                 JsonArray addresses = server.getJsonObject("addresses").getJsonArray("public");
+    //                 if(addresses != null){
+    //                     machine.setHost(addresses.getJsonObject(0).getString("addr"));
+    //                     //Websockify.getInstance().getToken("elz24996", getHost()
+    //                 } else {
+    //                     machine.setHost("");
+    //                 }
+
+    //                 out.add(machine);
+    //             }
+    //         } else {
+    //             throw new BadRequestException(response.toString());
+    //         }
+    //     } catch(DaaasException e){
+    //         throw e;
+    //     } catch(Exception e){
+    //         String message = e.getMessage();
+    //         if(message == null){
+    //             message = e.toString();
+    //         }
+    //         throw new UnexpectedException(message);
+    //     }
+
+    //     return out;
+    // }
+
+
+
     /*
     public void deleteMachine(String machineId) throws DaaasException {
         try {

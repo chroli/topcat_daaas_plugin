@@ -4,40 +4,17 @@
  
   var app = angular.module('topcat');
 
-  app.service('tcDaaas', function($sessionStorage, $rootScope, $timeout, helpers){
+  app.service('tcAdminDaaas', function($sessionStorage, $rootScope, $timeout, helpers){
   	
-    this.create = function(pluginUrl){
-      return new Daaas(pluginUrl);
+    this.create = function(pluginUrl, admin){
+      return new AdminDaaas(pluginUrl, admin);
     };
 
-    function Daaas(pluginUrl){
+    function AdminDaaas(pluginUrl, admin){
 
       this.pluginUrl = function(){
         return pluginUrl;
       };
-
-    	this.username = function(){
-    		return $sessionStorage.username;
-    	};
-
-    	this.sessionId = function(){
-    		return $sessionStorage.sessionId;
-    	};
-
-    	this.login = function(username, password){
-    		return this.get('login', {username: username, password: password}).then(function(response){
-    			$sessionStorage.username = username;
-    			$sessionStorage.sessionId = response.sessionId;
-    			$rootScope.$broadcast('session:change');
-    		});
-    	};
-
-    	this.logout = function(){
-    		delete $sessionStorage.username;
-    		delete $sessionStorage.sessionId;
-      	$sessionStorage.$apply();
-      	$rootScope.$broadcast('session:change');
-    	};
 
     	this.machines = helpers.overload({
     		'object': function(options){

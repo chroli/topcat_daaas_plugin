@@ -64,4 +64,12 @@ public class Database {
     	return query(jpqlQuery, new HashMap<String, String>());
     }
 
+    public void persist(Object entity){
+    	em.persist(entity);
+    }
+
+    public void remove(Object entity){
+    	em.remove(entity);
+    }
+
 }

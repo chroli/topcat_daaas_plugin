@@ -1,0 +1,29 @@
+
+
+<div ng-show="adminMachineTypesController.facilities.length > 1">
+    <br>
+    <ul class="nav nav-tabs nav-tabs-head">
+        <li ng-repeat="facility in adminMachineTypesController.facilities" ng-class="{active: facility.config().name == $state.params.facilityName}">
+            <a ui-sref="admin.machine-templates({facilityName: facility.config().name})">{{facility.config().title}}</a>
+        </li>
+    </ul>
+    <br>
+</div>
+
+<br>
+
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-sm-12">
+			<div style="float: right">
+				<button class="btn btn-sm btn-primary" ng-click="adminMachineTypesController.create()">Create</button>
+			</div>
+
+			<h1>Machine Types</h1>
+
+		
+		</div>
+	</div>
+</div>
+
+

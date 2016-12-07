@@ -9,12 +9,13 @@ registerTopcatPlugin(function(pluginUrl){
 			pluginUrl + 'scripts/controllers/create-machine.js',
 			pluginUrl + 'scripts/controllers/machine.js',
 			pluginUrl + 'scripts/controllers/my-machines.js',
-			pluginUrl + 'scripts/controllers/admin-machine-templates.js',
+			pluginUrl + 'scripts/controllers/admin-machine-types.js',
+			pluginUrl + 'scripts/controllers/admin-create-machine-type.js',
 
 			pluginUrl + 'scripts/directives/fullscreen.js',
 			pluginUrl + 'scripts/directives/vnc.js',
 
-			pluginUrl + 'scripts/services/tc-daaas.js'
+			pluginUrl + 'scripts/services/tc-admin-daaas.js'
 		],
 
 		stylesheets: [],
@@ -24,29 +25,29 @@ registerTopcatPlugin(function(pluginUrl){
 		},
 
 		extend: {
-			facility: function(){
+			admin: function(tcAdminDaaas){
+				var daaas;
 
+				this.daaas = function(){
+					if(!daaas) daaas = tcAdminDaaas.create(pluginUrl, this);
+					return daaas;
+				};
 			}
+			
 		},
 
-		setup: function(tc, tcDaaas){
+		setup: function(tc){
 
 			tc.ui().registerMainTab('my-machines', pluginUrl + 'views/my-machines.html', {
 				insertAfter: 'my-data',
 				controller: 'MyMachinesController as myMachinesController'
 			});
 
-			tc.ui().registerAdminTab('machine-templates', pluginUrl + 'views/admin-machine-templates.html', {
+			tc.ui().registerAdminTab('machine-types', pluginUrl + 'views/admin-machine-types.html', {
 				insertAfter: 'downloads',
-				controller: 'AdminMachineTemplatesController as adminMachineTemplatesController',
+				controller: 'AdminMachineTypesController as adminMachineTypesController',
 				multiFacility: true
 			});
-
-			var daaas;
-			tc.daaas = function(){
-				if(!daaas) daaas = tcDaaas.create(pluginUrl);
-				return daaas;
-			};
 
 		},
 

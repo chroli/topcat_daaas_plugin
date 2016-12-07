@@ -41,11 +41,22 @@ public class AdminResource {
     CloudClient cloudClient;
 
     @GET
-    @Path("/machines")
+    @Path("/flavors")
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getMachines() {
+    public Response getFlavors() {
         try {
-            return cloudClient.getMachines().toResponse();
+            return cloudClient.getFlavors().toResponse();
+        } catch(DaaasException e) {
+            return e.toResponse();
+        }
+    }
+
+    @GET
+    @Path("/images")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response getImages() {
+        try {
+            return cloudClient.getImages().toResponse();
         } catch(DaaasException e) {
             return e.toResponse();
         }

@@ -52,7 +52,7 @@ public class UserResource {
     @Produces({MediaType.APPLICATION_JSON})
     public Response getMachines() {
         try {
-            return database.query("select machineType from MachineType machineType").toResponse();
+            return database.query("select machine from Machine machine").toResponse();
         } catch(DaaasException e) {
             return e.toResponse();
         }

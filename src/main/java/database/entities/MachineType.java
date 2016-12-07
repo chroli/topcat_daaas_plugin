@@ -40,11 +40,17 @@ public class MachineType extends Entity implements Serializable {
     @Column(name = "NAME", nullable = false)
     private String name;
 
+    @Column(name = "PERSONALITY", nullable = false)
+    private String personality;
+
     @Column(name = "IMAGE_ID", nullable = false)
     private String imageId;
 
     @Column(name = "FLAVOR_ID", nullable = false)
     private String flavorId;
+
+    @Column(name = "POOL_SIZE", nullable = false)
+    private Long poolSize;
 
     @Column(name = "CREATED_AT", nullable=false, updatable=false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -66,6 +72,14 @@ public class MachineType extends Entity implements Serializable {
         this.name = name;
     }
 
+    public String getPersonality() {
+        return personality;
+    }
+
+    public void setPersonality(String personality) {
+       this.personality = personality;
+    }
+
     public String getImageId() {
         return imageId;
     }
@@ -80,7 +94,15 @@ public class MachineType extends Entity implements Serializable {
 
     public void setFlavorId(String flavorId) {
         this.flavorId = flavorId;
-    }    
+    }
+
+    public Long getPoolSize() {
+        return poolSize;
+    }
+
+    public void setPoolSize(Long poolSize) {
+        this.poolSize = poolSize;
+    } 
 
     public Date getCreatedAt() {
         return createdAt;
@@ -101,6 +123,7 @@ public class MachineType extends Entity implements Serializable {
         out.add("name", getName());
         out.add("imageId", getImageId());
         out.add("flavorId", getFlavorId());
+        out.add("pooSize", getPoolSize());
         out.add("createAt", getCreatedAt().toString());
         return out;
     }

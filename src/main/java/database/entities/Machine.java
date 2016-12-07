@@ -10,18 +10,49 @@ import javax.json.JsonObjectBuilder;
 
 import org.icatproject.topcatdaaasplugin.Entity;
 
+import javax.persistence.CascadeType;
+import javax.persistence.FetchType;
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  *
  * @author elz24996
  */
 
+@javax.persistence.Entity
+@Table(name = "MACHINE")
+@XmlRootElement
 public class Machine extends Entity {
     
+    @Id
+    @Column(name = "ID", nullable = false)
     private String id;
+
+    @Column(name = "OWNER", nullable = true)
     private String owner;
+
+    @Column(name = "NAME", nullable = false)
     private String name;
+
+    @Column(name = "STATE", nullable = false)
     private String state;
+
+    @Column(name = "HOST", nullable = false)
     private String host;
+
+    @Column(name = "WEBSOCKIFY_TOKEN", nullable = false)
     private String websockifyToken;
     
     public String getId() {
@@ -72,7 +103,6 @@ public class Machine extends Entity {
     public void setWebsockifyToken(String websockifyToken) {
         this.host = websockifyToken;
     }
-    
     
     public JsonObjectBuilder toJsonObjectBuilder(){
         JsonObjectBuilder out = Json.createObjectBuilder();
