@@ -61,6 +61,14 @@ public class MachineTypeScope extends Entity implements Serializable {
         this.query = query;
     }
 
+    public MachineType getMachineType() {
+        return machineType;
+    }
+
+    public void setMachineType(MachineType machineType) {
+        this.machineType = machineType;
+    }
+
 
     public JsonObjectBuilder toJsonObjectBuilder(){
         JsonObjectBuilder out = Json.createObjectBuilder();

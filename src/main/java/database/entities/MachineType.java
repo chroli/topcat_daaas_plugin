@@ -138,7 +138,7 @@ public class MachineType extends Entity implements Serializable {
         out.add("name", getName());
         out.add("imageId", getImageId());
         out.add("flavorId", getFlavorId());
-        out.add("pooSize", getPoolSize());
+        out.add("poolSize", getPoolSize());
         out.add("createAt", getCreatedAt().toString());
         return out;
     }

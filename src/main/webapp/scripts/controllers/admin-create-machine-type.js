@@ -15,6 +15,7 @@
     	this.images = [];
     	this.flavors = [];
     	this.poolSize = 10;
+        this.personality = ""
     	this.scopes = [];
     	this.newScope = "";
 
@@ -46,7 +47,9 @@
         };
 
         this.create = function(){
-        	
+        	daaas.createMachineType(that.name, that.imageId, that.flavorId, that.poolSize, that.personality, that.scopes).then(function(){
+                $uibModalInstance.dismiss('cancel');
+            });
         };
 
 		this.close = function() {

@@ -101,8 +101,9 @@ public class AdminResource {
             machineType.setPersonality(jsonObject.getString("personality"));
 
             List<MachineTypeScope> machineTypeScopes = new ArrayList<MachineTypeScope>();
-            for(JsonValue machineTypeScopeValue : jsonObject.getJsonArray("datasetIds")){
+            for(JsonValue machineTypeScopeValue : jsonObject.getJsonArray("scopes")){
                 MachineTypeScope machineTypeScope = new MachineTypeScope();
+                machineTypeScope.setMachineType(machineType);
                 machineTypeScope.setQuery(((JsonObject) machineTypeScopeValue).getString("query"));
                 machineTypeScopes.add(machineTypeScope);
             }

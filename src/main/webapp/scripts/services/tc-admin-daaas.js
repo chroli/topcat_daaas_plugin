@@ -21,10 +21,7 @@
 
       this.images = helpers.overload({
         'object': function(options){
-          var params = {
-            sessionId: icat.session().sessionId
-          };
-          return this.get('images', params, options);
+          return this.get('images', {sessionId: icat.session().sessionId}, options);
         },
         'promise': function(timeout){
           return this.images({timeout: timeout});
@@ -36,10 +33,7 @@
 
     	this.flavors = helpers.overload({
     		'object': function(options){
-    			var params = {
-    				sessionId: icat.session().sessionId
-    			};
-    			return this.get('flavors', params, options);
+    			return this.get('flavors', {sessionId: icat.session().sessionId}, options);
     		},
     		'promise': function(timeout){
     			return this.flavors({timeout: timeout});
@@ -48,6 +42,28 @@
     			return this.flavors({});
     		}
     	});
+
+      this.createMachineType = helpers.overload({
+        'string, string, string, number, string, array, object': function(name, imageId, flavorId, poolSize, personality, scopes, options){
+          return this.post('machineType', {
+            json: JSON.stringify({
+              sessionId: icat.session().sessionId,
+              name: name,
+              imageId: imageId,
+              flavorId: flavorId,
+              poolSize: poolSize,
+              personality: personality,
+              scopes: scopes
+            })
+          }, options);
+        },
+        'promise, string, string, string, number, string, array': function(timeout, name, imageId, flavorId, poolSize, personality, scopes){
+          return this.createMachineType(name, imageId, flavorId, poolSize, personality, scopes, {timeout: timeout});
+        },
+        'string, string, string, number, string, array': function(name, imageId, flavorId, poolSize, personality, scopes){
+          return this.createMachineType(name, imageId, flavorId, poolSize, personality, scopes, {});
+        }
+      });
 
       var matches;
       if(matches = pluginUrl.match(/http:\/\/localhost:10080(.*)/)){

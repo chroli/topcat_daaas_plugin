@@ -66,6 +66,7 @@ public class Database {
 
     public void persist(Object entity){
     	em.persist(entity);
+    	em.flush();
     }
 
     public void remove(Object entity){
