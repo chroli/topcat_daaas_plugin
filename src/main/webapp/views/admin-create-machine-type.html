@@ -5,12 +5,41 @@
     <div class="modal-body">
         <form novalidate name="adminCreateMachineTypeController.form">
             <div class="form-group">
-                <label class="control-label">Name</label>
+                <label class="control-label">*Name</label>
                 <input class="form-control" type="text" ng-model="adminCreateMachineTypeController.name" required>
             </div>
             <div class="form-group">
+                <label class="control-label" for="server">*Image</label>
+                <select class="form-control" ng-model="adminCreateMachineTypeController.imageId" ng-options="image.id as image.name for image in adminCreateMachineTypeController.images" required>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="control-label" for="server">*Flavor</label>
+                <select class="form-control" ng-model="adminCreateMachineTypeController.flavorId" ng-options="flavor.id as flavor.name for flavor in adminCreateMachineTypeController.flavors" required>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="control-label">*Pool Size</label>
+                <input class="form-control" type="number" ng-model="adminCreateMachineTypeController.poolSize" required>
+            </div>
+            <div class="form-group">
                 <label class="control-label">Personality</label>
-                <input class="form-control" type="text" ng-model="adminCreateMachineTypeController.personality" required>
+                <input class="form-control" type="text" ng-model="adminCreateMachineTypeController.personality">
+            </div>
+            <div class="form-group">
+                <label class="control-label">Scope</label>
+                <div class="input-group" style="margin-top: 7px;" ng-repeat="scope in adminCreateMachineTypeController.scopes">
+                    <textarea class="form-control" ng-model="scope.query"></textarea>
+                    <label class="input-group-addon">
+                        <a class="btn btn-primary btn-xs" style="font-size: 8px;" ng-click="adminCreateMachineTypeController.deleteScope(scope)"><i class="glyphicon glyphicon-remove"></i></a>
+                    </label>
+                </div>
+                <div class="input-group" style="margin-top: 7px;">
+                    <textarea class="form-control"  && adminCreateMachineTypeController.addScope();" ng-model="adminCreateMachineTypeController.newScope"></textarea>
+                    <label class="input-group-addon">
+                    <a class="btn btn-primary btn-xs" style="font-size: 8px;" ng-click="adminCreateMachineTypeController.addScope()"><i class="glyphicon glyphicon-plus"></i></a>
+                    </label>
+                </div>
             </div>
         </form>
     </div>

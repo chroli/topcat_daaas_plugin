@@ -1,6 +1,6 @@
 package org.icatproject.topcatdaaasplugin.database.entities;
 
-
+import java.util.List;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -25,7 +25,7 @@ import javax.json.JsonObjectBuilder;
 
 
 import org.icatproject.topcatdaaasplugin.Entity;
-
+import org.icatproject.topcatdaaasplugin.EntityList;
 
 @javax.persistence.Entity
 @Table(name = "MACHINETYPE")
@@ -50,11 +50,14 @@ public class MachineType extends Entity implements Serializable {
     private String flavorId;
 
     @Column(name = "POOL_SIZE", nullable = false)
-    private Long poolSize;
+    private Integer poolSize;
 
     @Column(name = "CREATED_AT", nullable=false, updatable=false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "machineType", orphanRemoval = true)
+    private List<MachineTypeScope> machineTypeScopes;
 
     public Long getId() {
         return id;
@@ -96,11 +99,11 @@ public class MachineType extends Entity implements Serializable {
         this.flavorId = flavorId;
     }
 
-    public Long getPoolSize() {
+    public Integer getPoolSize() {
         return poolSize;
     }
 
-    public void setPoolSize(Long poolSize) {
+    public void setPoolSize(Integer poolSize) {
         this.poolSize = poolSize;
     } 
 
@@ -110,6 +113,18 @@ public class MachineType extends Entity implements Serializable {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public EntityList<MachineTypeScope> getMachineTypeScopes(){
+        EntityList<MachineTypeScope> out = new EntityList<MachineTypeScope>();
+        for(MachineTypeScope machineTypeScope : machineTypeScopes){
+            out.add(machineTypeScope);
+        }
+        return out;
+    }
+
+    public void setMachineTypeScopes(List<MachineTypeScope> machineTypeScopes) {
+        this.machineTypeScopes = machineTypeScopes;
     }
 
     @PrePersist

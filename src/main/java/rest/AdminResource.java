@@ -5,6 +5,12 @@
  */
 package org.icatproject.topcatdaaasplugin.rest;
 
+import java.util.List;
+import java.util.ArrayList;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.io.*;
+
 import javax.ejb.Stateless;
 import javax.ejb.LocalBean;
 import javax.ejb.EJB;
@@ -20,11 +26,20 @@ import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import javax.json.Json;
+import javax.json.JsonValue;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.icatproject.topcatdaaasplugin.cloudclient.CloudClient;
 import org.icatproject.topcatdaaasplugin.exceptions.DaaasException;
+
+import org.icatproject.topcatdaaasplugin.database.Database;
+import org.icatproject.topcatdaaasplugin.database.entities.*;
 
 /**
  *
@@ -39,6 +54,9 @@ public class AdminResource {
 
     @EJB
     CloudClient cloudClient;
+
+    @EJB
+    Database database;
 
     @GET
     @Path("/flavors")
@@ -61,6 +79,43 @@ public class AdminResource {
             return e.toResponse();
         }
     }
+
+    @POST
+    @Path("/machineType")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response createMachineType(@FormParam("json") String json) {
+
+        try {
+
+            InputStream jsonInputStream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
+            JsonReader jsonReader = Json.createReader(jsonInputStream);
+            JsonObject jsonObject = jsonReader.readObject();
+            jsonReader.close();
+
+            MachineType machineType = new MachineType();
+
+            machineType.setName(jsonObject.getString("name"));
+            machineType.setImageId(jsonObject.getString("imageId"));
+            machineType.setFlavorId(jsonObject.getString("flavorId"));
+            machineType.setPoolSize(jsonObject.getInt("poolSize"));
+            machineType.setPersonality(jsonObject.getString("personality"));
+
+            List<MachineTypeScope> machineTypeScopes = new ArrayList<MachineTypeScope>();
+            for(JsonValue machineTypeScopeValue : jsonObject.getJsonArray("datasetIds")){
+                MachineTypeScope machineTypeScope = new MachineTypeScope();
+                machineTypeScope.setQuery(((JsonObject) machineTypeScopeValue).getString("query"));
+                machineTypeScopes.add(machineTypeScope);
+            }
+            machineType.setMachineTypeScopes(machineTypeScopes);
+
+            database.persist(machineType);
+
+            return machineType.toResponse();
+        } catch(Exception e){
+            return Response.status(400).entity(Json.createObjectBuilder().add("message", e.toString()).build().toString()).build();
+        }
+    }
+
     
     // @GET
     // @Path("/user")
