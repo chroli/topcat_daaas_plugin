@@ -4,13 +4,16 @@
  
   var app = angular.module('topcat');
 
-  app.service('tcAdminDaaas', function($sessionStorage, $rootScope, $timeout, helpers){
+  app.service('tcUserDaaas', function($sessionStorage, $rootScope, $timeout, helpers){
   	
-    this.create = function(pluginUrl, admin){
-      return new AdminDaaas(pluginUrl, admin);
+    this.create = function(pluginUrl, user){
+      return new UserDaaas(pluginUrl, user);
     };
 
-    function AdminDaaas(pluginUrl, admin){
+    function UserDaaas(pluginUrl, user){
+
+      var facility = user.facility();
+      var icat = facility.icat();
 
       this.pluginUrl = function(){
         return pluginUrl;
@@ -19,8 +22,8 @@
     	this.machines = helpers.overload({
     		'object': function(options){
     			var params = {
-    				username: this.username(),
-    				sessionId: this.sessionId()
+    				icatUrl: facility.config().icatUrl,
+    				sessionId: icat.session().sessionId
     			};
     			return this.get('machines', params, options);
     		},
@@ -32,6 +35,7 @@
     		}
     	});
 
+      /*
       this.createMachine = helpers.overload({
         'string, string, object': function(templateId, name, options){
           var params = {
@@ -76,6 +80,7 @@
           return this.templates({});
         }
       });
+      */
 
       var matches;
       if(matches = pluginUrl.match(/http:\/\/localhost:10080(.*)/)){

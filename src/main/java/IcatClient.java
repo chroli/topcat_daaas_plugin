@@ -34,7 +34,7 @@ public class IcatClient {
 	private HttpClient httpClient;
     private String sessionId;
 
-    public void IcatClient(String icatUrl, String sessionId) {
+    public IcatClient(String icatUrl, String sessionId) {
         try {
             this.httpClient = new HttpClient(icatUrl + "/icat");
             this.sessionId = sessionId;
@@ -44,8 +44,15 @@ public class IcatClient {
     }
 
     public JsonArray query(String query) throws Exception {
+        JsonArrayBuilder out = Json.createArrayBuilder();
     	String url = "entityManager?sessionId=" + URLEncoder.encode(sessionId, "UTF8") + "&query=" + URLEncoder.encode(query, "UTF8");
-    	return parseJsonArray(httpClient.get(url, generateStandardHeaders()).toString());
+    	for(JsonValue jsonObjectValue : parseJsonArray(httpClient.get(url, generateStandardHeaders()).toString())){
+            JsonObject jsonObject = (JsonObject) jsonObjectValue;
+            for(Map.Entry<String, JsonValue> entry : jsonObject.entrySet()) {
+                out.add(entry.getValue());
+            }
+        }
+        return out.build();
     }
 
 

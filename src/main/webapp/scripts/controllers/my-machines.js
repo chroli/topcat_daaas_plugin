@@ -4,15 +4,25 @@
 
 	var app = angular.module('topcat');
 
-	app.controller('MyMachinesController', function($q, $scope, $uibModal, $interval, tc, inform){
+	app.controller('MyMachinesController', function($q, $scope, $uibModal, $interval, $state, tc, inform){
 		var that = this;
+        this.facilities = tc.userFacilities();
+
+        if(!$state.params.facilityName){
+            $state.go('home.my-machines', {facilityName: this.facilities[0].config().name});
+            return;
+        }
+
+        var facility = tc.facility($state.params.facilityName);
+        var user = facility.user();
+        var daaas = user.daaas();
 		var timeout = $q.defer();
     	$scope.$on('$destroy', function(){ timeout.resolve(); });
 
 	    this.machines = [];
 
         function pollMachines(){
-            tc.daaas().machines({timeout: timeout.promise, bypassInterceptors: true}).then(function(machines){
+            daaas.machines({timeout: timeout.promise, bypassInterceptors: true}).then(function(machines){
                 that.machines = machines;
             });
         }

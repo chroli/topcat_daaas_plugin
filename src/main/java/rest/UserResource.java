@@ -5,6 +5,9 @@
  */
 package org.icatproject.topcatdaaasplugin.rest;
 
+import java.util.Map;
+import java.util.HashMap;
+
 import javax.ejb.Stateless;
 import javax.ejb.LocalBean;
 
@@ -23,12 +26,16 @@ import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import javax.json.JsonObject;
+import javax.json.JsonArray;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.icatproject.topcatdaaasplugin.cloudclient.CloudClient;
 import org.icatproject.topcatdaaasplugin.database.Database;
 import org.icatproject.topcatdaaasplugin.exceptions.DaaasException;
+import org.icatproject.topcatdaaasplugin.IcatClient;
 
 /**
  *
@@ -50,15 +57,26 @@ public class UserResource {
     @GET
     @Path("/machines")
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getMachines() {
+    public Response getMachines(
+        @QueryParam("icatUrl") String icatUrl,
+        @QueryParam("sessionId") String sessionId){
         try {
-            return database.query("select machine from Machine machine").toResponse();
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("owner", getUsername(icatUrl, sessionId));
+            return database.query("select machine from Machine machine where machine.owner = :owner", params).toResponse();
         } catch(DaaasException e) {
             return e.toResponse();
+        } catch(Exception e){
+            return new DaaasException(e.getMessage()).toResponse();
         }
-        
     }
     
+    private String getUsername(String icatUrl, String sessionId) throws Exception {
+        IcatClient icatClient = new IcatClient(icatUrl, sessionId);
+        JsonObject user = (JsonObject) icatClient.query("select user from User user where user.name = :user").get(0);
+        return user.getString("name");   
+    }
+
     // @GET
     // @Path("/user")
     // @Produces({MediaType.APPLICATION_JSON})

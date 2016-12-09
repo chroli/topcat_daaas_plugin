@@ -16,7 +16,8 @@ registerTopcatPlugin(function(pluginUrl){
 			pluginUrl + 'scripts/directives/fullscreen.js',
 			pluginUrl + 'scripts/directives/vnc.js',
 
-			pluginUrl + 'scripts/services/tc-admin-daaas.js'
+			pluginUrl + 'scripts/services/tc-admin-daaas.js',
+			pluginUrl + 'scripts/services/tc-user-daaas.js'
 		],
 
 		stylesheets: [],
@@ -33,6 +34,15 @@ registerTopcatPlugin(function(pluginUrl){
 					if(!daaas) daaas = tcAdminDaaas.create(pluginUrl, this);
 					return daaas;
 				};
+			},
+
+			user: function(tcUserDaaas){
+				var daaas;
+
+				this.daaas = function(){
+					if(!daaas) daaas = tcUserDaaas.create(pluginUrl, this);
+					return daaas;
+				};
 			}
 			
 		},
@@ -41,7 +51,8 @@ registerTopcatPlugin(function(pluginUrl){
 
 			tc.ui().registerMainTab('my-machines', pluginUrl + 'views/my-machines.html', {
 				insertAfter: 'my-data',
-				controller: 'MyMachinesController as myMachinesController'
+				controller: 'MyMachinesController as myMachinesController',
+				multiFacility: true
 			});
 
 			tc.ui().registerAdminTab('machine-types', pluginUrl + 'views/admin-machine-types.html', {
