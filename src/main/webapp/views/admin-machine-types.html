@@ -26,7 +26,7 @@
 			<div class="panel panel-default" ng-repeat="machineType in adminMachineTypesController.machineTypes">
 				<div class="panel-heading">
 					<span style="float:right">
-						<button class="btn btn-primary btn-xs" >
+						<button class="btn btn-primary btn-xs" ng-click="adminMachineTypesController.edit(machineType)">
 							<span class="glyphicon glyphicon-pencil"></span>
 						</button>
 						<button class="btn btn-primary btn-xs" >

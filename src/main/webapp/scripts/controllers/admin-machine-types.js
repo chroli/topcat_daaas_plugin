@@ -53,7 +53,7 @@
         pollMachineTypes();
       });
 
-      this.create = function(machine){
+      this.create = function(){
         $uibModal.open({
             templateUrl:  daaas.pluginUrl() + 'views/admin-create-machine-type.html',
             controller: 'AdminCreateMachineTypeController as adminCreateMachineTypeController',
@@ -62,6 +62,15 @@
         });
       };
 
+      this.edit = function(machineType){
+        this.machineTypeToEdit = machineType;
+        $uibModal.open({
+            templateUrl:  daaas.pluginUrl() + 'views/admin-edit-machine-type.html',
+            controller: 'AdminEditMachineTypeController as adminEditMachineTypeController',
+            size : 'md',
+            scope: $scope
+        });
+      };
 
     });
 
