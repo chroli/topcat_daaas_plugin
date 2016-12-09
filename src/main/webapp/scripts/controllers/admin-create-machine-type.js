@@ -14,6 +14,7 @@
     	this.loaded = false;
     	this.images = [];
     	this.flavors = [];
+        this.availabilityZones = [];
     	this.poolSize = 10;
         this.personality = ""
     	this.scopes = [];
@@ -28,6 +29,10 @@
     	promises.push(daaas.flavors().then(function(flavors){
     		that.flavors = _.sortBy(flavors, 'ram');
     	}));
+
+        promises.push(daaas.availabilityZones().then(function(availabilityZones){
+            that.availabilityZones = _.sortBy(availabilityZones, 'name');
+        }));
 
     	$q.all(promises).then(function(){
     		that.loaded = true;
@@ -47,7 +52,7 @@
         };
 
         this.create = function(){
-        	daaas.createMachineType(that.name, that.imageId, that.flavorId, that.poolSize, that.personality, that.scopes).then(function(){
+        	daaas.createMachineType(that.name, that.imageId, that.flavorId, that.availabilityZone, that.poolSize, that.personality, that.scopes).then(function(){
                 $uibModalInstance.dismiss('cancel');
             });
         };

@@ -8,6 +8,7 @@ package org.icatproject.topcatdaaasplugin.exceptions;
 import javax.ws.rs.core.Response;
 
 import javax.json.Json;
+import javax.json.JsonObjectBuilder;
 
 import org.icatproject.topcatdaaasplugin.rest.ResponseProducer;
 
@@ -28,9 +29,13 @@ public class DaaasException extends Exception implements ResponseProducer {
     public String getMessage(){
         return this.message;
     }
+
+    public JsonObjectBuilder toJsonObjectBuilder(){
+        return Json.createObjectBuilder().add("message", (String) getMessage());
+    }
     
     public String toString(){
-        return Json.createObjectBuilder().add("message", (String) getMessage()).build().toString();
+        return toJsonObjectBuilder().build().toString();
     }
     
     public Response toResponse(){

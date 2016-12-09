@@ -21,13 +21,17 @@ public class EntityList<T> extends ArrayList<T> implements ResponseProducer {
     
     @Override
     public String toString(){
+        return toJsonArrayBuilder().build().toString();
+    }
+    
+    public JsonArrayBuilder toJsonArrayBuilder(){
         JsonArrayBuilder out = Json.createArrayBuilder();
         for(T entity : this){
             out.add(((Entity) entity).toJsonObjectBuilder());
         }
-        return out.build().toString();
+        return out;
     }
-    
+
     @Override
     public Response toResponse(){
         return Response.ok().entity(toString()).build();

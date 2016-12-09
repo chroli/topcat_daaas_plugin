@@ -19,6 +19,11 @@
                 </select>
             </div>
             <div class="form-group">
+                <label class="control-label" for="server">*Availability Zone</label>
+                <select class="form-control" ng-model="adminCreateMachineTypeController.availabilityZone" ng-options="availabilityZone.name as availabilityZone.name for availabilityZone in adminCreateMachineTypeController.availabilityZones" required>
+                </select>
+            </div>
+            <div class="form-group">
                 <label class="control-label">*Pool Size</label>
                 <input class="form-control" type="number" ng-model="adminCreateMachineTypeController.poolSize" required>
             </div>

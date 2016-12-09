@@ -21,6 +21,49 @@
 
 			<h1>Machine Types</h1>
 
+			<br>
+
+			<div class="panel panel-default" ng-repeat="machineType in adminMachineTypesController.machineTypes">
+				<div class="panel-heading">
+					<span style="float:right">
+						<button class="btn btn-primary btn-xs" >
+							<span class="glyphicon glyphicon-pencil"></span>
+						</button>
+						<button class="btn btn-primary btn-xs" >
+							<span class="glyphicon glyphicon-remove"></span>
+						</button>
+					</span>
+					{{machineType.name}}
+				</div>
+				<div class="panel-body">
+					<div class="detail">
+						<label>Image:</label>
+						{{machineType.image.name}}
+					</div>
+					<div class="detail">
+						<label>Flavor:</label>
+						{{machineType.flavor.name}}
+					</div>
+					<div class="detail">
+						<label>Availability zone:</label>
+						{{machineType.availabilityZone}}
+					</div>
+					<div class="detail">
+						<label>Pool size:</label>
+						{{machineType.poolSize}}
+					</div>
+					<div class="detail">
+						<label>Personality:</label>
+						{{machineType.personality}}
+					</div>
+					<div class="detail">
+						<label>Scope:</label>
+						<ul>
+							<li ng-repeat="scope in machineType.scopes">{{scope.query}}</li>
+						</ul>
+					</div>
+				</div>
+			</div>
 		
 		</div>
 	</div>

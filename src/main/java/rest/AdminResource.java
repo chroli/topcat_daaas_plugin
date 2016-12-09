@@ -80,8 +80,31 @@ public class AdminResource {
         }
     }
 
+
+    @GET
+    @Path("/availabilityZones")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response getAvailabilityZones() {
+        try {
+            return cloudClient.getAvailabilityZones().toResponse();
+        } catch(DaaasException e) {
+            return e.toResponse();
+        }
+    }
+
+    @GET
+    @Path("/machineTypes")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response getMachineTypes() {
+        try {
+            return database.query("select machineType from MachineType machineType").toResponse();
+        } catch(DaaasException e) {
+            return e.toResponse();
+        }
+    }
+
     @POST
-    @Path("/machineType")
+    @Path("/machineTypes")
     @Produces({MediaType.APPLICATION_JSON})
     public Response createMachineType(@FormParam("json") String json) {
 
@@ -97,6 +120,7 @@ public class AdminResource {
             machineType.setName(jsonObject.getString("name"));
             machineType.setImageId(jsonObject.getString("imageId"));
             machineType.setFlavorId(jsonObject.getString("flavorId"));
+            machineType.setAvailabilityZone(jsonObject.getString("availabilityZone"));
             machineType.setPoolSize(jsonObject.getInt("poolSize"));
             machineType.setPersonality(jsonObject.getString("personality"));
 

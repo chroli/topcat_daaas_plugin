@@ -43,25 +43,50 @@
     		}
     	});
 
+      this.availabilityZones = helpers.overload({
+        'object': function(options){
+          return this.get('availabilityZones', {sessionId: icat.session().sessionId}, options);
+        },
+        'promise': function(timeout){
+          return this.availabilityZones({timeout: timeout});
+        },
+        '': function(){
+          return this.availabilityZones({});
+        }
+      });
+
+      this.machineTypes = helpers.overload({
+        'object': function(options){
+          return this.get('machineTypes', {sessionId: icat.session().sessionId}, options);
+        },
+        'promise': function(timeout){
+          return this.machineTypes({timeout: timeout});
+        },
+        '': function(){
+          return this.machineTypes({});
+        }
+      });
+
       this.createMachineType = helpers.overload({
-        'string, string, string, number, string, array, object': function(name, imageId, flavorId, poolSize, personality, scopes, options){
-          return this.post('machineType', {
+        'string, string, string, string, number, string, array, object': function(name, imageId, flavorId, availabilityZone, poolSize, personality, scopes, options){
+          return this.post('machineTypes', {
             json: JSON.stringify({
               sessionId: icat.session().sessionId,
               name: name,
               imageId: imageId,
               flavorId: flavorId,
+              availabilityZone: availabilityZone,
               poolSize: poolSize,
               personality: personality,
               scopes: scopes
             })
           }, options);
         },
-        'promise, string, string, string, number, string, array': function(timeout, name, imageId, flavorId, poolSize, personality, scopes){
-          return this.createMachineType(name, imageId, flavorId, poolSize, personality, scopes, {timeout: timeout});
+        'promise, string, string, string, string, number, string, array': function(timeout, name, imageId, flavorId, availabilityZone, poolSize, personality, scopes){
+          return this.createMachineType(name, imageId, flavorId, availabilityZone, poolSize, personality, scopes, {timeout: timeout});
         },
-        'string, string, string, number, string, array': function(name, imageId, flavorId, poolSize, personality, scopes){
-          return this.createMachineType(name, imageId, flavorId, poolSize, personality, scopes, {});
+        'string, string, string, string, number, string, array': function(name, imageId, flavorId, availabilityZone, poolSize, personality, scopes){
+          return this.createMachineType(name, imageId, flavorId, availabilityZone, poolSize, personality, scopes, {});
         }
       });
 

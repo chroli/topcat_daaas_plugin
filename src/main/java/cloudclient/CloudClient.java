@@ -144,7 +144,7 @@ public class CloudClient {
         EntityList<Flavor> out = new EntityList<Flavor>();
         
         try {
-            Response response = computeHttpClient.get("flavors/detail ", generateStandardHeaders());
+            Response response = computeHttpClient.get("flavors/detail", generateStandardHeaders());
             if(response.getCode() == 200){
                 JsonObject results = parseJson(response.toString());
                 for(JsonValue flavorValue : results.getJsonArray("flavors")){
@@ -158,6 +158,35 @@ public class CloudClient {
 
                     out.add(flavor);
                 }
+            } else {
+                throw new BadRequestException(response.toString());
+            }
+        } catch(DaaasException e){
+            throw e;
+        } catch(Exception e){
+            String message = e.getMessage();
+            if(message == null){
+                message = e.toString();
+            }
+            throw new UnexpectedException(message);
+        }
+
+        return out;
+    }
+
+    public Flavor getFlavor(String id) throws DaaasException {
+        Flavor out = new Flavor();
+
+        try {
+            Response response = computeHttpClient.get("flavors/" + id, generateStandardHeaders());
+            if(response.getCode() == 200){
+                JsonObject results = parseJson(response.toString());
+                JsonObject cloudFlavor = results.getJsonObject("flavor");
+                out.setId(cloudFlavor.getString("id"));
+                out.setName(cloudFlavor.getString("name"));
+                out.setCpus(cloudFlavor.getInt("vcpus"));
+                out.setRam(cloudFlavor.getInt("ram"));
+                out.setDisk(cloudFlavor.getInt("disk"));
             } else {
                 throw new BadRequestException(response.toString());
             }
@@ -189,6 +218,37 @@ public class CloudClient {
                     image.setSize(cloudImage.getInt("size"));
 
                     out.add(image);
+                }
+            } else {
+                throw new BadRequestException(response.toString());
+            }
+        } catch(DaaasException e){
+            throw e;
+        } catch(Exception e){
+            String message = e.getMessage();
+            if(message == null){
+                message = e.toString();
+            }
+            throw new UnexpectedException(message);
+        }
+
+        return out;
+    }
+
+    public EntityList<AvailabilityZone> getAvailabilityZones()  throws DaaasException {
+        EntityList<AvailabilityZone> out = new EntityList<AvailabilityZone>();
+        
+        try {
+            Response response = computeHttpClient.get("os-availability-zone", generateStandardHeaders());
+            if(response.getCode() == 200){
+                JsonObject results = parseJson(response.toString());
+                for(JsonValue availabilityZoneInfoValue : results.getJsonArray("availabilityZoneInfo")){
+                    JsonObject availabilityZoneInfo = (JsonObject) availabilityZoneInfoValue;
+                    AvailabilityZone availabilityZone = new AvailabilityZone();
+                    availabilityZone.setName(availabilityZoneInfo.getString("zoneName"));
+                    availabilityZone.setIsAvailable(availabilityZoneInfo.getJsonObject("zoneState").getBoolean("available"));
+
+                    out.add(availabilityZone);
                 }
             } else {
                 throw new BadRequestException(response.toString());

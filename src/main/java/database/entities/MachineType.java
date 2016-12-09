@@ -40,17 +40,20 @@ public class MachineType extends Entity implements Serializable {
     @Column(name = "NAME", nullable = false)
     private String name;
 
-    @Column(name = "PERSONALITY", nullable = false)
-    private String personality;
-
     @Column(name = "IMAGE_ID", nullable = false)
     private String imageId;
 
     @Column(name = "FLAVOR_ID", nullable = false)
     private String flavorId;
 
+    @Column(name = "AVAILABILITY_ZONE", nullable = false)
+    private String availabilityZone;
+
     @Column(name = "POOL_SIZE", nullable = false)
     private Integer poolSize;
+
+    @Column(name = "PERSONALITY", nullable = false)
+    private String personality;
 
     @Column(name = "CREATED_AT", nullable=false, updatable=false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -75,14 +78,6 @@ public class MachineType extends Entity implements Serializable {
         this.name = name;
     }
 
-    public String getPersonality() {
-        return personality;
-    }
-
-    public void setPersonality(String personality) {
-       this.personality = personality;
-    }
-
     public String getImageId() {
         return imageId;
     }
@@ -99,13 +94,29 @@ public class MachineType extends Entity implements Serializable {
         this.flavorId = flavorId;
     }
 
+    public String getAvailabilityZone() {
+        return availabilityZone;
+    }
+
+    public void setAvailabilityZone(String availabilityZone) {
+        this.availabilityZone = availabilityZone;
+    }
+
     public Integer getPoolSize() {
         return poolSize;
     }
 
     public void setPoolSize(Integer poolSize) {
         this.poolSize = poolSize;
-    } 
+    }
+
+    public String getPersonality() {
+        return personality;
+    }
+
+    public void setPersonality(String personality) {
+       this.personality = personality;
+    }
 
     public Date getCreatedAt() {
         return createdAt;
@@ -138,8 +149,11 @@ public class MachineType extends Entity implements Serializable {
         out.add("name", getName());
         out.add("imageId", getImageId());
         out.add("flavorId", getFlavorId());
+        out.add("availabilityZone", getAvailabilityZone());
         out.add("poolSize", getPoolSize());
+        out.add("personality", getPersonality());
         out.add("createAt", getCreatedAt().toString());
+        out.add("scopes", getMachineTypeScopes().toJsonArrayBuilder());
         return out;
     }
 
