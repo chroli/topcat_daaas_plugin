@@ -21,7 +21,10 @@
 
       this.images = helpers.overload({
         'object': function(options){
-          return this.get('images', {sessionId: icat.session().sessionId}, options);
+          return this.get('images', {
+            icatUrl: facility.config().icatUrl,
+            sessionId: icat.session().sessionId
+          }, options);
         },
         'promise': function(timeout){
           return this.images({timeout: timeout});
@@ -33,7 +36,10 @@
 
     	this.flavors = helpers.overload({
     		'object': function(options){
-    			return this.get('flavors', {sessionId: icat.session().sessionId}, options);
+    			return this.get('flavors', {
+            icatUrl: facility.config().icatUrl,
+            sessionId: icat.session().sessionId
+          }, options);
     		},
     		'promise': function(timeout){
     			return this.flavors({timeout: timeout});
@@ -45,7 +51,10 @@
 
       this.availabilityZones = helpers.overload({
         'object': function(options){
-          return this.get('availabilityZones', {sessionId: icat.session().sessionId}, options);
+          return this.get('availabilityZones', {
+            icatUrl: facility.config().icatUrl,
+            sessionId: icat.session().sessionId
+          }, options);
         },
         'promise': function(timeout){
           return this.availabilityZones({timeout: timeout});
@@ -57,7 +66,10 @@
 
       this.machineTypes = helpers.overload({
         'object': function(options){
-          return this.get('machineTypes', {sessionId: icat.session().sessionId}, options);
+          return this.get('machineTypes', {
+            icatUrl: facility.config().icatUrl,
+            sessionId: icat.session().sessionId
+          }, options);
         },
         'promise': function(timeout){
           return this.machineTypes({timeout: timeout});
@@ -70,8 +82,9 @@
       this.createMachineType = helpers.overload({
         'string, string, string, string, number, string, array, object': function(name, imageId, flavorId, availabilityZone, poolSize, personality, scopes, options){
           return this.post('machineTypes', {
+            icatUrl: facility.config().icatUrl,
+            sessionId: icat.session().sessionId,
             json: JSON.stringify({
-              sessionId: icat.session().sessionId,
               name: name,
               imageId: imageId,
               flavorId: flavorId,
@@ -93,8 +106,9 @@
       this.updateMachineType = helpers.overload({
         'number, string, string, string, string, number, string, array, object': function(id, name, imageId, flavorId, availabilityZone, poolSize, personality, scopes, options){
           return this.put('machineTypes/' + id, {
+            icatUrl: facility.config().icatUrl,
+            sessionId: icat.session().sessionId,
             json: JSON.stringify({
-              sessionId: icat.session().sessionId,
               name: name,
               imageId: imageId,
               flavorId: flavorId,
@@ -115,7 +129,10 @@
 
       this.deleteMachineType = helpers.overload({
         'number, object': function(id, options){
-          return this.delete('machineTypes/' + id, {sessionId: icat.session().sessionId}, options);
+          return this.delete('machineTypes/' + id, {
+            icatUrl: facility.config().icatUrl,
+            sessionId: icat.session().sessionId
+          }, options);
         },
         'promise, number': function(timeout, id){
           return this.deleteMachineType(id, {timeout: timeout});

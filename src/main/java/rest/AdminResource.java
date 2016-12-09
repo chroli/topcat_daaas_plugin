@@ -36,9 +36,9 @@ import javax.json.JsonReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.icatproject.topcatdaaasplugin.TopcatClient;
 import org.icatproject.topcatdaaasplugin.cloudclient.CloudClient;
 import org.icatproject.topcatdaaasplugin.exceptions.DaaasException;
-
 import org.icatproject.topcatdaaasplugin.database.Database;
 import org.icatproject.topcatdaaasplugin.database.entities.*;
 
@@ -59,25 +59,40 @@ public class AdminResource {
     @EJB
     Database database;
 
+    @EJB
+    TopcatClient topcatClient;
+
     @GET
     @Path("/flavors")
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getFlavors() {
+    public Response getFlavors(
+        @QueryParam("icatUrl") String icatUrl,
+        @QueryParam("sessionId") String sessionId){
         try {
+            authorize(icatUrl, sessionId);
+
             return cloudClient.getFlavors().toResponse();
         } catch(DaaasException e) {
             return e.toResponse();
+        } catch(Exception e) {
+            return new DaaasException(e.getMessage()).toResponse();
         }
     }
 
     @GET
     @Path("/images")
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getImages() {
+    public Response getImages(
+        @QueryParam("icatUrl") String icatUrl,
+        @QueryParam("sessionId") String sessionId) {
         try {
+            authorize(icatUrl, sessionId);
+
             return cloudClient.getImages().toResponse();
         } catch(DaaasException e) {
             return e.toResponse();
+        } catch(Exception e) {
+            return new DaaasException(e.getMessage()).toResponse();
         }
     }
 
@@ -85,31 +100,47 @@ public class AdminResource {
     @GET
     @Path("/availabilityZones")
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getAvailabilityZones() {
+    public Response getAvailabilityZones(
+        @QueryParam("icatUrl") String icatUrl,
+        @QueryParam("sessionId") String sessionId) {
         try {
+            authorize(icatUrl, sessionId);
+
             return cloudClient.getAvailabilityZones().toResponse();
         } catch(DaaasException e) {
             return e.toResponse();
+        } catch(Exception e) {
+            return new DaaasException(e.getMessage()).toResponse();
         }
     }
 
     @GET
     @Path("/machineTypes")
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getMachineTypes() {
+    public Response getMachineTypes(
+        @QueryParam("icatUrl") String icatUrl,
+        @QueryParam("sessionId") String sessionId) {
         try {
+            authorize(icatUrl, sessionId);
+
             return database.query("select machineType from MachineType machineType").toResponse();
         } catch(DaaasException e) {
             return e.toResponse();
+        } catch(Exception e) {
+            return new DaaasException(e.getMessage()).toResponse();
         }
     }
 
     @POST
     @Path("/machineTypes")
     @Produces({MediaType.APPLICATION_JSON})
-    public Response createMachineType(@FormParam("json") String json) {
+    public Response createMachineType(
+        @FormParam("icatUrl") String icatUrl,
+        @FormParam("sessionId") String sessionId,
+        @FormParam("json") String json) {
 
         try {
+            authorize(icatUrl, sessionId);
 
             InputStream jsonInputStream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
             JsonReader jsonReader = Json.createReader(jsonInputStream);
@@ -137,8 +168,10 @@ public class AdminResource {
             database.persist(machineType);
 
             return machineType.toResponse();
-        } catch(Exception e){
-            return Response.status(400).entity(Json.createObjectBuilder().add("message", e.toString()).build().toString()).build();
+        } catch(DaaasException e) {
+            return e.toResponse();
+        } catch(Exception e) {
+            return new DaaasException(e.getMessage()).toResponse();
         }
     }
 
@@ -147,9 +180,12 @@ public class AdminResource {
     @Produces({MediaType.APPLICATION_JSON})
     public Response updateMachineType(
         @PathParam("id") Integer id,
+        @FormParam("icatUrl") String icatUrl,
+        @FormParam("sessionId") String sessionId,
         @FormParam("json") String json) {
 
         try {
+            authorize(icatUrl, sessionId);
 
             MachineType machineType = (MachineType) database.query("select machineType from MachineType machineType where machineType.id = " + id).get(0);
 
@@ -177,8 +213,10 @@ public class AdminResource {
             database.persist(machineType);
 
             return machineType.toResponse();
-        } catch(Exception e){
-            return Response.status(400).entity(Json.createObjectBuilder().add("message", e.toString()).build().toString()).build();
+        } catch(DaaasException e) {
+            return e.toResponse();
+        } catch(Exception e) {
+            return new DaaasException(e.getMessage()).toResponse();
         }
     }
 
@@ -186,16 +224,29 @@ public class AdminResource {
     @DELETE
     @Path("/machineTypes/{id}")
     @Produces({MediaType.APPLICATION_JSON})
-    public Response deleteMachineType(@PathParam("id") Integer id) {
+    public Response deleteMachineType(
+        @PathParam("id") Integer id,
+        @QueryParam("icatUrl") String icatUrl,
+        @QueryParam("sessionId") String sessionId) {
+
         try {
+            authorize(icatUrl, sessionId);
+
             MachineType machineType = (MachineType) database.query("select machineType from MachineType machineType where machineType.id = " + id).get(0);
             database.remove(machineType);
             return Response.ok().build();
-        } catch(Exception e){
-            return Response.status(400).entity(Json.createObjectBuilder().add("message", e.toString()).build().toString()).build();
+        } catch(DaaasException e) {
+            return e.toResponse();
+        } catch(Exception e) {
+            return new DaaasException(e.getMessage()).toResponse();
         }
     }
 
+    private void authorize(String icatUrl, String sessionId) throws Exception {
+        if(!topcatClient.isAdmin(icatUrl, sessionId)){
+            throw new DaaasException("You must be a Topcat admin user to do this.");
+        }
+    }
     
     // @GET
     // @Path("/user")

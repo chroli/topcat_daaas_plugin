@@ -40,7 +40,10 @@
 
       $q.all(promises).then(function(){
         function pollMachineTypes(){
-          daaas.machineTypes(timeout.promise).then(function(machineTypes){
+          daaas.machineTypes({
+            timeout: timeout.promise,
+            bypassInterceptors: true
+          }).then(function(machineTypes){
             _.each(machineTypes, function(machineType){
               machineType.image = imageIndex[machineType.imageId];
               machineType.flavor = flavorIndex[machineType.flavorId];
