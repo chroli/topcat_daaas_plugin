@@ -113,6 +113,18 @@
         }
       });
 
+      this.deleteMachineType = helpers.overload({
+        'number, object': function(id, options){
+          return this.delete('machineTypes/' + id, {sessionId: icat.session().sessionId}, options);
+        },
+        'promise, number': function(timeout, id){
+          return this.deleteMachineType(id, {timeout: timeout});
+        },
+        'number': function(){
+          return this.deleteMachineType(id, {});
+        }
+      });
+
 
       var matches;
       if(matches = pluginUrl.match(/http:\/\/localhost:10080(.*)/)){

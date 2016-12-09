@@ -72,6 +72,12 @@
         });
       };
 
+      this.delete = function(machineType){
+        if(confirm("Are you really you want to delete this machine type?")){
+          daaas.deleteMachineType(timeout.promise, machineType.id);
+        }
+      };
+
     });
 
 })();

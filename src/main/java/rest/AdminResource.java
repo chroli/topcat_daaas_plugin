@@ -182,6 +182,20 @@ public class AdminResource {
         }
     }
 
+
+    @DELETE
+    @Path("/machineTypes/{id}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response deleteMachineType(@PathParam("id") Integer id) {
+        try {
+            MachineType machineType = (MachineType) database.query("select machineType from MachineType machineType where machineType.id = " + id).get(0);
+            database.remove(machineType);
+            return Response.ok().build();
+        } catch(Exception e){
+            return Response.status(400).entity(Json.createObjectBuilder().add("message", e.toString()).build().toString()).build();
+        }
+    }
+
     
     // @GET
     // @Path("/user")
