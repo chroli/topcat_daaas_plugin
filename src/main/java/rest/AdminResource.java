@@ -17,6 +17,7 @@ import javax.ejb.EJB;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -124,6 +125,46 @@ public class AdminResource {
             machineType.setPoolSize(jsonObject.getInt("poolSize"));
             machineType.setPersonality(jsonObject.getString("personality"));
 
+            List<MachineTypeScope> machineTypeScopes = new ArrayList<MachineTypeScope>();
+            for(JsonValue machineTypeScopeValue : jsonObject.getJsonArray("scopes")){
+                MachineTypeScope machineTypeScope = new MachineTypeScope();
+                machineTypeScope.setMachineType(machineType);
+                machineTypeScope.setQuery(((JsonObject) machineTypeScopeValue).getString("query"));
+                machineTypeScopes.add(machineTypeScope);
+            }
+            machineType.setMachineTypeScopes(machineTypeScopes);
+
+            database.persist(machineType);
+
+            return machineType.toResponse();
+        } catch(Exception e){
+            return Response.status(400).entity(Json.createObjectBuilder().add("message", e.toString()).build().toString()).build();
+        }
+    }
+
+    @PUT
+    @Path("/machineTypes/{id}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response updateMachineType(
+        @PathParam("id") Integer id,
+        @FormParam("json") String json) {
+
+        try {
+
+            MachineType machineType = (MachineType) database.query("select machineType from MachineType machineType where machineType.id = " + id).get(0);
+
+            InputStream jsonInputStream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
+            JsonReader jsonReader = Json.createReader(jsonInputStream);
+            JsonObject jsonObject = jsonReader.readObject();
+            jsonReader.close();
+
+            machineType.setName(jsonObject.getString("name"));
+            machineType.setImageId(jsonObject.getString("imageId"));
+            machineType.setFlavorId(jsonObject.getString("flavorId"));
+            machineType.setAvailabilityZone(jsonObject.getString("availabilityZone"));
+            machineType.setPoolSize(jsonObject.getInt("poolSize"));
+            machineType.setPersonality(jsonObject.getString("personality"));
+            
             List<MachineTypeScope> machineTypeScopes = new ArrayList<MachineTypeScope>();
             for(JsonValue machineTypeScopeValue : jsonObject.getJsonArray("scopes")){
                 MachineTypeScope machineTypeScope = new MachineTypeScope();

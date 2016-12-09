@@ -50,8 +50,8 @@
             }
         };
 
-        this.create = function(){
-        	daaas.createMachineType(that.name, that.imageId, that.flavorId, that.availabilityZone, that.poolSize, that.personality, that.scopes).then(function(){
+        this.save = function(){
+        	daaas.updateMachineType(that.id, that.name, that.imageId, that.flavorId, that.availabilityZone, that.poolSize, that.personality, that.scopes).then(function(){
                 $uibModalInstance.dismiss('cancel');
             });
         };

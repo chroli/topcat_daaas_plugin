@@ -90,6 +90,30 @@
         }
       });
 
+      this.updateMachineType = helpers.overload({
+        'number, string, string, string, string, number, string, array, object': function(id, name, imageId, flavorId, availabilityZone, poolSize, personality, scopes, options){
+          return this.put('machineTypes/' + id, {
+            json: JSON.stringify({
+              sessionId: icat.session().sessionId,
+              name: name,
+              imageId: imageId,
+              flavorId: flavorId,
+              availabilityZone: availabilityZone,
+              poolSize: poolSize,
+              personality: personality,
+              scopes: scopes
+            })
+          }, options);
+        },
+        'promise, number, string, string, string, string, number, string, array': function(timeout, id, name, imageId, flavorId, availabilityZone, poolSize, personality, scopes){
+          return this.updateMachineType(id, name, imageId, flavorId, availabilityZone, poolSize, personality, scopes, {timeout: timeout});
+        },
+        'number, string, string, string, string, number, string, array': function(id, name, imageId, flavorId, availabilityZone, poolSize, personality, scopes){
+          return this.updateMachineType(id, name, imageId, flavorId, availabilityZone, poolSize, personality, scopes, {});
+        }
+      });
+
+
       var matches;
       if(matches = pluginUrl.match(/http:\/\/localhost:10080(.*)/)){
         helpers.generateRestMethods(this, "https://localhost:8181" + matches[1] + "api/admin/");
