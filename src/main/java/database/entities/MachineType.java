@@ -62,6 +62,9 @@ public class MachineType extends Entity implements Serializable {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "machineType", orphanRemoval = true)
     private List<MachineTypeScope> machineTypeScopes;
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "machineType", orphanRemoval = true)
+    private List<Machine> machines;
+
     public Long getId() {
         return id;
     }
@@ -136,6 +139,18 @@ public class MachineType extends Entity implements Serializable {
 
     public void setMachineTypeScopes(List<MachineTypeScope> machineTypeScopes) {
         this.machineTypeScopes = machineTypeScopes;
+    }
+
+    public EntityList<Machine> getMachines(){
+        EntityList<Machine> out = new EntityList<Machine>();
+        for(Machine machine : machines){
+            out.add(machine);
+        }
+        return out;
+    }
+
+    public void setMachines(List<Machine> machines) {
+        this.machines = machines;
     }
 
     @PrePersist

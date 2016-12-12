@@ -10,20 +10,12 @@ import javax.json.JsonObjectBuilder;
 
 import org.icatproject.topcatdaaasplugin.Entity;
 
-import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
 import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
+import javax.persistence.JoinColumn;
 import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.PrePersist;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.UniqueConstraint;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -54,6 +46,10 @@ public class Machine extends Entity {
 
     @Column(name = "WEBSOCKIFY_TOKEN", nullable = false)
     private String websockifyToken;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name= "MACHINE_TYPE_ID")
+    private MachineType machineType;
     
     public String getId() {
         return id;
@@ -102,6 +98,14 @@ public class Machine extends Entity {
 
     public void setWebsockifyToken(String websockifyToken) {
         this.host = websockifyToken;
+    }
+
+    public MachineType getMachineType() {
+        return machineType;
+    }
+
+    public void setMachineType(MachineType machineType) {
+        this.machineType = machineType;
     }
     
     public JsonObjectBuilder toJsonObjectBuilder(){
