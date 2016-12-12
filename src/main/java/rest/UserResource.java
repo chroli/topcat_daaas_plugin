@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.icatproject.topcatdaaasplugin.cloudclient.CloudClient;
 import org.icatproject.topcatdaaasplugin.database.Database;
 import org.icatproject.topcatdaaasplugin.exceptions.DaaasException;
-import org.icatproject.topcatdaaasplugin.IcatClient;
+import org.icatproject.topcatdaaasplugin.*;
 
 /**
  *

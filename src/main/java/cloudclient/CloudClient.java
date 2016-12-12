@@ -266,6 +266,53 @@ public class CloudClient {
         return out;
     }
 
+    public Server createServer(String name, String imageRef, String flavorRef, String availabilityZone) throws DaaasException {
+        try {
+
+            // {
+            //     "server" => {
+            //         "name" => "auto-allocate-network",
+            //         "imageRef" => "ba123970-efbd-4a91-885a-b069e03e003d",
+            //         "flavorRef" => "8a34f302-4cdc-459c-9e45-c5655c94382f",
+            //         "availability_zone" => "ceph"
+            //         "metadata" => {
+            //             "owner" => ""
+            //         }
+            //     }
+            // }
+
+            JsonObjectBuilder server = Json.createObjectBuilder();
+            server.add("name", name);
+            server.add("imageRef", imageRef);
+            server.add("flavorRef", flavorRef);
+            server.add("availability_zone", availabilityZone);
+            JsonObjectBuilder metadata = Json.createObjectBuilder();
+            metadata.add("owner", "");
+            server.add("metadata", metadata);
+
+            String data = Json.createObjectBuilder().add("server", server).build().toString();
+
+            Response response = computeHttpClient.post("servers", generateStandardHeaders(), data);
+            if(response.getCode() > 400){
+                throw new BadRequestException(response.toString());
+            }
+
+            Server out = new Server();
+
+            return out;
+        } catch(DaaasException e){
+            throw e;
+        } catch(Exception e){
+            String message = e.getMessage();
+            if(message == null){
+                message = e.toString();
+            }
+            throw new UnexpectedException(message);
+        }
+    }
+
+
+
     // public EntityList<Machine> getMachines()  throws DaaasException {
     //     EntityList<Machine> out = new EntityList<Machine>();
         
