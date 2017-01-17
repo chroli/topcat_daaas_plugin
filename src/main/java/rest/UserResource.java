@@ -79,9 +79,9 @@ public class UserResource {
     @Path("/machines")
     @Produces({MediaType.APPLICATION_JSON})
     public Response createMachine(
-        @QueryParam("icatUrl") String icatUrl,
-        @QueryParam("sessionId") String sessionId,
-        @QueryParam("machineTypeId") Long machineTypeId){
+        @FormParam("icatUrl") String icatUrl,
+        @FormParam("sessionId") String sessionId,
+        @FormParam("machineTypeId") Long machineTypeId){
         try {
             if(!isMachineTypeAllowed(icatUrl, sessionId, machineTypeId)){
                  throw new DaaasException("You are not allowed to create this machine type.");
