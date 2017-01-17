@@ -83,6 +83,9 @@ public class UserResource {
         @QueryParam("sessionId") String sessionId,
         @QueryParam("machineTypeId") Long machineTypeId){
         try {
+            if(!isMachineTypeAllowed(icatUrl, sessionId, machineTypeId)){
+                 throw new DaaasException("You are not allowed to create this machine type.");
+            }
             Machine machine = machinePool.aquireMachine(machineTypeId);
             machine.setOwner(getUsername(icatUrl, sessionId));
             database.persist(machine);
@@ -92,6 +95,45 @@ public class UserResource {
         } catch(Exception e){
             return new DaaasException(e.getMessage()).toResponse();
         }
+    }
+
+    @GET
+    @Path("/machineTypes")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response getMachineTypes(
+        @QueryParam("icatUrl") String icatUrl,
+        @QueryParam("sessionId") String sessionId){
+        try {
+            return getAvailableMachineTypes(icatUrl, sessionId).toResponse();
+        } catch(DaaasException e) {
+            return e.toResponse();
+        } catch(Exception e){
+            return new DaaasException(e.getMessage()).toResponse();
+        }
+    }
+
+    private boolean isMachineTypeAllowed(String icatUrl, String sessionId, Long machineTypeId) throws Exception {
+        for(MachineType machineType : getAvailableMachineTypes(icatUrl, sessionId)){
+            if(machineType.getId().equals(machineTypeId)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private EntityList<MachineType> getAvailableMachineTypes(String icatUrl, String sessionId) throws Exception {
+        EntityList<MachineType> out = new EntityList<MachineType>();
+        IcatClient icatClient = new IcatClient(icatUrl, sessionId);
+        for(Entity machineTypeEntity : database.query("select machineType from MachineType machineType")){
+            MachineType machineType = (MachineType) machineTypeEntity;
+            for(MachineTypeScope machineTypeScope : machineType.getMachineTypeScopes()){
+                if(icatClient.query(machineTypeScope.getQuery()).size() > 0){
+                    out.add(machineType);
+                    break;
+                }
+            }
+        }
+        return out;
     }
 
     private String getUsername(String icatUrl, String sessionId) throws Exception {

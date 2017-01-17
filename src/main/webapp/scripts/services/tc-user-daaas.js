@@ -35,6 +35,23 @@
     		}
     	});
 
+      this.machineTypes = helpers.overload({
+        'object': function(options){
+          var params = {
+            icatUrl: facility.config().icatUrl,
+            sessionId: icat.session().sessionId
+          };
+          return this.get('machineTypes', params, options);
+        },
+        'promise': function(timeout){
+          return this.machineTypes({timeout: timeout});
+        },
+        '': function(){
+          return this.machineTypes({});
+        }
+      });
+
+
       /*
       this.createMachine = helpers.overload({
         'string, string, object': function(templateId, name, options){
