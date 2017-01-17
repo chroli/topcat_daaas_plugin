@@ -341,6 +341,23 @@ public class CloudClient {
         }
     }
 
+    public void deleteMachine(String machineId) throws DaaasException {
+        try {
+            Response response = computeHttpClient.delete("servers/" + machineId, generateStandardHeaders());
+            if(response.getCode() >= 400){
+                throw new BadRequestException(response.toString());
+            }
+        } catch(DaaasException e){
+            throw e;
+        } catch(Exception e){
+            String message = e.getMessage();
+            if(message == null){
+                message = e.toString();
+            }
+            throw new UnexpectedException(message);
+        }
+    }
+
     // public EntityList<Machine> getMachines()  throws DaaasException {
     //     EntityList<Machine> out = new EntityList<Machine>();
         
@@ -383,22 +400,7 @@ public class CloudClient {
 
 
     /*
-    public void deleteMachine(String machineId) throws DaaasException {
-        try {
-            Response response = computeHttpClient.delete("servers/" + machineId, generateStandardHeaders());
-            if(response.getCode() != 200){
-                throw new BadRequestException(response.toString());
-            }
-        } catch(DaaasException e){
-            throw e;
-        } catch(Exception e){
-            String message = e.getMessage();
-            if(message == null){
-                message = e.toString();
-            }
-            throw new UnexpectedException(message);
-        }
-    }
+    
 
     public EntityList<Template> getTemplates()  throws DaaasException {
         EntityList<Template> out = new EntityList<Template>();

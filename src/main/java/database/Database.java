@@ -71,6 +71,7 @@ public class Database {
 
     public void remove(Object entity){
     	em.remove(entity);
+    	em.flush();
     }
 
 }

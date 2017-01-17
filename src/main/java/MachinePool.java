@@ -43,7 +43,7 @@ public class MachinePool {
     }
 
     @Schedule(hour="*", minute="*", second="*")
-    public void topupPool(){
+    public void managePool(){
         if(!busy.compareAndSet(false, true)){
             return;
         }
@@ -57,30 +57,47 @@ public class MachinePool {
                 Map<String, String> params = new HashMap<String, String>();
 
                 EntityList<Entity> vacantMachines = database.query("select machine from Machine machine, machine.machineType as machineType where machine.state = 'vacant' and machineType.id = " + machineType.getId());
-
-                if(vacantMachines.size() < machineType.getPoolSize()){
-                    int amountToTopup = machineType.getPoolSize() - vacantMachines.size();
-                    for(int i = 0; i < amountToTopup; i++){
+                int diff = machineType.getPoolSize() - vacantMachines.size();
+                if(diff > 0){
+                    for(int i = 0; i < diff; i++){
                         createMachine(machineType);
+                    }
+                } else {
+                    for(int i = 0; i < (diff * -1); i++){
+                        Machine machine = aquireMachine(machineType.getId());
+                        logger.info("pruned machine: " + machine.getId());
+                        cloudClient.deleteMachine(machine.getId());
+                        database.remove(machine);
                     }
                 }
 
             }
         } catch(Exception e){
-            logger.error(e.getMessage());
+            logger.error("managePool: " + e.getMessage());
         }
 
         busy.set(false);
     }
 
-    @Schedule(hour="*", minute="*", second="*")
-    public void prunePool(){
 
+
+    public synchronized Machine aquireMachine(Long machineTypeId) throws DaaasException {
+        try {
+            String query = "select machine from Machine machine, machine.machineType as machineType where machine.state = 'vacant' and machineType.id = " + machineTypeId;
+            EntityList<Entity> vacantMachines = database.query(query);
+            while(vacantMachines.size() < 1){
+                vacantMachines = database.query(query);
+                Thread.sleep(100);
+            }
+            Machine out = (Machine) vacantMachines.get(0);
+            out.setState("aquired");
+            database.persist(out);
+            logger.info("aquired machine: " + out.getId());
+            return out;
+        } catch(Exception e){
+            throw new UnexpectedException(e.getMessage());
+        }
     }
-
-    // public synchronized Machine aquireMachine(MachineType machineType){
-
-    // }
 
     private void createMachine(MachineType machineType){
         try {

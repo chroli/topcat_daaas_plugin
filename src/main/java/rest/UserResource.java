@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import org.icatproject.topcatdaaasplugin.cloudclient.CloudClient;
 import org.icatproject.topcatdaaasplugin.database.Database;
+import org.icatproject.topcatdaaasplugin.database.entities.*;
 import org.icatproject.topcatdaaasplugin.exceptions.DaaasException;
 import org.icatproject.topcatdaaasplugin.*;
 
@@ -54,6 +55,9 @@ public class UserResource {
     @EJB
     Database database;
 
+    @EJB
+    MachinePool machinePool;
+
     @GET
     @Path("/machines")
     @Produces({MediaType.APPLICATION_JSON})
@@ -70,7 +74,26 @@ public class UserResource {
             return new DaaasException(e.getMessage()).toResponse();
         }
     }
-    
+
+    @POST
+    @Path("/machines")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response createMachine(
+        @QueryParam("icatUrl") String icatUrl,
+        @QueryParam("sessionId") String sessionId,
+        @QueryParam("machineTypeId") Long machineTypeId){
+        try {
+            Machine machine = machinePool.aquireMachine(machineTypeId);
+            machine.setOwner(getUsername(icatUrl, sessionId));
+            database.persist(machine);
+            return machine.toResponse();
+        } catch(DaaasException e) {
+            return e.toResponse();
+        } catch(Exception e){
+            return new DaaasException(e.getMessage()).toResponse();
+        }
+    }
+
     private String getUsername(String icatUrl, String sessionId) throws Exception {
         IcatClient icatClient = new IcatClient(icatUrl, sessionId);
         JsonObject user = (JsonObject) icatClient.query("select user from User user where user.name = :user").get(0);
