@@ -74,7 +74,7 @@ public class UserResource {
     private String getUsername(String icatUrl, String sessionId) throws Exception {
         IcatClient icatClient = new IcatClient(icatUrl, sessionId);
         JsonObject user = (JsonObject) icatClient.query("select user from User user where user.name = :user").get(0);
-        return user.getString("name");   
+        return user.getString("name");
     }
 
     // @GET

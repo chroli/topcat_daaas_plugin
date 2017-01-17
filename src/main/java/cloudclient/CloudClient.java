@@ -293,12 +293,12 @@ public class CloudClient {
             String data = Json.createObjectBuilder().add("server", server).build().toString();
 
             Response response = computeHttpClient.post("servers", generateStandardHeaders(), data);
-            if(response.getCode() > 400){
+            if(response.getCode() >= 400){
                 throw new BadRequestException(response.toString());
             }
 
             Server out = new Server();
-
+            out.setId(parseJson(response.toString()).getJsonObject("server").getString("id"));
             return out;
         } catch(DaaasException e){
             throw e;
@@ -311,7 +311,35 @@ public class CloudClient {
         }
     }
 
-
+    public Server getServer(String id) throws DaaasException {
+        try {
+            Server out = new Server();
+            out.setId(id);
+            Response response = computeHttpClient.get("servers/" + id, generateStandardHeaders());
+            if(response.getCode() == 200){
+                JsonObject serverInfo = parseJson(response.toString()).getJsonObject("server");
+                if(serverInfo.getString("status").equals("ACTIVE")){
+                    for(JsonValue addressInfoValue : serverInfo.getJsonObject("addresses").getJsonArray("public")){
+                        JsonObject addressInfo = (JsonObject) addressInfoValue;
+                        if(addressInfo.getInt("version") == 4){
+                            out.setHost(addressInfo.getString("addr"));
+                        }
+                    }
+                }
+            } else {
+                throw new BadRequestException(response.toString());
+            }
+            return out;
+        } catch(DaaasException e){
+            throw e;
+        } catch(Exception e){
+            String message = e.getMessage();
+            if(message == null){
+                message = e.toString();
+            }
+            throw new UnexpectedException(message);
+        }
+    }
 
     // public EntityList<Machine> getMachines()  throws DaaasException {
     //     EntityList<Machine> out = new EntityList<Machine>();

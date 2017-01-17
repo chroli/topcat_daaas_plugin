@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import org.icatproject.topcatdaaasplugin.exceptions.*;
 import org.icatproject.topcatdaaasplugin.cloudclient.CloudClient;
+import org.icatproject.topcatdaaasplugin.cloudclient.entities.*;
 import org.icatproject.topcatdaaasplugin.database.Database;
 import org.icatproject.topcatdaaasplugin.database.entities.*;
 import org.icatproject.topcatdaaasplugin.Entity;
@@ -82,7 +83,25 @@ public class MachinePool {
     // }
 
     private void createMachine(MachineType machineType){
+        try {
+            Machine machine = new Machine();
+            Server server = cloudClient.createServer(machineType.getName(), machineType.getImageId(), machineType.getFlavorId(), machineType.getAvailabilityZone());
+            while(server.getHost() == null){
+                Thread.sleep(1000);
+                server = cloudClient.getServer(server.getId());
+            }
 
+            machine.setId(server.getId());
+            machine.setName(machineType.getName());
+            machine.setState("vacant");
+            machine.setHost(server.getHost());
+            machine.setWebsockifyToken("token");
+            machine.setMachineType(machineType);
+            database.persist(machine);
+            logger.info("created machine: " + machine.getId());
+        } catch(Exception e) {
+            logger.error("createMachine: " + e.getMessage());
+        }
     }
 
 }

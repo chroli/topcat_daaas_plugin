@@ -97,7 +97,7 @@ public class Machine extends Entity {
     }
 
     public void setWebsockifyToken(String websockifyToken) {
-        this.host = websockifyToken;
+        this.websockifyToken = websockifyToken;
     }
 
     public MachineType getMachineType() {

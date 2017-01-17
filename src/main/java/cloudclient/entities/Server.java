@@ -22,7 +22,7 @@ public class Server extends Entity {
         return host;
     }
 
-    public void setHost(String name) {
+    public void setHost(String host) {
         this.host = host;
     }
 
