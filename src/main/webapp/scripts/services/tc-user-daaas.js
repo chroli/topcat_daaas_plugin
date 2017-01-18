@@ -68,6 +68,22 @@
         }
       });
 
+      this.deleteMachine = helpers.overload({
+        'string, object': function(machineId, options){
+          var params = {
+            icatUrl: facility.config().icatUrl,
+            sessionId: icat.session().sessionId
+          };
+          return this.delete('machines/' + machineId, params, options);
+        },
+        'promise, string': function(timeout, machineId){
+          return this.deleteMachine(machineId, {timeout: timeout});
+        },
+        'string': function(machineId){
+          return this.deleteMachine(machineId, {});
+        }
+      });
+
       var matches;
       if(matches = pluginUrl.match(/http:\/\/localhost:10080(.*)/)){
         helpers.generateRestMethods(this, "https://localhost:8181" + matches[1] + "api/user/");

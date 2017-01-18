@@ -34,7 +34,7 @@
 	    this.view = function(machine){
 	    	that.machine = machine;
 	    	$uibModal.open({
-                templateUrl:  tc.daaas().pluginUrl() + 'views/machine.html',
+                templateUrl:  daaas.pluginUrl() + 'views/machine.html',
                 controller: 'MachineController as machineController',
                 size : 'lg',
                 scope: $scope
@@ -48,14 +48,14 @@
 
         this.delete = function(machine){
             if(confirm("Are you really sure you want to delete this machine?")){
-                tc.daaas().deleteMachine(machine.id, timeout).then(pollMachines);
+                daaas.deleteMachine(machine.id, timeout).then(pollMachines);
             }
         };
 
         this.create = function(machine){
             that.machine = machine;
             $uibModal.open({
-                templateUrl: tc.daaas().pluginUrl() + 'views/create-machine.html',
+                templateUrl: daaas.pluginUrl() + 'views/create-machine.html',
                 controller: 'CreateMachineController as createMachineController',
                 size : 'md',
                 scope: $scope

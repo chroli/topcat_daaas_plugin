@@ -10,7 +10,8 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.ejb.Schedule;
 import javax.ejb.EJB;
- 
+import javax.ejb.ConcurrencyManagement;
+import javax.ejb.ConcurrencyManagementType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ import org.icatproject.topcatdaaasplugin.Entity;
 import org.icatproject.topcatdaaasplugin.EntityList;
 
 
+@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @Singleton
 @Startup
 public class MachinePool {

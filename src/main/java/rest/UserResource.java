@@ -97,6 +97,34 @@ public class UserResource {
         }
     }
 
+    @DELETE
+    @Path("/machines/{id}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response deleteMachine(
+        @PathParam("id") String id,
+        @QueryParam("icatUrl") String icatUrl,
+        @QueryParam("sessionId") String sessionId){
+        try {
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("id", id);
+
+            Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);
+            if(machine == null){
+                throw new DaaasException("No such machine.");
+            }
+            if(!machine.getOwner().equals(getUsername(icatUrl, sessionId))){
+                throw new DaaasException("You are not allowed to delete this machine type.");
+            }
+            cloudClient.deleteMachine(machine.getId());
+            database.remove(machine);
+            return machine.toResponse();
+    } catch(DaaasException e) {
+            return e.toResponse();
+        } catch(Exception e){
+            return new DaaasException(e.getMessage()).toResponse();
+        }
+    }
+
     @GET
     @Path("/machineTypes")
     @Produces({MediaType.APPLICATION_JSON})

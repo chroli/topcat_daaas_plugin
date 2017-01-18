@@ -4,17 +4,19 @@
 
 	var app = angular.module('topcat');
 
-	app.controller('CreateMachineController', function($q, $scope, $uibModalInstance, $timeout, tc){
+	app.controller('CreateMachineController', function($q, $scope, $state, $uibModalInstance, $timeout, tc){
 		var that = this;
+        var facility = tc.facility($state.params.facilityName);
+        var user = facility.user();
+        var daaas = user.daaas();
 		var timeout = $q.defer();
-    	$scope.$on('$destroy', function(){ timeout.resolve(); });
+        $scope.$on('$destroy', function(){ timeout.resolve(); });
 
-        this.templateId = null;
-        this.name = "";
+        this.machineTypeId = null;
 
-        that.templates = [];
-        tc.daaas().templates(timeout).then(function(templates){
-            that.templates = templates;
+        this.machineTypes = [];
+        daaas.machineTypes(timeout).then(function(machineTypes){
+            that.machineTypes = machineTypes;
         })
 
 
@@ -23,7 +25,7 @@
     	});
 
         this.create = function() {
-            tc.daaas().createMachine(this.templateId, this.name, timeout).then(function(){
+            daaas.createMachine(timeout.promise, this.machineTypeId).then(function(){
                 $uibModalInstance.dismiss('cancel');
             });
         };
