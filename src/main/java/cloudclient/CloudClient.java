@@ -280,7 +280,6 @@ public class CloudClient {
             //         }
             //     }
             // }
-
             JsonObjectBuilder server = Json.createObjectBuilder();
             server.add("name", name);
             server.add("imageRef", imageRef);
@@ -289,6 +288,8 @@ public class CloudClient {
             JsonObjectBuilder metadata = Json.createObjectBuilder();
             metadata.add("owner", "");
             server.add("metadata", metadata);
+            Properties properties = new Properties();
+            server.add("key_name", properties.getProperty("ssh_key_pair_name"));
 
             String data = Json.createObjectBuilder().add("server", server).build().toString();
 

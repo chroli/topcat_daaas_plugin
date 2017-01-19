@@ -23,7 +23,7 @@ import org.icatproject.topcatdaaasplugin.database.Database;
 import org.icatproject.topcatdaaasplugin.database.entities.*;
 import org.icatproject.topcatdaaasplugin.Entity;
 import org.icatproject.topcatdaaasplugin.EntityList;
-
+import org.icatproject.topcatdaaasplugin.Properties;
 
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @Singleton
@@ -116,6 +116,13 @@ public class MachinePool {
             machine.setHost(server.getHost());
             machine.setWebsockifyToken("token");
             machine.setMachineType(machineType);
+            
+
+            Properties properties = new Properties();
+            String command = properties.getProperty("ssh_init_command");
+            SshClient sshClient = new SshClient(machine.getHost());
+
+            sshClient.exec(command);
             database.persist(machine);
             logger.info("created machine: " + machine.getId());
         } catch(Exception e) {

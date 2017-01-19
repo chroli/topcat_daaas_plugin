@@ -48,7 +48,7 @@
 
         this.delete = function(machine){
             if(confirm("Are you really sure you want to delete this machine?")){
-                daaas.deleteMachine(machine.id, timeout).then(pollMachines);
+                daaas.deleteMachine(timeout.promise, machine.id).then(pollMachines);
             }
         };
 
