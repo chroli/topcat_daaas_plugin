@@ -20,7 +20,9 @@ registerTopcatPlugin(function(pluginUrl){
 			pluginUrl + 'scripts/services/tc-user-daaas.js'
 		],
 
-		stylesheets: [],
+		stylesheets: [
+			pluginUrl + 'styles/main.css'
+		],
 
 		configSchema: {
 
