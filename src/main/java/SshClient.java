@@ -55,16 +55,13 @@ public class SshClient {
         try {
             Properties properties = new Properties();
 
-            logger.info("ssh_private_key_file: " + properties.getProperty("ssh_private_key_file"));
-
             client.addHostKeyVerifier(new PromiscuousVerifier());
             client.connect(host);
 
             PKCS8KeyFile keyFile = new PKCS8KeyFile();
-            keyFile.init(new File(properties.getProperty("ssh_private_key_file")));
-            client.authPublickey(properties.getProperty("ssh_username"), keyFile);
+            keyFile.init(new File(properties.getProperty("sshPrivateKeyFile")));
+            client.authPublickey(properties.getProperty("sshUsername"), keyFile);
             Session session = client.startSession();
-            logger.info("Session session = client.startSession();");
             try {
                 Command command = session.exec(commandToRun);
                 String out =  IOUtils.readFully(command.getInputStream()).toString();
