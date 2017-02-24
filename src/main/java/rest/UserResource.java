@@ -7,6 +7,7 @@ package org.icatproject.topcatdaaasplugin.rest;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.UUID;
 import java.io.ByteArrayOutputStream;
 
 import javax.ejb.Stateless;
@@ -88,8 +89,15 @@ public class UserResource {
                  throw new DaaasException("You are not allowed to create this machine type.");
             }
             Machine machine = machinePool.aquireMachine(machineTypeId);
-            machine.setOwner(getUsername(icatUrl, sessionId));
             database.persist(machine);
+
+            MachineUser machineUser = new MachineUser();
+            machineUser.setUserName(getUsername(icatUrl, sessionId));
+            machineUser.setType("primary");
+            machineUser.setWebsockifyToken(UUID.randomUUID().toString());
+            machineUser.setMachine(machine;
+            database.persist(machineUser);
+
             return machine.toResponse();
         } catch(DaaasException e) {
             return e.toResponse();

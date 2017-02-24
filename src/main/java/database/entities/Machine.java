@@ -10,12 +10,7 @@ import javax.json.JsonObjectBuilder;
 
 import org.icatproject.topcatdaaasplugin.Entity;
 
-import javax.persistence.FetchType;
-import javax.persistence.Column;
-import javax.persistence.JoinColumn;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import java.util.Base64;
@@ -42,9 +37,6 @@ public class Machine extends Entity {
     @Column(name = "ID", nullable = false)
     private String id;
 
-    @Column(name = "OWNER", nullable = true)
-    private String owner;
-
     @Column(name = "NAME", nullable = false)
     private String name;
 
@@ -54,12 +46,12 @@ public class Machine extends Entity {
     @Column(name = "HOST", nullable = false)
     private String host;
 
-    @Column(name = "WEBSOCKIFY_TOKEN", nullable = false)
-    private String websockifyToken;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name= "MACHINE_TYPE_ID")
     private MachineType machineType;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "machineType", orphanRemoval = true)
+    private List<MachineUser> machineUsers;
     
     public String getId() {
         return id;
@@ -67,14 +59,6 @@ public class Machine extends Entity {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getOwner() {
-        return owner;
-    }
-
-    public void setOwner(String owner) {
-        this.owner = owner;
     }
 
     public String getName() {
@@ -100,15 +84,6 @@ public class Machine extends Entity {
     public void setHost(String host) {
         this.host = host;
     }
-    
-    public String getWebsockifyToken(){
-        //return Websockify.getInstance().getToken("elz24996", getHost());
-        return websockifyToken;
-    }
-
-    public void setWebsockifyToken(String websockifyToken) {
-        this.websockifyToken = websockifyToken;
-    }
 
     public MachineType getMachineType() {
         return machineType;
@@ -117,15 +92,26 @@ public class Machine extends Entity {
     public void setMachineType(MachineType machineType) {
         this.machineType = machineType;
     }
+
+    public EntityList<MachineUser> getMachineUsers(){
+        EntityList<MachineUser> out = new EntityList<MachineUser>();
+        for(MachineUser machineUser : machineUsers){
+            out.add(machineUser);
+        }
+        return out;
+    }
+
+    public void setMachineUsers(List<MachineUser> machineUsers) {
+        this.machineUsers = machineUsers;
+    }
     
     public JsonObjectBuilder toJsonObjectBuilder(){
         JsonObjectBuilder out = Json.createObjectBuilder();
         out.add("id", getId());
-        out.add("owner", getOwner());
         out.add("name", getName());
         out.add("state", getState());
         out.add("host", getHost());
-        out.add("websockifyToken", getWebsockifyToken());
+        out.add("users", getMachineUsers());
         return out;
     }
 
