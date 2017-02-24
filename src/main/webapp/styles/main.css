@@ -56,3 +56,67 @@
 .machine .main .field > * {
 	display: inline-block;
 }
+
+
+.machine-types {
+    border-width: 1px;
+    border-color: #ddd;
+    border-style: solid;
+    overflow-y: scroll;
+    padding: 14px;
+}
+
+
+.machine-types .machine {
+    border-width: 1px;
+    border-color: #ddd;
+    border-style: solid;
+    background: #efefef;
+    padding: 14px;
+    position: relative;
+    margin-bottom: 28px;
+    height: 150px;
+}
+
+.machine-types .machine.selected {
+    outline: none;
+    border-color: #9ecaed;
+    box-shadow: 0 0 10px #9ecaed;
+}
+
+.machine-types .machine .radio {
+    display: inline-block;
+    width: 5%;
+}
+
+.machine-types .machine .radio input {
+    margin-left: 0px;
+}
+
+.machine-types .machine .screenshot {
+    display: inline-block;
+    width: 14%;
+}
+
+.machine-types .machine .screenshot img {
+    width: 100%;
+    margin: 0px;
+    border-width: 1px;
+    border-color: #ddd;
+    border-style: solid;
+}
+
+
+.machine-types .machine .main {
+    display: inline-block;
+    width: 80%;
+    margin: 0px;
+    position: absolute;
+    padding: 0px 14px 0px 14px;
+    height: 100%;
+}
+
+.machine-types .machine .info .title {
+    font-size: 28px;
+    margin-bottom: 14px;
+}

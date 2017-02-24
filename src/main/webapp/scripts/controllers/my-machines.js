@@ -20,10 +20,15 @@
     	$scope.$on('$destroy', function(){ timeout.resolve(); });
 
 	    this.machines = [];
+        var machinesHash = JSON.stringify(this.machines);
 
         function pollMachines(){
             daaas.machines({timeout: timeout.promise, bypassInterceptors: true}).then(function(machines){
-                that.machines = machines;
+                var currentMachinesHash = JSON.stringify(machines);
+                if(currentMachinesHash != machinesHash){
+                    that.machines = machines;
+                    machinesHash = currentMachinesHash;
+                }
             });
         }
         var pollMachinesPromise = $interval(pollMachines, 1000);
@@ -57,7 +62,7 @@
             $uibModal.open({
                 templateUrl: daaas.pluginUrl() + 'views/create-machine.html',
                 controller: 'CreateMachineController as createMachineController',
-                size : 'md',
+                size : 'lg',
                 scope: $scope
             }).opened.catch(function (error) {
                 inform.add(error, {
