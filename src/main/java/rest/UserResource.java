@@ -7,6 +7,7 @@ package org.icatproject.topcatdaaasplugin.rest;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.io.ByteArrayOutputStream;
 
 import javax.ejb.Stateless;
 import javax.ejb.LocalBean;
@@ -149,7 +150,41 @@ public class UserResource {
             machine.setResolution(width, height);
 
             return machine.toResponse();
-    } catch(DaaasException e) {
+        } catch(DaaasException e) {
+            return e.toResponse();
+        } catch(Exception e){
+            String message = e.getMessage();
+            if(message == null){
+                message = e.toString();
+            }
+            return new DaaasException(message).toResponse();
+        }
+    }
+
+    @GET
+    @Path("/machines/{id}/screenshot")
+    @Produces("image/png")
+    public Response setMachineScreenshot(
+        @PathParam("id") String id,
+        @QueryParam("icatUrl") String icatUrl,
+        @QueryParam("sessionId") String sessionId){
+        try {
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("id", id);
+
+            Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);
+            if(machine == null){
+                throw new DaaasException("No such machine.");
+            }
+            if(!machine.getOwner().equals(getUsername(icatUrl, sessionId))){
+                throw new DaaasException("You are not allowed to access this machine.");
+            }
+
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            byteArrayOutputStream.write(machine.getScreenshot());
+
+            return Response.ok(byteArrayOutputStream).build();
+        } catch(DaaasException e) {
             return e.toResponse();
         } catch(Exception e){
             String message = e.getMessage();
