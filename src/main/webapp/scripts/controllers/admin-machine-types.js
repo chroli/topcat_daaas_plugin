@@ -36,6 +36,7 @@
       }));
 
       this.machineTypes = [];
+      var machinesTypesHash = JSON.stringify(this.machineTypes);
 
       $q.all(promises).then(function(){
         function pollMachineTypes(){
@@ -47,7 +48,11 @@
               machineType.image = imageIndex[machineType.imageId];
               machineType.flavor = flavorIndex[machineType.flavorId];
             });
-            that.machineTypes = machineTypes;
+            var currentMachinesTypesHash = JSON.stringify(machineTypes);
+            if(currentMachinesTypesHash != machinesTypesHash){
+              that.machineTypes = machineTypes;
+              machinesTypesHash = currentMachinesTypesHash;
+            }
           });
         }
         var pollMachineTypesPromise = $interval(pollMachineTypes, 1000);

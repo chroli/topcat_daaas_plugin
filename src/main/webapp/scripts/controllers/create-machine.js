@@ -14,8 +14,6 @@
 
         this.machineTypeId = null;
 
-        this.machineType = null;
-
         this.machineTypes = [];
         daaas.machineTypes(timeout).then(function(machineTypes){
             that.machineTypes = machineTypes;
