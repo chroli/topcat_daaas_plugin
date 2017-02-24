@@ -9,6 +9,7 @@
         return {
             restrict: 'E',
             scope: {
+              host: '=',
               token: '=',
               height: '=',
               width: '=',
@@ -19,10 +20,10 @@
                 $($element).css({
                     display: 'inline-block',
                     height: '100%',
-                    width: '100%'
+                    width: '100%',
                 });
 
-                var host = window.location.hostname;
+                var host = $scope.host || window.location.hostname;
                 var port = 29876;
                 var path = "websockify?token=" + $scope.token;
                 var width = getWidth();

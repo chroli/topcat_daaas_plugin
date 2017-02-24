@@ -268,7 +268,7 @@ public class CloudClient {
 
     public Server createServer(String name, String imageRef, String flavorRef, String availabilityZone) throws DaaasException {
         try {
-
+            logger.info("createServer: " + name + ", " + imageRef + ", " + flavorRef + ", " + availabilityZone);
             // {
             //     "server" => {
             //         "name" => "auto-allocate-network",
@@ -289,9 +289,11 @@ public class CloudClient {
             metadata.add("owner", "");
             server.add("metadata", metadata);
             Properties properties = new Properties();
-            server.add("key_name", properties.getProperty("ssh_key_pair_name"));
+            server.add("key_name", properties.getProperty("sshKeyPairName"));
 
             String data = Json.createObjectBuilder().add("server", server).build().toString();
+
+            logger.info("data: " + data);
 
             Response response = computeHttpClient.post("servers", generateStandardHeaders(), data);
             if(response.getCode() >= 400){

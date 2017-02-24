@@ -8,7 +8,7 @@
 		var that = this;
 		var timeout = $q.defer();
     	$scope.$on('$destroy', function(){ timeout.resolve(); });
-    	this.token = tc.daaas().sessionId();
+    	//this.token = tc.daaas().sessionId();
     	this.open = false;
 
     	$uibModalInstance.rendered.then(function(){

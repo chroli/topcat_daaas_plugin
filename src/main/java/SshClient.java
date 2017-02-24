@@ -26,6 +26,8 @@ public class SshClient {
     private String host;
 
     public SshClient(String host){
+        logger.info("new SshClient");
+
         this.host = host;
 
         //wait for port to open
@@ -45,11 +47,15 @@ public class SshClient {
     }
 
     public String exec(String commandToRun) throws IOException {
+        logger.info("exec " + commandToRun);
+
         Security.addProvider(new BouncyCastleProvider());
         SSHClient client = new SSHClient();
         
         try {
             Properties properties = new Properties();
+
+            logger.info("ssh_private_key_file: " + properties.getProperty("ssh_private_key_file"));
 
             client.addHostKeyVerifier(new PromiscuousVerifier());
             client.connect(host);
@@ -58,7 +64,7 @@ public class SshClient {
             keyFile.init(new File(properties.getProperty("ssh_private_key_file")));
             client.authPublickey(properties.getProperty("ssh_username"), keyFile);
             Session session = client.startSession();
-
+            logger.info("Session session = client.startSession();");
             try {
                 Command command = session.exec(commandToRun);
                 String out =  IOUtils.readFully(command.getInputStream()).toString();

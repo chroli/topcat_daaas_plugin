@@ -12,6 +12,7 @@
 
     function UserDaaas(pluginUrl, user){
 
+      var that = this;
       var facility = user.facility();
       var icat = facility.icat();
 
@@ -25,12 +26,27 @@
     				icatUrl: facility.config().icatUrl,
     				sessionId: icat.session().sessionId
     			};
-    			return this.get('machines', params, options);
+    			return this.get('machines', params, options).then(function(machines){
+            _.each(machines, function(machine){
+
+              machine.setResolution = function(width, height){
+                var params = {
+                  icatUrl: facility.config().icatUrl,
+                  sessionId: icat.session().sessionId,
+                  width: width,
+                  height: height
+                };
+                return that.post("machines/" + this.id + "/resolution", params, options);
+              };
+
+            });
+            return machines;
+          });
     		},
-    		'promise': function(timeout){
+    		'promise': function(timeout, width, height){
     			return this.machines({timeout: timeout});
     		},
-    		'': function(){
+    		'': function(width, height){
     			return this.machines({});
     		}
     	});

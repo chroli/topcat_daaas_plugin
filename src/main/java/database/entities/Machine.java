@@ -18,6 +18,14 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import java.util.Base64;
+import java.io.IOException;
+
+import org.icatproject.topcatdaaasplugin.SshClient;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  *
  * @author elz24996
@@ -27,6 +35,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Table(name = "MACHINE")
 @XmlRootElement
 public class Machine extends Entity {
+    private static final Logger logger = LoggerFactory.getLogger(Machine.class);
     
     @Id
     @Column(name = "ID", nullable = false)
@@ -117,6 +126,15 @@ public class Machine extends Entity {
         out.add("host", getHost());
         out.add("websockifyToken", getWebsockifyToken());
         return out;
+    }
+
+    public void setResolution(int width, int height)  throws IOException {
+        logger.info("setResolution");
+        new SshClient(getHost()).exec("set_resolution " + width + " " + height);
+    }
+
+    public byte[] getScreenshot()  throws IOException {
+        return Base64.getDecoder().decode(new SshClient(this.host).exec("get_screenshot"));
     }
     
 }

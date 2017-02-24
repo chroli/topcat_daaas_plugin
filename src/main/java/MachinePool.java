@@ -118,11 +118,11 @@ public class MachinePool {
             machine.setMachineType(machineType);
             
 
-            Properties properties = new Properties();
-            String command = properties.getProperty("ssh_init_command");
-            SshClient sshClient = new SshClient(machine.getHost());
+            //Properties properties = new Properties();
+            //String command = properties.getProperty("ssh_init_command");
+            //SshClient sshClient = new SshClient(machine.getHost());
 
-            sshClient.exec(command);
+            //sshClient.exec(command);
             database.persist(machine);
             logger.info("created machine: " + machine.getId());
         } catch(Exception e) {

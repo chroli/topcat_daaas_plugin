@@ -125,6 +125,41 @@ public class UserResource {
         }
     }
 
+    @POST
+    @Path("/machines/{id}/resolution")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response setMachineResolution(
+        @PathParam("id") String id,
+        @FormParam("icatUrl") String icatUrl,
+        @FormParam("sessionId") String sessionId,
+        @FormParam("width") int width,
+        @FormParam("height") int height){
+        try {
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("id", id);
+
+            Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);
+            if(machine == null){
+                throw new DaaasException("No such machine.");
+            }
+            if(!machine.getOwner().equals(getUsername(icatUrl, sessionId))){
+                throw new DaaasException("You are not allowed to access this machine.");
+            }
+            
+            machine.setResolution(width, height);
+
+            return machine.toResponse();
+    } catch(DaaasException e) {
+            return e.toResponse();
+        } catch(Exception e){
+            String message = e.getMessage();
+            if(message == null){
+                message = e.toString();
+            }
+            return new DaaasException(message).toResponse();
+        }
+    }
+
     @GET
     @Path("/machineTypes")
     @Produces({MediaType.APPLICATION_JSON})
@@ -135,6 +170,19 @@ public class UserResource {
             return getAvailableMachineTypes(icatUrl, sessionId).toResponse();
         } catch(DaaasException e) {
             return e.toResponse();
+        } catch(Exception e){
+            return new DaaasException(e.getMessage()).toResponse();
+        }
+    }
+
+    @GET
+    @Path("/sshTest")
+    @Produces({MediaType.TEXT_PLAIN})
+    public Response sshTest(){
+        try {
+            SshClient sshClient = new SshClient("130.246.186.17");
+
+            return Response.ok().entity(sshClient.exec("get_screenshot")).build();
         } catch(Exception e){
             return new DaaasException(e.getMessage()).toResponse();
         }
