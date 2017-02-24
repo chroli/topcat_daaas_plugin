@@ -196,5 +196,10 @@ public class Machine extends Entity {
     public void removeWebsockifyToken(String token) throws Exception {
         new SshClient(getHost()).exec("remove_websockify_token " + token);
     }
+
+    public void contextualize() throws Exception {
+        addPrimaryUser(getOwner());
+        addWebsockifyToken(getWebsockifyToken());
+    }
     
 }
