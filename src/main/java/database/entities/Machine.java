@@ -19,7 +19,8 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import java.util.Base64;
-import java.io.IOException;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 import org.icatproject.topcatdaaasplugin.SshClient;
 
@@ -128,13 +129,72 @@ public class Machine extends Entity {
         return out;
     }
 
-    public void setResolution(int width, int height)  throws IOException {
-        logger.info("setResolution");
+    // case "${cmd[0]}" in
+    //   "set_resolution")
+    //     arg1=${cmd[1]//[^0-9]/}
+    //     arg2=${cmd[2]//[^0-9]/}
+    //     $SCRIPTS_DIR/set_resolution.sh $arg1 $arg2
+    //     ;;
+    //   get_screenshot)
+    //     $SCRIPTS_DIR/get_screenshot.sh
+    //     ;;
+    //   add_primary_user)
+    //     $SCRIPTS_DIR/add_primary_user.sh ${cmd[1]}
+    //     ;;
+    //   add_secondary_user)
+    //     $SCRIPTS_DIR/add_secondary_user.sh ${cmd[1]}
+    //     ;;
+    //   remove_secondary_user)
+    //     $SCRIPTS_DIR/remove_secondary_user.sh ${cmd[1]}
+    //     ;;
+    //   get_last_activity)
+    //     $SCRIPTS_DIR/get_last_activity.sh
+    //     ;;
+    //   add_websockify_token)
+    //     $SCRIPTS_DIR/add_websockify_token.sh ${cmd[1]}
+    //     ;;
+    //   remove_websockify_token)
+    //     $SCRIPTS_DIR/remove_websockify_token.sh ${cmd[1]}
+    //     ;;
+    //   set_machine_type)
+    //     $SCRIPTS_DIR/set_machine_type.sh ${cmd[1]}
+    //     ;;
+    //   *)
+    //     echo "Unrecognised command"
+    //     exit 1
+    //     ;;
+    // esac
+
+    public byte[] getScreenshot()  throws Exception {
+        return Base64.getDecoder().decode(new SshClient(this.host).exec("get_screenshot"));
+    }
+
+    public void setResolution(int width, int height)  throws Exception {
         new SshClient(getHost()).exec("set_resolution " + width + " " + height);
     }
 
-    public byte[] getScreenshot()  throws IOException {
-        return Base64.getDecoder().decode(new SshClient(this.host).exec("get_screenshot"));
+    public void addPrimaryUser(String username) throws Exception {
+        new SshClient(getHost()).exec("add_primary_user " + username);
+    }
+
+    public void addSecondaryUser(String username) throws Exception {
+        new SshClient(getHost()).exec("add_secondary_user " + username);
+    }
+
+    public void removeSecondaryUser(String username) throws Exception {
+        new SshClient(getHost()).exec("remove_secondary_user " + username);
+    }
+
+    public Date getLastActivity() throws Exception {
+        return new SimpleDateFormat().parse(new SshClient(getHost()).exec("get_last_activity"));
+    }
+
+    public void addWebsockifyToken(String token) throws Exception {
+        new SshClient(getHost()).exec("add_websockify_token " + token);
+    }
+
+    public void removeWebsockifyToken(String token) throws Exception {
+        new SshClient(getHost()).exec("remove_websockify_token " + token);
     }
     
 }
