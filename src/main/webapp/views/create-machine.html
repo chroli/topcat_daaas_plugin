@@ -11,7 +11,7 @@
 
                     <div class="machine" ng-class="{selected: createMachineController.machineTypeId == machineType.id}" ng-repeat="machineType in createMachineController.machineTypes">
                         <div class="radio">
-                            <input type="radio" name="machineType" ng-model="createMachineController.machineTypeId" ng-value="machineType.id">
+                            <input type="radio" name="machineType" ng-model="createMachineController.machineTypeId" ng-value="machineType.id" required>
                         </div>
                         <div class="screenshot">
                             <img src="http://localhost:10080/topcat_daaas_plugin/images/mantid.png">
