@@ -131,7 +131,7 @@
     border-style: solid;
     background: white;
     position: absolute;
-
+    min-width: 300px;
 }
 
 .autocomplete li {
@@ -139,3 +139,6 @@
     padding: 7px;
 }
 
+.autocomplete li.selected {
+    background: #eaeaea;
+}
