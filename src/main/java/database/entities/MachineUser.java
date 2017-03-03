@@ -97,7 +97,7 @@ public class MachineUser extends Entity implements Serializable {
     public JsonObjectBuilder toJsonObjectBuilder(){
         JsonObjectBuilder out = Json.createObjectBuilder();
         out.add("id", getId());
-        out.add("userName", getUsername());
+        out.add("userName", getUserName());
         out.add("type", getType());
         out.add("websockifyToken", getWebsockifyToken());
         out.add("createdAt", getCreatedAt().toString());

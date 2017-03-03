@@ -72,6 +72,21 @@
             });
         };
 
+        this.share = function(machine){
+            that.machine = machine;
+            $uibModal.open({
+                templateUrl: daaas.pluginUrl() + 'views/share-machine.html',
+                controller: 'ShareMachineController as shareMachineController',
+                size : 'md',
+                scope: $scope
+            }).opened.catch(function (error) {
+                inform.add(error, {
+                    'ttl': 0,
+                    'type': 'danger'
+                });
+            });
+        };
+
 	});
 
 })();

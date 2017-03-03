@@ -1,0 +1,57 @@
+<style>
+
+
+</style>
+
+<div class="modal-content">
+    <div class="modal-header">
+        <h3 class="modal-title">Share Machine</h3>
+    </div>
+    <div class="modal-body">
+        <form novalidate name="shareMachineController.form">
+            <div class="form-group">
+                <label class="control-label" for="server">Users</label>
+
+                <div class="form-group" ng-repeat="user in shareMachineController.users">
+                    <div class="input-group">
+                        <span class="form-control">
+                            {{user.name}}<span ng-if="user.fullName"> ({{user.fullName}})</span>
+                        </span>
+                        <label class="input-group-addon">
+                            <button 
+                                class="btn btn-primary btn-xs" 
+                                style="font-size: 8px;" 
+                                ng-click="shareMachineController.deleteUser(user)">
+                                <i class="glyphicon glyphicon-remove"></i>
+                            </button>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-group">
+                        <input
+                            type="text"
+                            class="form-control"
+                            placeholder="Who do you want to share with?"
+                            ng-model="shareMachineController.newUser"
+                            ng-keydown="$event.which == 13 && ($event.preventDefault() || shareMachineController.addUser())">
+                        <label class="input-group-addon">
+                            <button 
+                                class="btn btn-primary btn-xs" 
+                                style="font-size: 8px;" 
+                                ng-click="shareMachineController.addUser()">
+                                <i class="glyphicon glyphicon-plus"></i>
+                            </button>
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" ng-click="shareMachineController.share()" ng-disabled="createMachineController.form.$invalid">Share</button>
+        <button class="btn btn-warning" ng-click="shareMachineController.close()">Close</button>
+    </div>
+</div>

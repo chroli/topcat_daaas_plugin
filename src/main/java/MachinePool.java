@@ -114,7 +114,6 @@ public class MachinePool {
             machine.setName(machineType.getName());
             machine.setState("vacant");
             machine.setHost(server.getHost());
-            machine.setWebsockifyToken("token");
             machine.setMachineType(machineType);
             
 

@@ -68,8 +68,8 @@ public class UserResource {
         @QueryParam("sessionId") String sessionId){
         try {
             Map<String, String> params = new HashMap<String, String>();
-            params.put("owner", getUsername(icatUrl, sessionId));
-            return database.query("select machine from Machine machine where machine.owner = :owner", params).toResponse();
+            params.put("primaryUser", getUsername(icatUrl, sessionId));
+            return database.query("select machine from MachineUser machineUser, machineUser.machine as machine where machineUser.userName = :primaryUser", params).toResponse();
         } catch(DaaasException e) {
             return e.toResponse();
         } catch(Exception e){
@@ -95,7 +95,7 @@ public class UserResource {
             machineUser.setUserName(getUsername(icatUrl, sessionId));
             machineUser.setType("primary");
             machineUser.setWebsockifyToken(UUID.randomUUID().toString());
-            machineUser.setMachine(machine;
+            machineUser.setMachine(machine);
             database.persist(machineUser);
 
             return machine.toResponse();
@@ -121,7 +121,7 @@ public class UserResource {
             if(machine == null){
                 throw new DaaasException("No such machine.");
             }
-            if(!machine.getOwner().equals(getUsername(icatUrl, sessionId))){
+            if(!machine.getPrimaryUser().getUserName().equals(getUsername(icatUrl, sessionId))){
                 throw new DaaasException("You are not allowed to delete this machine type.");
             }
             cloudClient.deleteMachine(machine.getId());
@@ -151,7 +151,7 @@ public class UserResource {
             if(machine == null){
                 throw new DaaasException("No such machine.");
             }
-            if(!machine.getOwner().equals(getUsername(icatUrl, sessionId))){
+            if(!machine.getPrimaryUser().getUserName().equals(getUsername(icatUrl, sessionId))){
                 throw new DaaasException("You are not allowed to access this machine.");
             }
             
@@ -184,7 +184,7 @@ public class UserResource {
             if(machine == null){
                 throw new DaaasException("No such machine.");
             }
-            if(!machine.getOwner().equals(getUsername(icatUrl, sessionId))){
+            if(!machine.getPrimaryUser().getUserName().equals(getUsername(icatUrl, sessionId))){
                 throw new DaaasException("You are not allowed to access this machine.");
             }
 

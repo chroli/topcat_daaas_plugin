@@ -12,6 +12,7 @@ registerTopcatPlugin(function(pluginUrl){
 			pluginUrl + 'scripts/controllers/admin-machine-types.js',
 			pluginUrl + 'scripts/controllers/admin-create-machine-type.js',
 			pluginUrl + 'scripts/controllers/admin-edit-machine-type.js',
+			pluginUrl + 'scripts/controllers/share-machine.js',
 
 			pluginUrl + 'scripts/directives/fullscreen.js',
 			pluginUrl + 'scripts/directives/vnc.js',

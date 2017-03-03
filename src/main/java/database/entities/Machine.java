@@ -9,10 +9,12 @@ import javax.json.Json;
 import javax.json.JsonObjectBuilder;
 
 import org.icatproject.topcatdaaasplugin.Entity;
+import org.icatproject.topcatdaaasplugin.EntityList;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import java.util.List;
 import java.util.Base64;
 import java.util.Date;
 import java.text.SimpleDateFormat;
@@ -50,7 +52,7 @@ public class Machine extends Entity {
     @JoinColumn(name= "MACHINE_TYPE_ID")
     private MachineType machineType;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "machineType", orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "machine", orphanRemoval = true)
     private List<MachineUser> machineUsers;
     
     public String getId() {
@@ -104,6 +106,15 @@ public class Machine extends Entity {
     public void setMachineUsers(List<MachineUser> machineUsers) {
         this.machineUsers = machineUsers;
     }
+
+    public MachineUser getPrimaryUser(){
+        for(MachineUser machineUser : getMachineUsers()){
+            if(machineUser.getType().equals("PRIMARY")){
+                return machineUser;
+            }
+        }
+        return null;
+    }
     
     public JsonObjectBuilder toJsonObjectBuilder(){
         JsonObjectBuilder out = Json.createObjectBuilder();
@@ -111,7 +122,7 @@ public class Machine extends Entity {
         out.add("name", getName());
         out.add("state", getState());
         out.add("host", getHost());
-        out.add("users", getMachineUsers());
+        out.add("users", getMachineUsers().toJsonArrayBuilder());
         return out;
     }
 
@@ -184,8 +195,8 @@ public class Machine extends Entity {
     }
 
     public void contextualize() throws Exception {
-        addPrimaryUser(getOwner());
-        addWebsockifyToken(getWebsockifyToken());
+        //addPrimaryUser(getOwner());
+        //addWebsockifyToken(getWebsockifyToken());
     }
     
 }
