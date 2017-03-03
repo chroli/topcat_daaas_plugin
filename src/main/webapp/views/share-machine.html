@@ -35,7 +35,8 @@
                             class="form-control"
                             placeholder="Who do you want to share with?"
                             ng-model="shareMachineController.newUser"
-                            ng-keydown="$event.which == 13 && ($event.preventDefault() || shareMachineController.addUser())">
+                            ng-keydown="$event.which == 13 && ($event.preventDefault() || shareMachineController.addUser())"
+                            ng-keyup="shareMachineController.updateCandidateUsers()">
                         <label class="input-group-addon">
                             <button 
                                 class="btn btn-primary btn-xs" 
@@ -45,6 +46,11 @@
                             </button>
                         </label>
                     </div>
+                    <ul ng-if="shareMachineController.candidateUsers.length > 0" class="autocomplete">
+                        <li ng-repeat="user in shareMachineController.candidateUsers">
+                            <a ng-click="shareMachineController.addUser(user)">{{user.name}}<span ng-if="user.fullName"> ({{user.fullName}})</span></a>
+                        </li>
+                    </ul>
                 </div>
 
             </div>
