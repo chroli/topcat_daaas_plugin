@@ -41,7 +41,8 @@
                             <button 
                                 class="btn btn-primary btn-xs" 
                                 style="font-size: 8px;" 
-                                ng-click="shareMachineController.addUser()">
+                                ng-click="shareMachineController.addUser()"
+                                ng-disabled="shareMachineController.candidateUsers.length != 1">
                                 <i class="glyphicon glyphicon-plus"></i>
                             </button>
                         </label>
