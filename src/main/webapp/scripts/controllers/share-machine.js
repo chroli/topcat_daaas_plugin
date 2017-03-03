@@ -59,7 +59,7 @@
                     "select user from User user",
                     "where user.name like concat('%', ?, '%')", this.newUser,
                     "or user.fullName like concat('%', ?, '%')", this.newUser,
-                    "limit 0, 11"
+                    "limit 0, 15"
                 ]).then(function(users){
                     that.candidateUsers = _.map(users, function(user, position){
                         user.position = position;
