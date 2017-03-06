@@ -234,6 +234,9 @@ public class UserResource {
             }
 
             for(String userName : userNamesList){
+                if(userName.equals("")){
+                    continue;
+                }
 
                 boolean isExistingUser = false;
 

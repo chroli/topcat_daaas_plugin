@@ -28,6 +28,14 @@
                 if(currentMachinesHash != machinesHash){
                     that.machines = machines;
                     machinesHash = currentMachinesHash;
+
+                    _.each(machines, function(machine){
+                        _.each(machine.users,  function(user){
+                            if(user.userName == facility.icat().session().username){
+                                machine.type = user.type;
+                            }
+                        });
+                    });
                 }
             });
         }

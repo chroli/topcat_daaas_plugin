@@ -38,7 +38,7 @@
 						</div>
 					</div>
 					<div class="actions">
-						<button class="btn btn-sm btn-default" ng-click="myMachinesController.share(machine)">Share</button>
+						<button ng-if="machine.type == 'PRIMARY'" class="btn btn-sm btn-default" ng-click="myMachinesController.share(machine)">Share</button>
 					 	<span class="dropdown">
 						  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"> Launch <span class="caret"></span>
 						  </button>
