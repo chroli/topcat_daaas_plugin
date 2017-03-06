@@ -34,6 +34,17 @@
                             if(user.userName == facility.icat().session().username){
                                 machine.type = user.type;
                             }
+
+                            if(user.type == 'PRIMARY'){
+                                facility.icat().query(timeout.promise, [
+                                    "select user from User user",
+                                    "where user.name = ?", user.userName
+                                ]).then(function(users){
+                                    if(users[0]){
+                                        machine.primaryUser = users[0];
+                                    }
+                                });
+                            }
                         });
                     });
                 }

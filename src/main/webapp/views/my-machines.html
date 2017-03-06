@@ -22,8 +22,8 @@
 				</div>
 				<div class="main">
 					<div class="info">
-						<button class="btn btn-xs btn-default remove" ng-click="myMachinesController.delete(machine)"><span class="glyphicon glyphicon-remove"></span></button>
-						<div class="title">{{machine.name}} <button class="btn btn-xs btn-default"><span class="glyphicon glyphicon-pencil"></span></button></div>
+						<button ng-if="machine.type == 'PRIMARY'" class="btn btn-xs btn-default remove" ng-click="myMachinesController.delete(machine)"><span class="glyphicon glyphicon-remove"></span></button>
+						<div class="title">{{machine.name}} <button ng-if="machine.type == 'PRIMARY'" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-pencil"></span></button></div>
 						<div class="field">
 							<label>State:</label>
 							<div>{{machine.state}}</div>
@@ -35,6 +35,15 @@
 						<div class="field">
 							<label>Date created:</label>
 							<div>10/12/2016</div>
+						</div>
+						<div class="field">
+							<label>Owner:</label>
+							<div>
+								{{machine.primaryUser.name}}
+								<span ng-if="machine.primaryUser.fullName">
+									({{machine.primaryUser.fullName}})
+								</span>
+							</div>
 						</div>
 					</div>
 					<div class="actions">
