@@ -4,7 +4,7 @@
 
 	var app = angular.module('topcat');
 
-	app.controller('ShareMachineController', function($state, $uibModalInstance, tc){
+	app.controller('ShareMachineController', function($state, $uibModalInstance, $scope, $q, tc){
 		var that = this;
         var facility = tc.facility($state.params.facilityName);
 
@@ -12,7 +12,18 @@
         this.users = [];
         this.candidateUsers = [];
         this.selectedCandidateUserPosition = -1;
+        var timeout = $q.defer();
+        $scope.$on('$destroy', function(){ timeout.resolve(); });
 
+        _.each($scope.myMachinesController.machine.users, function(user){
+            if(user.type != 'PRIMARY'){
+                facility.icat().query(timeout.promise, [
+                    "select user from User user where user.name = ?", user.userName
+                ]).then(function(users){
+                    if(users[0]) that.users.push(users[0]);
+                });
+            }
+        });
 
         this.deleteUser = function(user){
             _.remove(this.users, user);
@@ -55,7 +66,7 @@
             if(this.newUser == ""){
                 this.candidateUsers = [];
             } else {
-                facility.icat().query([
+                facility.icat().query(timeout.promise, [
                     "select user from User user",
                     "where user.name like concat('%', ?, '%')", this.newUser,
                     "or user.fullName like concat('%', ?, '%')", this.newUser,
@@ -86,11 +97,14 @@
             }
         };
 
-        this.share = function() {
-            
+        this.save = function(){
+            var userNames = _.map(this.users, function(user){ return user.name; });
+            $scope.myMachinesController.machine.share(timeout.promise, userNames).then(function(){
+                $uibModalInstance.dismiss('cancel');
+            });
         };
 
-    	this.close = function() {
+    	this.cancel = function() {
             $uibModalInstance.dismiss('cancel');
         };
 	});

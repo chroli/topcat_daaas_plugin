@@ -8,6 +8,7 @@ package org.icatproject.topcatdaaasplugin.rest;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.List;
 import java.io.ByteArrayOutputStream;
 
 import javax.ejb.Stateless;
@@ -192,6 +193,73 @@ public class UserResource {
             byteArrayOutputStream.write(machine.getScreenshot());
 
             return Response.ok(byteArrayOutputStream).build();
+        } catch(DaaasException e) {
+            return e.toResponse();
+        } catch(Exception e){
+            String message = e.getMessage();
+            if(message == null){
+                message = e.toString();
+            }
+            return new DaaasException(message).toResponse();
+        }
+    }
+
+    @POST
+    @Path("/machines/{id}/share")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response shareMachine(
+        @PathParam("id") String id,
+        @FormParam("icatUrl") String icatUrl,
+        @FormParam("sessionId") String sessionId,
+        @FormParam("userNames") String userNames) {
+        try {
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("id", id);
+
+            Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);
+            if(machine == null){
+                throw new DaaasException("No such machine.");
+            }
+            if(!machine.getPrimaryUser().getUserName().equals(getUsername(icatUrl, sessionId))){
+                throw new DaaasException("You are not allowed to access this machine.");
+            }
+
+            String[] userNamesList = userNames.split("\\s*,\\s*");
+            EntityList<MachineUser> newMachineUsers = new EntityList<MachineUser>();
+
+            for(MachineUser machineUser : machine.getMachineUsers()){
+                if(machineUser.getType().equals("PRIMARY")){
+                    newMachineUsers.add(machineUser);
+                }
+            }
+
+            for(String userName : userNamesList){
+
+                boolean isExistingUser = false;
+
+                for(MachineUser machineUser : machine.getMachineUsers()){
+                    if(machineUser.getUserName().equals(userName)){
+                        newMachineUsers.add(machineUser);
+                        isExistingUser = true;
+                        break;
+                    }
+                }
+
+                if(!isExistingUser){
+                    MachineUser newMachineUser = new MachineUser();
+                    newMachineUser.setUserName(userName);
+                    newMachineUser.setType("SECONDARY");
+                    newMachineUser.setMachine(machine);
+                    newMachineUser.setWebsockifyToken(UUID.randomUUID().toString());
+                    database.persist(newMachineUser);
+                }
+            }
+
+            machine.setMachineUsers(newMachineUsers);
+
+            database.persist(machine);
+
+            return machine.toResponse();
         } catch(DaaasException e) {
             return e.toResponse();
         } catch(Exception e){

@@ -29,15 +29,40 @@
     			return this.get('machines', params, options).then(function(machines){
             _.each(machines, function(machine){
 
-              machine.setResolution = function(width, height){
-                var params = {
-                  icatUrl: facility.config().icatUrl,
-                  sessionId: icat.session().sessionId,
-                  width: width,
-                  height: height
-                };
-                return that.post("machines/" + this.id + "/resolution", params, options);
-              };
+              machine.setResolution = helpers.overload({
+                'number, number, object': function(width, height, options){
+                  var params = {
+                    icatUrl: facility.config().icatUrl,
+                    sessionId: icat.session().sessionId,
+                    width: width,
+                    height: height
+                  };
+                  return that.post("machines/" + this.id + "/resolution", params, options);
+                },
+                'promise, number, number': function(timeout, width, height){
+                  return this.setResolution(width, height, {timeout: timeout});
+                },
+                'number, number': function(){
+                  return this.setResolution(width, height, {});
+                }
+              });
+
+              machine.share = helpers.overload({
+                'array, object': function(userNames, options){
+                  var params = {
+                    icatUrl: facility.config().icatUrl,
+                    sessionId: icat.session().sessionId,
+                    userNames: userNames.join(',')
+                  };
+                  return that.post("machines/" + this.id + "/share", params, options);
+                },
+                'promise, array': function(timeout, userNames){
+                  return this.share(userNames, {timeout: timeout});
+                },
+                'array': function(userNames){
+                  return this.share(userNames, {});
+                }
+              });
 
             });
             return machines;

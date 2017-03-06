@@ -43,11 +43,6 @@
                 controller: 'MachineController as machineController',
                 size : 'lg',
                 scope: $scope
-            }).opened.catch(function (error) {
-                inform.add(error, {
-                    'ttl': 0,
-                    'type': 'danger'
-                });
             });
 	    };
 
@@ -64,11 +59,6 @@
                 controller: 'CreateMachineController as createMachineController',
                 size : 'lg',
                 scope: $scope
-            }).opened.catch(function (error) {
-                inform.add(error, {
-                    'ttl': 0,
-                    'type': 'danger'
-                });
             });
         };
 
@@ -79,11 +69,6 @@
                 controller: 'ShareMachineController as shareMachineController',
                 size : 'md',
                 scope: $scope
-            }).opened.catch(function (error) {
-                inform.add(error, {
-                    'ttl': 0,
-                    'type': 'danger'
-                });
             });
         };
 
