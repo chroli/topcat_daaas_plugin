@@ -94,7 +94,7 @@ public class UserResource {
 
             MachineUser machineUser = new MachineUser();
             machineUser.setUserName(getUsername(icatUrl, sessionId));
-            machineUser.setType("primary");
+            machineUser.setType("PRIMARY");
             machineUser.setWebsockifyToken(UUID.randomUUID().toString());
             machineUser.setMachine(machine);
             database.persist(machineUser);
