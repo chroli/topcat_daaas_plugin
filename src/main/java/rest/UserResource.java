@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.UUID;
 import java.util.List;
 import java.io.ByteArrayOutputStream;
+import java.util.Base64;
 
 import javax.ejb.Stateless;
 import javax.ejb.LocalBean;
@@ -92,12 +93,22 @@ public class UserResource {
             Machine machine = machinePool.aquireMachine(machineTypeId);
             database.persist(machine);
 
+            String userName = getUsername(icatUrl, sessionId);
+
             MachineUser machineUser = new MachineUser();
-            machineUser.setUserName(getUsername(icatUrl, sessionId));
+            machineUser.setUserName(userName);
             machineUser.setType("PRIMARY");
             machineUser.setWebsockifyToken(UUID.randomUUID().toString());
             machineUser.setMachine(machine);
             database.persist(machineUser);
+
+            com.stfc.useroffice.webservice.UserOfficeWebService_Service service = new com.stfc.useroffice.webservice.UserOfficeWebService_Service();
+            com.stfc.useroffice.webservice.UserOfficeWebService port = service.getUserOfficeWebServicePort();
+            String fedId = port.getFedIdFromUserId(userName);
+
+            SshClient sshClient = new SshClient(machine.getHost());
+            sshClient.exec("add_primary_user " + fedId);
+            sshClient.exec("add_websockify_token " + machineUser.getWebsockifyToken());
 
             return machine.toResponse();
         } catch(DaaasException e) {
@@ -155,8 +166,8 @@ public class UserResource {
             if(!machine.getPrimaryUser().getUserName().equals(getUsername(icatUrl, sessionId))){
                 throw new DaaasException("You are not allowed to access this machine.");
             }
-            
-            machine.setResolution(width, height);
+
+            new SshClient(machine.getHost()).exec("set_resolution " + width + " " + height);
 
             return machine.toResponse();
         } catch(DaaasException e) {
@@ -190,7 +201,8 @@ public class UserResource {
             }
 
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            byteArrayOutputStream.write(machine.getScreenshot());
+            byte[] data = Base64.getDecoder().decode(new SshClient(machine.getHost()).exec("get_screenshot"));
+            byteArrayOutputStream.write(data);
 
             return Response.ok(byteArrayOutputStream).build();
         } catch(DaaasException e) {
@@ -227,6 +239,11 @@ public class UserResource {
             String[] userNamesList = userNames.split("\\s*,\\s*");
             EntityList<MachineUser> newMachineUsers = new EntityList<MachineUser>();
 
+            SshClient sshClient = new SshClient(machine.getHost());
+
+            com.stfc.useroffice.webservice.UserOfficeWebService_Service service = new com.stfc.useroffice.webservice.UserOfficeWebService_Service();
+            com.stfc.useroffice.webservice.UserOfficeWebService port = service.getUserOfficeWebServicePort();
+
             for(MachineUser machineUser : machine.getMachineUsers()){
                 if(machineUser.getType().equals("PRIMARY")){
                     newMachineUsers.add(machineUser);
@@ -255,6 +272,26 @@ public class UserResource {
                     newMachineUser.setMachine(machine);
                     newMachineUser.setWebsockifyToken(UUID.randomUUID().toString());
                     database.persist(newMachineUser);
+
+                    String fedId = port.getFedIdFromUserId(userName);
+
+                    sshClient.exec("add_secondary_user " + fedId);
+                    sshClient.exec("add_websockify_token " + newMachineUser.getWebsockifyToken());
+                }
+            }
+
+            for(MachineUser machineUser : machine.getMachineUsers()){
+                boolean isRemoved = true;
+                for(String userName : userNamesList){
+                    if(machineUser.getUserName().equals(userName) || machineUser.getType().equals("PRIMARY")){
+                        isRemoved = false;
+                    }
+                }
+
+                if(isRemoved){
+                    String fedId = port.getFedIdFromUserId(machineUser.getUserName());
+                    sshClient.exec("remove_secondary_user " + fedId);
+                    sshClient.exec("remove_websockify_token " + machineUser.getWebsockifyToken());
                 }
             }
 
@@ -425,3 +462,79 @@ public class UserResource {
 
     */
 }
+
+
+
+
+ // case "${cmd[0]}" in
+    //   "set_resolution")
+    //     arg1=${cmd[1]//[^0-9]/}
+    //     arg2=${cmd[2]//[^0-9]/}
+    //     $SCRIPTS_DIR/set_resolution.sh $arg1 $arg2
+    //     ;;
+    //   get_screenshot)
+    //     $SCRIPTS_DIR/get_screenshot.sh
+    //     ;;
+    //   add_primary_user)
+    //     $SCRIPTS_DIR/add_primary_user.sh ${cmd[1]}
+    //     ;;
+    //   add_secondary_user)
+    //     $SCRIPTS_DIR/add_secondary_user.sh ${cmd[1]}
+    //     ;;
+    //   remove_secondary_user)
+    //     $SCRIPTS_DIR/remove_secondary_user.sh ${cmd[1]}
+    //     ;;
+    //   get_last_activity)
+    //     $SCRIPTS_DIR/get_last_activity.sh
+    //     ;;
+    //   add_websockify_token)
+    //     $SCRIPTS_DIR/add_websockify_token.sh ${cmd[1]}
+    //     ;;
+    //   remove_websockify_token)
+    //     $SCRIPTS_DIR/remove_websockify_token.sh ${cmd[1]}
+    //     ;;
+    //   set_machine_type)
+    //     $SCRIPTS_DIR/set_machine_type.sh ${cmd[1]}
+    //     ;;
+    //   *)
+    //     echo "Unrecognised command"
+    //     exit 1
+    //     ;;
+    // esac
+
+    // public byte[] getScreenshot()  throws Exception {
+    //     return Base64.getDecoder().decode(new SshClient(this.host).exec("get_screenshot"));
+    // }
+
+    // public void setResolution(int width, int height)  throws Exception {
+    //     new SshClient(getHost()).exec("set_resolution " + width + " " + height);
+    // }
+
+    // public void addPrimaryUser(String username) throws Exception {
+    //     new SshClient(getHost()).exec("add_primary_user " + username);
+    // }
+
+    // public void addSecondaryUser(String username) throws Exception {
+    //     new SshClient(getHost()).exec("add_secondary_user " + username);
+    // }
+
+    // public void removeSecondaryUser(String username) throws Exception {
+    //     new SshClient(getHost()).exec("remove_secondary_user " + username);
+    // }
+
+    // public Date getLastActivity() throws Exception {
+    //     return new SimpleDateFormat().parse(new SshClient(getHost()).exec("get_last_activity"));
+    // }
+
+    // public void addWebsockifyToken(String token) throws Exception {
+    //     new SshClient(getHost()).exec("add_websockify_token " + token);
+    // }
+
+    // public void removeWebsockifyToken(String token) throws Exception {
+    //     new SshClient(getHost()).exec("remove_websockify_token " + token);
+    // }
+
+    // public void contextualize() throws Exception {
+    //     //addPrimaryUser(getOwner());
+    //     //addWebsockifyToken(getWebsockifyToken());
+    // }
