@@ -104,7 +104,7 @@ public class UserResource {
 
             com.stfc.useroffice.webservice.UserOfficeWebService_Service service = new com.stfc.useroffice.webservice.UserOfficeWebService_Service();
             com.stfc.useroffice.webservice.UserOfficeWebService port = service.getUserOfficeWebServicePort();
-            String fedId = port.getFedIdFromUserId(userName);
+            String fedId = port.getFedIdFromUserId(userName.replace("uows/", ""));
 
             SshClient sshClient = new SshClient(machine.getHost());
             sshClient.exec("add_primary_user " + fedId);
@@ -273,7 +273,7 @@ public class UserResource {
                     newMachineUser.setWebsockifyToken(UUID.randomUUID().toString());
                     database.persist(newMachineUser);
 
-                    String fedId = port.getFedIdFromUserId(userName);
+                    String fedId = port.getFedIdFromUserId(userName.replace("uows/", ""));
 
                     sshClient.exec("add_secondary_user " + fedId);
                     sshClient.exec("add_websockify_token " + newMachineUser.getWebsockifyToken());
@@ -289,7 +289,7 @@ public class UserResource {
                 }
 
                 if(isRemoved){
-                    String fedId = port.getFedIdFromUserId(machineUser.getUserName());
+                    String fedId = port.getFedIdFromUserId(machineUser.getUserName().replace("uows/", ""));
                     sshClient.exec("remove_secondary_user " + fedId);
                     sshClient.exec("remove_websockify_token " + machineUser.getWebsockifyToken());
                 }
