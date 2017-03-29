@@ -104,7 +104,14 @@ public class MachinePool {
     private void createMachine(MachineType machineType){
         try {
             Machine machine = new Machine();
-            Server server = cloudClient.createServer(machineType.getName(), machineType.getImageId(), machineType.getFlavorId(), machineType.getAvailabilityZone());
+            Map<String, String> metadata = new HashMap<String, String>();
+            metadata.put("AQ_ARCHETYPE", machineType.getAquilonArchetype());
+            metadata.put("AQ_DOMAIN", machineType.getAquilonDomain());
+            metadata.put("AQ_PERSONALITY", machineType.getAquilonPersonality());
+            metadata.put("AQ_SANDBOX", machineType.getAquilonSandbox());
+            metadata.put("AQ_OSVERSION", machineType.getAquilonOSVersion());
+
+            Server server = cloudClient.createServer(machineType.getName(), machineType.getImageId(), machineType.getFlavorId(), machineType.getAvailabilityZone(), metadata);
             while(server.getHost() == null){
                 Thread.sleep(1000);
                 server = cloudClient.getServer(server.getId());

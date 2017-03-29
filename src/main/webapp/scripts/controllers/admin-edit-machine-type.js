@@ -51,7 +51,7 @@
         };
 
         this.save = function(){
-        	daaas.updateMachineType(that.id, that.name, that.imageId, that.flavorId, that.availabilityZone, that.poolSize, that.personality, that.scopes).then(function(){
+        	daaas.updateMachineType(that.id, that.name, that.imageId, that.flavorId, that.availabilityZone, that.poolSize, that.aquilonArchetype, that.aquilonDomain, that.aquilonPersonality, that.aquilonSandbox, that.aquilonOSVersion, that.scopes).then(function(){
                 $uibModalInstance.dismiss('cancel');
             });
         };

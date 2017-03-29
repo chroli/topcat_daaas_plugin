@@ -154,7 +154,12 @@ public class AdminResource {
             machineType.setFlavorId(jsonObject.getString("flavorId"));
             machineType.setAvailabilityZone(jsonObject.getString("availabilityZone"));
             machineType.setPoolSize(jsonObject.getInt("poolSize"));
-            machineType.setPersonality(jsonObject.getString("personality"));
+            machineType.setAquilonArchetype(jsonObject.getString("aquilonArchetype"));
+            machineType.setAquilonDomain(jsonObject.getString("aquilonDomain"));
+            machineType.setAquilonPersonality(jsonObject.getString("aquilonPersonality"));
+            machineType.setAquilonSandbox(jsonObject.getString("aquilonSandbox"));
+            machineType.setAquilonOSVersion(jsonObject.getString("aquilonOSVersion"));
+
 
             List<MachineTypeScope> machineTypeScopes = new ArrayList<MachineTypeScope>();
             for(JsonValue machineTypeScopeValue : jsonObject.getJsonArray("scopes")){
@@ -199,7 +204,11 @@ public class AdminResource {
             machineType.setFlavorId(jsonObject.getString("flavorId"));
             machineType.setAvailabilityZone(jsonObject.getString("availabilityZone"));
             machineType.setPoolSize(jsonObject.getInt("poolSize"));
-            machineType.setPersonality(jsonObject.getString("personality"));
+            machineType.setAquilonArchetype(jsonObject.getString("aquilonArchetype"));
+            machineType.setAquilonDomain(jsonObject.getString("aquilonDomain"));
+            machineType.setAquilonPersonality(jsonObject.getString("aquilonPersonality"));
+            machineType.setAquilonSandbox(jsonObject.getString("aquilonSandbox"));
+            machineType.setAquilonOSVersion(jsonObject.getString("aquilonOSVersion"));
             
             List<MachineTypeScope> machineTypeScopes = new ArrayList<MachineTypeScope>();
             for(JsonValue machineTypeScopeValue : jsonObject.getJsonArray("scopes")){

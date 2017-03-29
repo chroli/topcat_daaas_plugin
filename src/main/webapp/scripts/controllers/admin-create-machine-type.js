@@ -16,7 +16,11 @@
     	this.flavors = [];
         this.availabilityZones = [];
     	this.poolSize = 10;
-        this.personality = ""
+        this.aquilonArchetype = "";
+        this.aquilonDomain = "";
+        this.aquilonPersonality = "";
+        this.aquilonSandbox = "";
+        this.aquilonOSVersion = "";
     	this.scopes = [];
     	this.newScope = "";
 
@@ -52,7 +56,7 @@
         };
 
         this.create = function(){
-        	daaas.createMachineType(that.name, that.imageId, that.flavorId, that.availabilityZone, that.poolSize, that.personality, that.scopes).then(function(){
+        	daaas.createMachineType(that.name, that.imageId, that.flavorId, that.availabilityZone, that.poolSize, that.aquilonArchetype, that.aquilonDomain, that.aquilonPersonality, that.aquilonSandbox, that.aquilonOSVersion, that.scopes).then(function(){
                 $uibModalInstance.dismiss('cancel');
             });
         };

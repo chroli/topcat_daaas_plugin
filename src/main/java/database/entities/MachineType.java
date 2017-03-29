@@ -52,8 +52,20 @@ public class MachineType extends Entity implements Serializable {
     @Column(name = "POOL_SIZE", nullable = false)
     private Integer poolSize;
 
-    @Column(name = "PERSONALITY", nullable = false)
-    private String personality;
+    @Column(name = "AQUILON_ARCHETYPE")
+    private String aquilonArchetype;
+
+    @Column(name = "AQUILON_DOMAIN")
+    private String aquilonDomain;
+
+    @Column(name = "AQUILON_PERSONALITY")
+    private String aquilonPersonality;
+
+    @Column(name = "AQUILON_SANDBOX")
+    private String aquilonSandbox;
+
+    @Column(name = "AQUILON_OS_VERSION")
+    private String aquilonOSVersion;
 
     @Column(name = "CREATED_AT", nullable=false, updatable=false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -113,12 +125,44 @@ public class MachineType extends Entity implements Serializable {
         this.poolSize = poolSize;
     }
 
-    public String getPersonality() {
-        return personality;
+    public void setAquilonArchetype(String aquilonArchetype) {
+       this.aquilonArchetype = aquilonArchetype;
     }
 
-    public void setPersonality(String personality) {
-       this.personality = personality;
+    public String getAquilonArchetype() {
+        return aquilonArchetype;
+    }
+
+    public String getAquilonDomain() {
+        return aquilonDomain;
+    }
+
+    public void setAquilonDomain(String aquilonDomain) {
+       this.aquilonDomain = aquilonDomain;
+    }
+
+    public String getAquilonPersonality() {
+        return aquilonPersonality;
+    }
+
+    public void setAquilonPersonality(String aquilonPersonality) {
+       this.aquilonPersonality = aquilonPersonality;
+    }
+
+    public String getAquilonSandbox() {
+        return aquilonSandbox;
+    }
+
+    public void setAquilonSandbox(String aquilonSandbox) {
+       this.aquilonSandbox = aquilonSandbox;
+    }
+
+    public String getAquilonOSVersion() {
+        return aquilonOSVersion;
+    }
+
+    public void setAquilonOSVersion(String aquilonOSVersion) {
+       this.aquilonOSVersion = aquilonOSVersion;
     }
 
     public Date getCreatedAt() {
@@ -166,7 +210,11 @@ public class MachineType extends Entity implements Serializable {
         out.add("flavorId", getFlavorId());
         out.add("availabilityZone", getAvailabilityZone());
         out.add("poolSize", getPoolSize());
-        out.add("personality", getPersonality());
+        out.add("aquilonArchetype", getAquilonArchetype());
+        out.add("aquilonDomain", getAquilonDomain());
+        out.add("aquilonPersonality", getAquilonPersonality());
+        out.add("aquilonSandbox", getAquilonSandbox());
+        out.add("aquilonOSVersion", getAquilonOSVersion());
         out.add("createAt", getCreatedAt().toString());
         out.add("scopes", getMachineTypeScopes().toJsonArrayBuilder());
         return out;

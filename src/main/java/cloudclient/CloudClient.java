@@ -7,6 +7,7 @@ package org.icatproject.topcatdaaasplugin.cloudclient;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -266,7 +267,7 @@ public class CloudClient {
         return out;
     }
 
-    public Server createServer(String name, String imageRef, String flavorRef, String availabilityZone) throws DaaasException {
+    public Server createServer(String name, String imageRef, String flavorRef, String availabilityZone, Map<String, String> metadata) throws DaaasException {
         try {
             logger.info("createServer: " + name + ", " + imageRef + ", " + flavorRef + ", " + availabilityZone);
             // {
@@ -276,7 +277,11 @@ public class CloudClient {
             //         "flavorRef" => "8a34f302-4cdc-459c-9e45-c5655c94382f",
             //         "availability_zone" => "ceph"
             //         "metadata" => {
-            //             "owner" => ""
+            //             "AQ_ARCHETYPE" => "ral-tier1",
+            //             "AQ_DOMAIN" => "",
+            //             "AQ_PERSONALITY" => "daaas-common",
+            //             "AQ_SANDBOX" => "sap86629/daas-excitations",
+            //             "AQ_OSVERSION" => "7x-x86_6"
             //         }
             //     }
             // }
@@ -285,9 +290,11 @@ public class CloudClient {
             server.add("imageRef", imageRef);
             server.add("flavorRef", flavorRef);
             server.add("availability_zone", availabilityZone);
-            JsonObjectBuilder metadata = Json.createObjectBuilder();
-            metadata.add("owner", "");
-            server.add("metadata", metadata);
+            JsonObjectBuilder metadataNode = Json.createObjectBuilder();
+            for(Map.Entry<String, String> entry : metadata.entrySet()) {
+                metadataNode.add(entry.getKey(), entry.getValue());
+            }
+            server.add("metadata",  metadataNode);
             Properties properties = new Properties();
             server.add("key_name", properties.getProperty("sshKeyPairName"));
 
