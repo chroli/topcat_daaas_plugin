@@ -42,7 +42,7 @@
                 'promise, number, number': function(timeout, width, height){
                   return this.setResolution(width, height, {timeout: timeout});
                 },
-                'number, number': function(){
+                'number, number': function(width, height){
                   return this.setResolution(width, height, {});
                 }
               });

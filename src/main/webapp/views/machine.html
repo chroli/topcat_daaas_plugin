@@ -4,11 +4,11 @@
     </div>
     <div class="modal-body" take-up-remaining-height>
         <div ng-if="machineController.open" class="text-center" style="display: inline-block; width: 100%; height: 100%">
-            <vnc host="machineController.machine.host" token="machineController.token"></vnc>
+            <vnc ng-if="!machineController.fullScreen" machine="machineController.machine"></vnc>
 
 
-            <div fullscreen="machineController.fullScreen">
-                <vnc ng-if="machineController.fullScreen" host="machineController.machine.host" token="machineController.token" change-resolution="true"></vnc>
+            <div fullscreen="machineController.fullScreen" style="width: 100%; height: 100%">
+                <vnc ng-if="machineController.fullScreen" machine="machineController.machine" change-resolution="true"></vnc>
                 
             </div>
 
