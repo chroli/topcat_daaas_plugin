@@ -3,7 +3,7 @@ package org.icatproject.topcatdaaasplugin;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-
+import java.util.Base64;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
@@ -82,6 +82,19 @@ public class MachinePool {
     }
 
 
+    @Schedule(hour="*", minute="*", second="0")
+    public void getScreenShots(){
+        try {
+            EntityList<Entity> aquiredMachines =  database.query("select machine from Machine machine where machine.state = 'aquired'");
+            for(Entity machineEntity : aquiredMachines){
+                Machine machine = (Machine) machineEntity;
+                machine.setScreenshot(Base64.getMimeDecoder().decode(new SshClient(machine.getHost()).exec("get_screenshot")));
+                database.persist(machine);
+            }
+        } catch(Exception e){
+            logger.error("getScreenShots: " + e.getMessage());
+        }
+    }
 
     public synchronized Machine aquireMachine(Long machineTypeId) throws DaaasException {
         try {

@@ -64,6 +64,23 @@
                 }
               });
 
+              machine.screenshotUrl = function(){
+                var url;
+                var matches;
+                if(matches = pluginUrl.match(/http:\/\/localhost:10080(.*)/)){
+                  url = "https://localhost:8181" + matches[1];
+                } else {
+                  url = pluginUrl;
+                }
+
+                url += "api/user/machines/" + this.id + "/screenshot?"
+                url += "icatUrl=" + encodeURIComponent(facility.config().icatUrl);
+                url += "&sessionId=" + encodeURIComponent(icat.session().sessionId);
+                url += "&screenshotMd5=" + encodeURIComponent(this.screenshotMd5);
+
+                return url;
+              };
+
             });
             return machines;
           });

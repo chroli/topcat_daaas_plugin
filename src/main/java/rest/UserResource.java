@@ -199,12 +199,7 @@ public class UserResource {
             if(!machine.getPrimaryUser().getUserName().equals(getUsername(icatUrl, sessionId))){
                 throw new DaaasException("You are not allowed to access this machine.");
             }
-
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            byte[] data = Base64.getDecoder().decode(new SshClient(machine.getHost()).exec("get_screenshot"));
-            byteArrayOutputStream.write(data);
-
-            return Response.ok(byteArrayOutputStream).build();
+            return Response.ok(machine.getScreenshot()).build();
         } catch(DaaasException e) {
             return e.toResponse();
         } catch(Exception e){

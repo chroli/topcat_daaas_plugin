@@ -23,6 +23,9 @@ import org.icatproject.topcatdaaasplugin.SshClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.security.*;
+import java.util.Base64;
+
 /**
  *
  * @author elz24996
@@ -46,6 +49,10 @@ public class Machine extends Entity {
 
     @Column(name = "HOST", nullable = false)
     private String host;
+
+    @Lob
+    @Column(name = "SCREENSHOT")
+    private byte[] screenshot;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name= "MACHINE_TYPE_ID")
@@ -86,6 +93,24 @@ public class Machine extends Entity {
         this.host = host;
     }
 
+    public byte[] getScreenshot() {
+        return screenshot;
+    }
+
+    public void setScreenshot(byte[] screenshot) {
+        this.screenshot = screenshot;
+    }
+
+    public String getScreenshotMd5(){
+        try {
+            MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+            byte[] md5 = messageDigest.digest(getScreenshot());
+            return Base64.getEncoder().encodeToString(md5);
+        } catch(Exception e){
+            return "";
+        }
+    }
+
     public MachineType getMachineType() {
         return machineType;
     }
@@ -121,6 +146,7 @@ public class Machine extends Entity {
         out.add("name", getName());
         out.add("state", getState());
         out.add("host", getHost());
+        out.add("screenshotMd5", getScreenshotMd5());
         out.add("users", getMachineUsers().toJsonArrayBuilder());
         return out;
     }
