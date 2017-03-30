@@ -65,8 +65,6 @@
                         var currentWidth = getWidth();
                         var currentHeight = getHeight();
 
-                        console.log(currentWidth + 'x' + currentHeight);
-
                         if(currentWidth != width || currentHeight != height){
                             width = currentWidth;
                             height = currentHeight;
