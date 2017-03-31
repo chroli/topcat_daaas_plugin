@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style>
+			* {
+				margin: 0px;
+				padding: 0px;
+				height: 100%;
+				width: 100%;
+				box-sizing: border-box;
+				overflow: hidden;
+				position: absolute;
+			}
+
+			
+		</style>
+		<script src="/bower_components/jquery/dist/jquery.js"></script>
+		<script src="/topcat_daaas_plugin/bower_components/jquery-no-vnc/dist/jquery-no-vnc.js"></script>
+	</head>
+
+	<body>
+		<div>
+			<canvas></canvas>
+		</div>
+
+		<script>
+			(function(tc, _){
+				var params = {};
+				_.each(window.location.search.replace('?', '').split(/&/), function(pair){
+					pair = pair.split(/=/);
+					params[pair[0]] = decodeURIComponent(pair[1]); 
+				});
+				var canvas = $(document.body).find('canvas');
+				var noVnc =  $(canvas).noVnc();
+				var id = params.id;
+				var facilityName = params.facilityName;
+				var user = tc.user(facilityName);
+				var daaas = user.daaas();
+				var username = tc.icat(facilityName).session().username;
+
+				daaas.machines().then(function(machines){
+					_.each(machines, function(machine){
+						if(machine.id == id){
+                			var port = 29876;
+                			var path = "websockify?token=" + _.select(machine.users, function(user){ return user.userName == username})[0].websockifyToken;
+                			noVnc.connect(machine.host, port, '', path);
+                			$(canvas).on('novnc:loaded', resize);
+                			$(window).on('resize', resize);
+
+                			var resizingCounter = 0;
+                			function resize(){
+                				if(resizingCounter == 0){
+									machine.setResolution(document.body.clientWidth, document.body.clientHeight).then(function(){
+										if(resizingCounter > 1){
+											resizingCounter = 0;
+											resize();
+										}
+										resizingCounter = 0;
+									});
+								}
+								resizingCounter++;	
+							}
+						}
+					});
+				});
+
+				
+
+			})(window.opener.tc, window.opener._);
+		</script>
+	</body>
+</html>

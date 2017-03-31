@@ -56,14 +56,8 @@
 	    
 
 	    this.view = function(machine){
-	    	that.machine = machine;
-	    	$uibModal.open({
-                templateUrl:  daaas.pluginUrl() + 'views/machine.html',
-                controller: 'MachineController as machineController',
-                size : 'lg',
-                scope: $scope
-            });
-	    };
+            window.open(daaas.pluginUrl() + 'views/vnc.html?facilityName=' + encodeURIComponent($state.params.facilityName)  + '&id=' + machine.id, '_blank', 'height=600,width=800,scrollbars=no,status=no');
+        };
 
         this.delete = function(machine){
             if(confirm("Are you really sure you want to delete this machine?")){

@@ -18,7 +18,7 @@
     	});
 
         this.toFullScreen = function() {
-            this.fullScreen = true;
+            //this.fullScreen = true;
         };
 
     	this.close = function() {
