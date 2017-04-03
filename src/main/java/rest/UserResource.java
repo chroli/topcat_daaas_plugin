@@ -196,10 +196,17 @@ public class UserResource {
             if(machine == null){
                 throw new DaaasException("No such machine.");
             }
-            if(!machine.getPrimaryUser().getUserName().equals(getUsername(icatUrl, sessionId))){
-                throw new DaaasException("You are not allowed to access this machine.");
+
+            String username = getUsername(icatUrl, sessionId);
+
+            for(MachineUser user : machine.getMachineUsers()){
+                if(user.getUserName().equals(username)){
+                    return Response.ok(machine.getScreenshot()).build();
+                }
             }
-            return Response.ok(machine.getScreenshot()).build();
+
+            throw new DaaasException("You are not allowed to access this machine.");
+            
         } catch(DaaasException e) {
             return e.toResponse();
         } catch(Exception e){

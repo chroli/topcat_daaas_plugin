@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<style>
-			* {
+			*:not(canvas) {
 				margin: 0px;
 				padding: 0px;
 				height: 100%;
@@ -11,6 +11,7 @@
 				overflow: hidden;
 				position: absolute;
 			}
+
 
 			
 		</style>
@@ -42,6 +43,7 @@
 					_.each(machines, function(machine){
 						if(machine.id == id){
                 			var port = 29876;
+                			var user = _.select(machine.users, function(user){ return user.userName == username})[0]
                 			var path = "websockify?token=" + _.select(machine.users, function(user){ return user.userName == username})[0].websockifyToken;
                 			noVnc.connect(machine.host, port, '', path);
                 			$(canvas).on('novnc:loaded', resize);
@@ -49,22 +51,24 @@
 
                 			var resizingCounter = 0;
                 			function resize(){
-                				if(resizingCounter == 0){
-									machine.setResolution(document.body.clientWidth, document.body.clientHeight).then(function(){
-										if(resizingCounter > 1){
+                				if(user.type == 'PRIMARY'){
+	                				if(resizingCounter == 0){
+										machine.setResolution(document.body.clientWidth, document.body.clientHeight).then(function(){
+											if(resizingCounter > 1){
+												resizingCounter = 0;
+												resize();
+											}
 											resizingCounter = 0;
-											resize();
-										}
-										resizingCounter = 0;
-									});
+										});
+									}
+									resizingCounter++;
+								} else {
+									noVnc.resize(document.body.clientWidth, document.body.clientHeight);
 								}
-								resizingCounter++;	
 							}
 						}
 					});
 				});
-
-				
 
 			})(window.opener.tc, window.opener._);
 		</script>
