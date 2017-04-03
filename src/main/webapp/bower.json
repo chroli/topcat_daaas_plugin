@@ -14,7 +14,8 @@
     "test",
     "tests"
   ],
-  "devDependencies": {
+  "dependencies": {
+    "jquery": "1.12.4",
     "jquery-no-vnc": "^0.3.0"
   }
 }

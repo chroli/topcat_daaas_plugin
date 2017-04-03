@@ -88,7 +88,7 @@ public class MachinePool {
             EntityList<Entity> aquiredMachines =  database.query("select machine from Machine machine where machine.state = 'aquired'");
             for(Entity machineEntity : aquiredMachines){
                 Machine machine = (Machine) machineEntity;
-                machine.setScreenshot(Base64.getMimeDecoder().decode(new SshClient(machine.getHost()).exec("get_screenshot").replace("\n", "")));
+                machine.setScreenshot(Base64.getMimeDecoder().decode(new SshClient(machine.getHost()).exec("get_screenshot")));
                 database.persist(machine);
             }
         } catch(Exception e){
