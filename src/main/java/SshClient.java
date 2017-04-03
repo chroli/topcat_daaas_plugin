@@ -46,34 +46,27 @@ public class SshClient {
 
     }
 
-    public String exec(String commandToRun) throws IOException {
+    public String exec(String commandToRun) throws IOException, InterruptedException {
         logger.info("exec " + commandToRun);
 
-        Security.addProvider(new BouncyCastleProvider());
-        SSHClient client = new SSHClient();
         
-        try {
-            Properties properties = new Properties();
+        Properties properties = new Properties();
+        String sshPrivateKeyFile = properties.getProperty("sshPrivateKeyFile");
+        String sshUsername = properties.getProperty("sshUsername");
 
-            client.addHostKeyVerifier(new PromiscuousVerifier());
-            client.connect(host);
+        Process process = Runtime.getRuntime().exec(new String[] {
+            "/usr/bin/ssh", sshUsername + "@" + host,
+            "-i", sshPrivateKeyFile,
+            "-o", "StrictHostKeyChecking no",
+            commandToRun
+        });
 
-            PKCS8KeyFile keyFile = new PKCS8KeyFile();
-            keyFile.init(new File(properties.getProperty("sshPrivateKeyFile")));
-            client.authPublickey(properties.getProperty("sshUsername"), keyFile);
-            Session session = client.startSession();
-            try {
-                Command command = session.exec(commandToRun);
-                String out =  IOUtils.readFully(command.getInputStream()).toString();
-                command.join(10, TimeUnit.SECONDS);
-                return out;
-            } finally {
-                session.close();
-            }
-        } finally {
-            client.disconnect();
-        }
-        
+        process.waitFor();
+
+        return IOUtils.readFully(process.getInputStream()).toString();
     }
 
 }
+
+
+
