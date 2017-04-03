@@ -1,17 +1,9 @@
 package org.icatproject.topcatdaaasplugin;
 
-import net.schmizz.sshj.*;
-import net.schmizz.sshj.userauth.keyprovider.*;
-import net.schmizz.sshj.common.*;
-import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
-import net.schmizz.sshj.connection.channel.direct.Session;
-import net.schmizz.sshj.connection.channel.direct.Session.Command;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
-
-import java.security.*;
-import java.util.concurrent.TimeUnit;
+import org.apache.commons.io.IOUtils;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 import java.nio.channels.SocketChannel;
 import java.net.InetSocketAddress;
@@ -63,7 +55,7 @@ public class SshClient {
 
         process.waitFor();
 
-        return IOUtils.readFully(process.getInputStream()).toString();
+        return IOUtils.toString(process.getInputStream(), StandardCharsets.US_ASCII);
     }
 
 }
