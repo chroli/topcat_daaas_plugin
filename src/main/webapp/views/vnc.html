@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<style>
-			*:not(canvas) {
+			html, body, .clip {
 				margin: 0px;
 				padding: 0px;
 				height: 100%;
@@ -12,7 +12,32 @@
 				position: absolute;
 			}
 
+			.full-screen-bar {
+				position: absolute;
+				height: 50px;
+				top: -75px;
+				width: 100%;
+				padding: 7px;
+				margin: 0px auto 0px auto;
+				z-index: 100;
+				text-align: center;
+				transition: all 0.5s;
+			}
 
+			.full-screen-bar.show {
+				top: 0px;
+			}
+
+			.full-screen-bar button {
+				height: 100%;
+				width: 33%;
+			}
+
+			.exit-full-screen { display: none; }
+			.request-full-screen { display: initial; }
+
+			body.fullscreen .exit-full-screen { display: initial; }
+			body.fullscreen .request-full-screen { display: none; }
 			
 		</style>
 		<script src="/topcat_daaas_plugin/bower_components/jquery/dist/jquery.js"></script>
@@ -20,7 +45,11 @@
 	</head>
 
 	<body>
-		<div>
+		<div class="full-screen-bar show">
+			<button class="request-full-screen">Full Screen</button>
+			<button class="exit-full-screen">Exit Full Screen</button>
+		</div>
+		<div class="clip">
 			<canvas></canvas>
 		</div>
 
@@ -69,6 +98,58 @@
 						}
 					});
 				});
+
+				var fullScreenBar = $('.full-screen-bar')
+
+				$(canvas).on('mousemove', function(e){
+					var width = $(this).width();
+
+					if(e.pageY < 50 && e.pageX >= width / 3 && e.pageX < width - (width / 3)){
+						$(fullScreenBar).addClass('show');
+					} else {
+						$(fullScreenBar).removeClass('show');
+					}
+				});
+
+				$('.request-full-screen').on('click', function(){
+                    var element = document.body;
+                    if (element.requestFullscreen) {
+                      element.requestFullscreen();
+                    } else if (element.mozRequestFullScreen) {
+                      element.mozRequestFullScreen();
+                    } else if (element.webkitRequestFullscreen) {
+                      element.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                    } else if (element.msRequestFullscreen) {
+                      element.msRequestFullscreen();
+                    }
+                });
+
+				$('.exit-full-screen').on('click', function(){
+                    if (document.exitFullscreen) {
+                      document.rexitFullscreen();
+                    } else if (document.mozExitFullScreen) {
+                      document.mozExitFullScreen();
+                    } else if (document.webkitExitFullscreen) {
+                      document.webkitExitFullscreen();
+                    } else if (document.msExitFullscreen) {
+                      document.msExitFullscreen();
+                    }
+                });
+
+
+				var isFullScreenMode = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
+
+				$(document).on ('mozfullscreenchange webkitfullscreenchange fullscreenchange',function(){
+				    isFullScreenMode= !isFullScreenMode;
+				    if(isFullScreenMode){
+				    	$(document.body).addClass('fullscreen');
+				    } else {
+				    	$(document.body).removeClass('fullscreen');
+				    }
+				 });
+
+
+                
 
 			})(window.opener.tc, window.opener._);
 		</script>
