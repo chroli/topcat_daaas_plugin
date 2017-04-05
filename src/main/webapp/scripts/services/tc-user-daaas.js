@@ -37,6 +37,7 @@
                     width: width,
                     height: height
                   };
+
                   return that.post("machines/" + this.id + "/resolution", params, options);
                 },
                 'promise, number, number': function(timeout, width, height){
@@ -61,6 +62,26 @@
                 },
                 'array': function(userNames){
                   return this.share(userNames, {});
+                }
+              });
+
+              machine.save = helpers.overload({
+                'object': function(options){
+                  var params = {
+                    icatUrl: facility.config().icatUrl,
+                    sessionId: icat.session().sessionId,
+                    name: this.name
+                  };
+
+                  this.isEditing = false;
+
+                  return that.put("machines/" + this.id, params, options);
+                },
+                'promise': function(timeout){
+                  return this.save({timeout: timeout});
+                },
+                '': function(){
+                  return this.save({});
                 }
               });
 

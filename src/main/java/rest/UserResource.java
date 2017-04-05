@@ -21,6 +21,7 @@ import javax.ejb.Stateless;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -91,7 +92,6 @@ public class UserResource {
                  throw new DaaasException("You are not allowed to create this machine type.");
             }
             Machine machine = machinePool.aquireMachine(machineTypeId);
-            database.persist(machine);
 
             String userName = getUsername(icatUrl, sessionId);
 
@@ -109,6 +109,9 @@ public class UserResource {
             SshClient sshClient = new SshClient(machine.getHost());
             sshClient.exec("add_primary_user " + fedId);
             sshClient.exec("add_websockify_token " + machineUser.getWebsockifyToken());
+
+            machine.setScreenshot(Base64.getMimeDecoder().decode(sshClient.exec("get_screenshot")));
+            database.persist(machine);
 
             return machine.toResponse();
         } catch(DaaasException e) {
@@ -134,10 +137,41 @@ public class UserResource {
                 throw new DaaasException("No such machine.");
             }
             if(!machine.getPrimaryUser().getUserName().equals(getUsername(icatUrl, sessionId))){
-                throw new DaaasException("You are not allowed to delete this machine type.");
+                throw new DaaasException("You are not allowed to delete this machine.");
             }
             cloudClient.deleteMachine(machine.getId());
             database.remove(machine);
+            return machine.toResponse();
+    } catch(DaaasException e) {
+            return e.toResponse();
+        } catch(Exception e){
+            return new DaaasException(e.getMessage()).toResponse();
+        }
+    }
+
+    @PUT
+    @Path("/machines/{id}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response saveMachine(
+        @PathParam("id") String id,
+        @FormParam("icatUrl") String icatUrl,
+        @FormParam("sessionId") String sessionId,
+        @FormParam("name") String name){
+        try {
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("id", id);
+
+            Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);
+            if(machine == null){
+                throw new DaaasException("No such machine.");
+            }
+            if(!machine.getPrimaryUser().getUserName().equals(getUsername(icatUrl, sessionId))){
+                throw new DaaasException("You are not allowed to save this machine.");
+            }
+            
+            machine.setName(name);
+            database.persist(machine);
+
             return machine.toResponse();
     } catch(DaaasException e) {
             return e.toResponse();

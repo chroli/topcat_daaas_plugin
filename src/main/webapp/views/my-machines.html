@@ -23,7 +23,27 @@
 				<div class="main">
 					<div class="info">
 						<button ng-if="machine.type == 'PRIMARY'" class="btn btn-xs btn-default remove" ng-click="myMachinesController.delete(machine)"><span class="glyphicon glyphicon-remove"></span></button>
-						<div class="title">{{machine.name}} <button ng-if="machine.type == 'PRIMARY'" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-pencil"></span></button></div>
+						
+						<div class="title" ng-if="!machine.isEditing">
+							{{machine.name}}
+							<button
+								ng-if="machine.type == 'PRIMARY'"
+								class="btn btn-xs btn-default"
+								ng-click="machine.isEditing = true">
+								<span class="glyphicon glyphicon-pencil"></span>
+							</button>
+						</div>
+
+						<div class="title" ng-if="machine.isEditing">
+							<input type="text" ng-model="machine.name">
+							<button
+								ng-if="machine.type == 'PRIMARY'"
+								class="btn btn-xs btn-default"
+								ng-click="machine.save()">
+								<span class="glyphicon glyphicon-save"></span>
+							</button>
+						</div>
+
 						<div class="field">
 							<label>Host:</label>
 							<div>{{machine.host}}</div>

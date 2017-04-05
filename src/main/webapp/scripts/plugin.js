@@ -14,7 +14,6 @@ registerTopcatPlugin(function(pluginUrl){
 			pluginUrl + 'scripts/controllers/share-machine.js',
 
 			pluginUrl + 'scripts/directives/fullscreen.js',
-			pluginUrl + 'scripts/directives/vnc.js',
 
 			pluginUrl + 'scripts/services/tc-admin-daaas.js',
 			pluginUrl + 'scripts/services/tc-user-daaas.js'

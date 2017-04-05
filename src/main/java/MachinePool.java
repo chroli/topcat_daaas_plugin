@@ -83,7 +83,6 @@ public class MachinePool {
                     SshClient sshClient = new SshClient(machine.getHost());
                     if(sshClient.exec("is_ready").equals("1\n")){
                         machine.setState("vacant");
-                        //machine.setScreenshot(Base64.getMimeDecoder().decode(sshClient.exec("get_screenshot")));
                         database.persist(machine);
                     }
                 }
