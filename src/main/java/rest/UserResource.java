@@ -328,19 +328,6 @@ public class UserResource {
         }
     }
 
-    @GET
-    @Path("/sshTest")
-    @Produces({MediaType.TEXT_PLAIN})
-    public Response sshTest(){
-        try {
-            SshClient sshClient = new SshClient("130.246.186.17");
-
-            return Response.ok().entity(sshClient.exec("get_screenshot")).build();
-        } catch(Exception e){
-            return new DaaasException(e.getMessage()).toResponse();
-        }
-    }
-
     private boolean isMachineTypeAllowed(String icatUrl, String sessionId, Long machineTypeId) throws Exception {
         for(MachineType machineType : getAvailableMachineTypes(icatUrl, sessionId)){
             if(machineType.getId().equals(machineTypeId)){

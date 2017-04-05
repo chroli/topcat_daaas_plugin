@@ -5,6 +5,10 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.Base64;
 
+import org.apache.commons.io.IOUtils;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
@@ -58,8 +62,8 @@ public class MachinePool {
 
                 Map<String, String> params = new HashMap<String, String>();
 
-                EntityList<Entity> vacantMachines = database.query("select machine from Machine machine, machine.machineType as machineType where machine.state = 'vacant' and machineType.id = " + machineType.getId());
-                int diff = machineType.getPoolSize() - vacantMachines.size();
+                EntityList<Entity> nonAquiredMachines = database.query("select machine from Machine machine, machine.machineType as machineType where machine.state != 'aquired' and machineType.id = " + machineType.getId());
+                int diff = machineType.getPoolSize() - nonAquiredMachines.size();
                 if(diff > 0){
                     for(int i = 0; i < diff; i++){
                         createMachine(machineType);
@@ -73,6 +77,16 @@ public class MachinePool {
                     }
                 }
 
+                EntityList<Entity> preparingMachines = database.query("select machine from Machine machine, machine.machineType as machineType where machine.state = 'preparing' and machineType.id = " + machineType.getId());
+                for(Entity machineEntity : preparingMachines){
+                    Machine machine = (Machine) machineEntity;
+                    SshClient sshClient = new SshClient(machine.getHost());
+                    if(sshClient.exec("is_ready").equals("1\n")){
+                        machine.setState("vacant");
+                        machine.setScreenshot(Base64.getMimeDecoder().decode(sshClient.exec("get_screenshot")));
+                        database.persist(machine);
+                    }
+                }
             }
         } catch(Exception e){
             logger.error("managePool: " + e.getMessage());
@@ -130,10 +144,19 @@ public class MachinePool {
                 server = cloudClient.getServer(server.getId());
             }
 
+            Process process = Runtime.getRuntime().exec(new String[] {
+                "/usr/bin/nslookup", server.getHost()
+            });
+
+            process.waitFor();
+
+            String host = IOUtils.toString(process.getInputStream(), StandardCharsets.US_ASCII);
+            host = host.replaceAll("(?s).*name\\s+=\\s+", "").replaceAll("(?s)\\.\\s.*", "");
+
             machine.setId(server.getId());
             machine.setName(machineType.getName());
-            machine.setState("vacant");
-            machine.setHost(server.getHost());
+            machine.setState("preparing");
+            machine.setHost(host);
             machine.setMachineType(machineType);
             
 
