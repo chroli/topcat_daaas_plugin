@@ -25,10 +25,6 @@
 						<button ng-if="machine.type == 'PRIMARY'" class="btn btn-xs btn-default remove" ng-click="myMachinesController.delete(machine)"><span class="glyphicon glyphicon-remove"></span></button>
 						<div class="title">{{machine.name}} <button ng-if="machine.type == 'PRIMARY'" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-pencil"></span></button></div>
 						<div class="field">
-							<label>State:</label>
-							<div>{{machine.state}}</div>
-						</div>
-						<div class="field">
 							<label>Host:</label>
 							<div>{{machine.host}}</div>
 						</div>
@@ -39,10 +35,7 @@
 						<div class="field">
 							<label>Owner:</label>
 							<div>
-								{{machine.primaryUser.name}}
-								<span ng-if="machine.primaryUser.fullName">
-									({{machine.primaryUser.fullName}})
-								</span>
+								{{machine.primaryUser.fullName}}
 							</div>
 						</div>
 					</div>
@@ -54,7 +47,6 @@
 						  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
 						    <li><a ng-click="myMachinesController.view(machine)">Browser</a></li>
 						    <li><a href="#">RDP</a></li>
-						    <li><a href="#">SSVNC</a></li>
 						  </ul>
 						</span>
 					</div>

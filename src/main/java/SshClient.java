@@ -53,9 +53,16 @@ public class SshClient {
             commandToRun
         });
 
-        process.waitFor();
+        String out = IOUtils.toString(process.getInputStream(), StandardCharsets.US_ASCII);
+        String error = IOUtils.toString(process.getErrorStream(), StandardCharsets.US_ASCII);
 
-        return IOUtils.toString(process.getInputStream(), StandardCharsets.US_ASCII);
+        int exitVal = process.waitFor();
+
+        if(exitVal > 0){
+            logger.info("exec error: " + commandToRun + ": " + error);
+        }
+
+        return out;
     }
 
 }

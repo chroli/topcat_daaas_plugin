@@ -68,8 +68,7 @@
             } else {
                 facility.icat().query(timeout.promise, [
                     "select user from User user",
-                    "where user.name like concat('%', ?, '%')", this.newUser,
-                    "or user.fullName like concat('%', ?, '%')", this.newUser,
+                    "where lower(user.fullName) like concat('%', lower(?), '%')", this.newUser,
                     "limit 0, 15"
                 ]).then(function(users){
                     that.candidateUsers = _.map(users, function(user, position){

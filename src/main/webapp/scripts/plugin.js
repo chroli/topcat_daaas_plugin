@@ -7,7 +7,6 @@ registerTopcatPlugin(function(pluginUrl){
 				return $.fn.noVnc !== undefined;
 			}],
 			pluginUrl + 'scripts/controllers/create-machine.js',
-			pluginUrl + 'scripts/controllers/machine.js',
 			pluginUrl + 'scripts/controllers/my-machines.js',
 			pluginUrl + 'scripts/controllers/admin-machine-types.js',
 			pluginUrl + 'scripts/controllers/admin-create-machine-type.js',
