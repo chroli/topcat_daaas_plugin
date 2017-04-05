@@ -184,7 +184,7 @@ public class UserResource {
     @GET
     @Path("/machines/{id}/screenshot")
     @Produces("image/png")
-    public Response setMachineScreenshot(
+    public Response getMachineScreenshot(
         @PathParam("id") String id,
         @QueryParam("icatUrl") String icatUrl,
         @QueryParam("sessionId") String sessionId){
@@ -202,6 +202,83 @@ public class UserResource {
             for(MachineUser user : machine.getMachineUsers()){
                 if(user.getUserName().equals(username)){
                     return Response.ok(machine.getScreenshot()).build();
+                }
+            }
+
+            throw new DaaasException("You are not allowed to access this machine.");
+            
+        } catch(DaaasException e) {
+            return e.toResponse();
+        } catch(Exception e){
+            String message = e.getMessage();
+            if(message == null){
+                message = e.toString();
+            }
+            return new DaaasException(message).toResponse();
+        }
+    }
+
+    @GET
+    @Path("/machines/{id}/rdp")
+    @Produces("application/x-rdp")
+    public Response getRdpFile(
+        @PathParam("id") String id,
+        @QueryParam("icatUrl") String icatUrl,
+        @QueryParam("sessionId") String sessionId){
+        try {
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("id", id);
+
+            Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);
+            if(machine == null){
+                throw new DaaasException("No such machine.");
+            }
+
+            String username = getUsername(icatUrl, sessionId);
+
+            for(MachineUser user : machine.getMachineUsers()){
+                if(user.getUserName().equals(username)){
+                    StringBuffer out = new StringBuffer();
+
+                    out.append("screen mode id:i:2\n");
+                    out.append("desktopwidth:i:1024\n");
+                    out.append("desktopheight:i:768\n");
+                    out.append("session bpp:i:24\n");
+                    out.append("compression:i:1\n");
+                    out.append("keyboardhook:i:2\n");
+                    out.append("displayconnectionbar:i:1\n");
+                    out.append("disable wallpaper:i:1\n");
+                    out.append("disable full window drag:i:1\n");
+                    out.append("allow desktop composition:i:0\n");
+                    out.append("allow font smoothing:i:0\n");
+                    out.append("disable menu anims:i:1\n");
+                    out.append("disable themes:i:0\n");
+                    out.append("disable cursor setting:i:0\n");
+                    out.append("bitmapcachepersistenable:i:1\n");
+                    out.append("full address:s:" + machine.getHost() + "\n");
+                    out.append("audiomode:i:2\n");
+                    out.append("redirectprinters:i:0\n");
+                    out.append("redirectsmartcard:i:0\n");
+                    out.append("redirectcomports:i:0\n");
+                    out.append("redirectsmartcards:i:0\n");
+                    out.append("redirectclipboard:i:1\n");
+                    out.append("redirectposdevices:i:0\n");
+                    out.append("autoreconnection enabled:i:1\n");
+                    out.append("authentication level:i:0\n");
+                    out.append("prompt for credentials:i:1\n");
+                    out.append("negotiate security layer:i:1\n");
+                    out.append("remoteapplicationmode:i:0\n");
+                    out.append("alternate shell:s:\n");
+                    out.append("shell working directory:s:\n");
+                    out.append("gatewayhostname:s:\n");
+                    out.append("gatewayusagemethod:i:4\n");
+                    out.append("gatewaycredentialssource:i:4\n");
+                    out.append("gatewayprofileusagemethod:i:0\n");
+                    out.append("precommand:s:\n");
+                    out.append("promptcredentialonce:i:1\n");
+                    out.append("drivestoredirect:s:\n");
+
+                    return Response.ok(out.toString()).header("Content-Disposition", "attachment; filename='" + machine.getHost() + ".rdp'").build();
                 }
             }
 

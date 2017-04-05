@@ -81,6 +81,22 @@
                 return url;
               };
 
+              machine.rdpUrl = function(){
+                var url;
+                var matches;
+                if(matches = pluginUrl.match(/http:\/\/localhost:10080(.*)/)){
+                  url = "https://localhost:8181" + matches[1];
+                } else {
+                  url = pluginUrl;
+                }
+
+                url += "api/user/machines/" + this.id + "/rdp?"
+                url += "icatUrl=" + encodeURIComponent(facility.config().icatUrl);
+                url += "&sessionId=" + encodeURIComponent(icat.session().sessionId);
+
+                return url;
+              };
+
             });
             return machines;
           });

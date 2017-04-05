@@ -53,8 +53,8 @@ public class SshClient {
             commandToRun
         });
 
-        String out = IOUtils.toString(process.getInputStream(), StandardCharsets.US_ASCII);
-        String error = IOUtils.toString(process.getErrorStream(), StandardCharsets.US_ASCII);
+        String out = readInputStream(process.getInputStream());
+        String error = readInputStream(process.getErrorStream());
 
         int exitVal = process.waitFor();
 
@@ -63,6 +63,16 @@ public class SshClient {
         }
 
         return out;
+    }
+
+    private String readInputStream(InputStream inputStream) throws  IOException {
+        StringBuffer out = new StringBuffer();
+        BufferedInputStream in = new BufferedInputStream(inputStream);
+        byte[] bytes = new byte[1];
+        while (in.read(bytes) != -1) {
+            out.append(new String(bytes, StandardCharsets.US_ASCII));
+        }
+        return out.toString();
     }
 
 }
