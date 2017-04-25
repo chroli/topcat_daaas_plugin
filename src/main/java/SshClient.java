@@ -50,7 +50,9 @@ public class SshClient {
             "/usr/bin/ssh", sshUsername + "@" + host,
             "-i", sshPrivateKeyFile,
             "-o", "StrictHostKeyChecking no",
+            "-o", "UserKnownHostsFile /dev/null",
             "-o", "PreferredAuthentications publickey",
+            "-o", "ConnectTimeout 3",
             commandToRun
         });
 
