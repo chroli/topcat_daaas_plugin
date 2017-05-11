@@ -36,6 +36,14 @@
 					{{machineType.name}}
 				</div>
 				<div class="panel-body">
+					<div class="detail" ng-if="machineType.logoMimeType">
+						<img src="{{machineType.logoUrl()}}" style="max-width: 200px">
+						<br><br>
+					</div>
+					<div class="detail">
+						<label>Description:</label>
+						{{machineType.description}}
+					</div>
 					<div class="detail">
 						<label>Image:</label>
 						{{machineType.image.name}}
@@ -52,11 +60,27 @@
 						<label>Pool size:</label>
 						{{machineType.poolSize}}
 					</div>
-					<div class="detail">
-						<label>Personality:</label>
-						{{machineType.personality}}
+					<div class="detail" ng-if="machineType.aquilonArchetype">
+						<label>Aquilon Archetype:</label>
+						{{machineType.aquilonArchetype}}
 					</div>
-					<div class="detail">
+					<div class="detail" ng-if="machineType.aquilonDomain">
+						<label>Aquilon Domain:</label>
+						{{machineType.aquilonDomain}}
+					</div>
+					<div class="detail" ng-if="machineType.aquilonPersonality">
+						<label>Aquilon Personality:</label>
+						{{machineType.aquilonPersonality}}
+					</div>
+					<div class="detail" ng-if="machineType.aquilonSandbox">
+						<label>Aquilon Sandbox:</label>
+						{{machineType.aquilonSandbox}}
+					</div>
+					<div class="detail" ng-if="machineType.aquilonOSVersion">
+						<label>Aquilon OS Version:</label>
+						{{machineType.aquilonOSVersion}}
+					</div>
+					<div class="detail" ng-if="machineType.scopes.length > 0">
 						<label>Scope:</label>
 						<ul>
 							<li ng-repeat="scope in machineType.scopes">{{scope.query}}</li>

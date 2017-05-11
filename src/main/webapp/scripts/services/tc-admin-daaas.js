@@ -69,7 +69,27 @@
           return this.get('machineTypes', {
             icatUrl: facility.config().icatUrl,
             sessionId: icat.session().sessionId
-          }, options);
+          }, options).then(function(machineTypes){
+            
+            _.each(machineTypes, function(machineType){
+              machineType.logoUrl = function(){
+                var url;
+                var matches;
+                if(matches = pluginUrl.match(/http:\/\/localhost:10080(.*)/)){
+                  url = "https://localhost:8181" + matches[1];
+                } else {
+                  url = pluginUrl;
+                }
+
+                url += "api/user/machineTypes/" + this.id + "/logo";
+
+                return url;
+              };
+            });
+
+            return machineTypes;
+
+          });
         },
         'promise': function(timeout){
           return this.machineTypes({timeout: timeout});

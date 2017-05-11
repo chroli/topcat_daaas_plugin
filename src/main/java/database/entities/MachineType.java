@@ -227,6 +227,10 @@ public class MachineType extends Entity implements Serializable {
         JsonObjectBuilder out = Json.createObjectBuilder();
         out.add("id", getId());
         out.add("name", getName());
+        out.add("description", getDescription());
+        if(getLogoMimeType() != null){
+            out.add("logoMimeType", getLogoMimeType());
+        }
         out.add("imageId", getImageId());
         out.add("flavorId", getFlavorId());
         out.add("availabilityZone", getAvailabilityZone());
