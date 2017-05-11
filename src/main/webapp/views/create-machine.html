@@ -13,14 +13,14 @@
                         <div class="radio">
                             <input type="radio" name="machineType" ng-model="createMachineController.machineTypeId" ng-value="machineType.id" required>
                         </div>
-                        <div class="screenshot">
-                            <img src="/topcat_daaas_plugin/images/mantid.png">
+                        <div class="screenshot" ng-if="machineType.logoMd5">
+                            <img src="{{machineType.logoUrl()}}">
                         </div>
                         <div class="main">
                             <div class="info">
                                 <div class="title">{{machineType.name}}</div>
                                 <div class="description">
-                                    Mantid has been created to manipulate and analyse Neutron and Muon scattering data, but could be applied to many other techniques. Also includes Horace - a suite of programs for the visualisation and analysis of large datasets from time-of-flight neutron inelastic scattering spectrometers 
+                                    {{machineType.description}}
                                 </div>
                             </div>
                         </div>
