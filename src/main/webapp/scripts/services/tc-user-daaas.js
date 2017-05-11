@@ -149,6 +149,7 @@
                 }
 
                 url += "api/user/machineTypes/" + this.id + "/logo";
+                url += "?md5=" + encodeURIComponent(this.logoMd5);
 
                 return url;
               };

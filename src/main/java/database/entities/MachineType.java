@@ -14,6 +14,9 @@ import javax.json.JsonObjectBuilder;
 import org.icatproject.topcatdaaasplugin.Entity;
 import org.icatproject.topcatdaaasplugin.EntityList;
 
+import java.security.*;
+import java.util.Base64;
+
 @javax.persistence.Entity
 @Table(name = "MACHINETYPE")
 @XmlRootElement
@@ -112,6 +115,17 @@ public class MachineType extends Entity implements Serializable {
 
     public void setLogoData(byte[] logoData) {
         this.logoData = logoData;
+    }
+
+    public String getLogoMd5(){
+        if(getLogoData() != null && getLogoData().length > 0){
+            try {
+                MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+                byte[] md5 = messageDigest.digest(getLogoData());
+                return Base64.getEncoder().encodeToString(md5);
+            } catch(Exception e){}
+        }
+        return "";
     }
 
     public String getImageId() {
@@ -228,9 +242,15 @@ public class MachineType extends Entity implements Serializable {
         out.add("id", getId());
         out.add("name", getName());
         out.add("description", getDescription());
+
         if(getLogoMimeType() != null){
             out.add("logoMimeType", getLogoMimeType());
         }
+        
+        if(!getLogoMd5().equals("")){
+            out.add("logoMd5", getLogoMd5());
+        }
+
         out.add("imageId", getImageId());
         out.add("flavorId", getFlavorId());
         out.add("availabilityZone", getAvailabilityZone());

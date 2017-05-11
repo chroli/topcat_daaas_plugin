@@ -15,7 +15,7 @@
         this.name = "";
         this.description = "";
         this.logoMimeType = "";
-        this.logoData = new Uint8Array()
+        this.logoData = new Uint8Array();
     	this.images = [];
     	this.flavors = [];
         this.availabilityZones = [];
@@ -61,7 +61,7 @@
 
         this.create = function(){
         	daaas.createMachineType(that.name, that.description, that.imageId, that.flavorId, that.availabilityZone, that.poolSize, that.aquilonArchetype, that.aquilonDomain, that.aquilonPersonality, that.aquilonSandbox, that.aquilonOSVersion, that.scopes).then(function(machineType){
-                if(that.logoMimeType != ''){
+                if(that.logoMimeType){
                     return daaas.updateMachineTypeLogo(machineType.id, that.logoMimeType, that.logoData);
                 }
             }).then(function(){

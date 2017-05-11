@@ -11,6 +11,8 @@
     	var admin = facility.admin();
     	var daaas = admin.daaas();
 
+        this.logoData = new Uint8Array();
+        this.deleteLogo = false;
     	this.loaded = false;
     	this.images = [];
     	this.flavors = [];
@@ -51,7 +53,15 @@
         };
 
         this.save = function(){
-        	daaas.updateMachineType(that.id, that.name, that.imageId, that.flavorId, that.availabilityZone, that.poolSize, that.aquilonArchetype, that.aquilonDomain, that.aquilonPersonality, that.aquilonSandbox, that.aquilonOSVersion, that.scopes).then(function(){
+        	daaas.updateMachineType(that.id, that.name, that.description, that.imageId, that.flavorId, that.availabilityZone, that.poolSize, that.aquilonArchetype, that.aquilonDomain, that.aquilonPersonality, that.aquilonSandbox, that.aquilonOSVersion, that.scopes).then(function(){
+                if(that.deleteLogo){
+                    return daaas.deleteMachineTypeLogo(that.id);
+                }
+            }).then(function(){
+                if(that.logoData.length > 0){
+                    return daaas.updateMachineTypeLogo(that.id, that.logoMimeType, that.logoData);
+                }
+            }).then(function(){
                 $uibModalInstance.dismiss('cancel');
             });
         };

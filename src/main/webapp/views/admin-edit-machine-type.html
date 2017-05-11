@@ -9,6 +9,22 @@
                 <input class="form-control" type="text" ng-model="adminEditMachineTypeController.name" required>
             </div>
             <div class="form-group">
+                <label class="control-label">Logo</label>
+                <div>
+                    <div ng-if="adminEditMachineTypeController.logoMd5">
+                        <img src="{{adminEditMachineTypeController.logoUrl()}}" style="max-width: 200px">
+                        <br><br>
+                        <input type="checkbox" ng-model="adminEditMachineTypeController.deleteLogo"> (delete?)
+                        <br><br>
+                    </div>
+                    <file-upload prefix="adminEditMachineTypeController.logo"></file-upload>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label">*Description</label>
+                <textarea class="form-control" ng-model="adminEditMachineTypeController.description" required></textarea>
+            </div>
+            <div class="form-group">
                 <label class="control-label" for="server">*Image</label>
                 <select class="form-control" ng-model="adminEditMachineTypeController.imageId" ng-options="image.id as image.name for image in adminEditMachineTypeController.images" required>
                 </select>

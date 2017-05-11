@@ -82,6 +82,7 @@
                 }
 
                 url += "api/user/machineTypes/" + this.id + "/logo";
+                url += "?md5=" + encodeURIComponent(this.logoMd5);
 
                 return url;
               };
@@ -129,12 +130,13 @@
       });
 
       this.updateMachineType = helpers.overload({
-        'number, string, string, string, string, number, string, string, string, string, string, array, object': function(id, name, imageId, flavorId, availabilityZone, poolSize, aquilonArchetype, aquilonDomain, aquilonPersonality, aquilonSandbox, aquilonOSVersion, scopes, options){
+        'number, string, string, string, string, string, number, string, string, string, string, string, array, object': function(id, name, description, imageId, flavorId, availabilityZone, poolSize, aquilonArchetype, aquilonDomain, aquilonPersonality, aquilonSandbox, aquilonOSVersion, scopes, options){
           return this.put('machineTypes/' + id, {
             icatUrl: facility.config().icatUrl,
             sessionId: icat.session().sessionId,
             json: JSON.stringify({
               name: name,
+              description: description,
               imageId: imageId,
               flavorId: flavorId,
               availabilityZone: availabilityZone,
@@ -148,11 +150,11 @@
             })
           }, options);
         },
-        'promise, number, string, string, string, string, number, string, string, string, string, string, array': function(timeout, id, name, imageId, flavorId, availabilityZone, poolSize, aquilonArchetype, aquilonDomain, aquilonPersonality, aquilonSandbox, aquilonOSVersion, scopes){
-          return this.updateMachineType(id, name, imageId, flavorId, availabilityZone, poolSize, aquilonArchetype, aquilonDomain, aquilonPersonality, aquilonSandbox. aquilonOSVersion, scopes, {timeout: timeout});
+        'promise, number, string, string, string, string, string, number, string, string, string, string, string, array': function(timeout, id, name, description, imageId, flavorId, availabilityZone, poolSize, aquilonArchetype, aquilonDomain, aquilonPersonality, aquilonSandbox, aquilonOSVersion, scopes){
+          return this.updateMachineType(id, name, description, imageId, flavorId, availabilityZone, poolSize, aquilonArchetype, aquilonDomain, aquilonPersonality, aquilonSandbox. aquilonOSVersion, scopes, {timeout: timeout});
         },
-        'number, string, string, string, string, number, string, string, string, string, string, array': function(id, name, imageId, flavorId, availabilityZone, poolSize, aquilonArchetype, aquilonDomain, aquilonPersonality, aquilonSandbox, aquilonOSVersion, scopes){
-          return this.updateMachineType(id, name, imageId, flavorId, availabilityZone, poolSize, aquilonArchetype, aquilonDomain, aquilonPersonality, aquilonSandbox, aquilonOSVersion, scopes, {});
+        'number, string, string, string, string, string, number, string, string, string, string, string, array': function(id, name, description, imageId, flavorId, availabilityZone, poolSize, aquilonArchetype, aquilonDomain, aquilonPersonality, aquilonSandbox, aquilonOSVersion, scopes){
+          return this.updateMachineType(id, name, description, imageId, flavorId, availabilityZone, poolSize, aquilonArchetype, aquilonDomain, aquilonPersonality, aquilonSandbox, aquilonOSVersion, scopes, {});
         }
       });
 
@@ -166,8 +168,23 @@
         'promise, number': function(timeout, id){
           return this.deleteMachineType(id, {timeout: timeout});
         },
-        'number': function(){
+        'number': function(id){
           return this.deleteMachineType(id, {});
+        }
+      });
+
+      this.deleteMachineTypeLogo = helpers.overload({
+        'number, object': function(id, options){
+          return this.delete('machineTypes/' + id + '/logo', {
+            icatUrl: facility.config().icatUrl,
+            sessionId: icat.session().sessionId
+          }, options);
+        },
+        'promise, number': function(timeout, id){
+          return this.deleteMachineTypeLogo(id, {timeout: timeout});
+        },
+        'number': function(id){
+          return this.deleteMachineTypeLogo(id, {});
         }
       });
 

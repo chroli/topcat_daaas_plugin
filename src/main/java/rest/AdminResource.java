@@ -204,6 +204,7 @@ public class AdminResource {
             jsonReader.close();
 
             machineType.setName(jsonObject.getString("name"));
+            machineType.setDescription(jsonObject.getString("description"));
             machineType.setImageId(jsonObject.getString("imageId"));
             machineType.setFlavorId(jsonObject.getString("flavorId"));
             machineType.setAvailabilityZone(jsonObject.getString("availabilityZone"));
@@ -262,6 +263,32 @@ public class AdminResource {
 
             buffer.flush();
             machineType.setLogoData(buffer.toByteArray());
+
+            database.persist(machineType);
+
+            return machineType.toResponse();
+        } catch(DaaasException e) {
+            return e.toResponse();
+        } catch(Exception e) {
+            return new DaaasException(e.getMessage()).toResponse();
+        }
+    }
+
+    @DELETE
+    @Path("/machineTypes/{id}/logo")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteMachineTypeLogo(
+        @PathParam("id") Integer id,
+        @QueryParam("icatUrl") String icatUrl,
+        @QueryParam("sessionId") String sessionId) {
+
+        try {
+            authorize(icatUrl, sessionId);
+
+            MachineType machineType = (MachineType) database.query("select machineType from MachineType machineType where machineType.id = " + id).get(0);
+
+            machineType.setLogoMimeType("");
+            machineType.setLogoData(new byte[0]);
 
             database.persist(machineType);
 
