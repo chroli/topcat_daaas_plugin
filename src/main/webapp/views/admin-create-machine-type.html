@@ -9,6 +9,14 @@
                 <input class="form-control" type="text" ng-model="adminCreateMachineTypeController.name" required>
             </div>
             <div class="form-group">
+                <label class="control-label">*Description</label>
+                <textarea class="form-control" ng-model="adminCreateMachineTypeController.description" required></textarea>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Logo</label>
+                <file-upload prefix="adminCreateMachineTypeController.logo"></file-upload>
+            </div>
+            <div class="form-group">
                 <label class="control-label" for="server">*Image</label>
                 <select class="form-control" ng-model="adminCreateMachineTypeController.imageId" ng-options="image.id as image.name for image in adminCreateMachineTypeController.images" required>
                 </select>

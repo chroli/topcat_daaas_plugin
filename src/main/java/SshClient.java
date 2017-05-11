@@ -29,6 +29,7 @@ public class SshClient {
                     SocketChannel.open(new InetSocketAddress(host, 22)).close();
                     break;
                 } catch(Exception e){
+                    logger.info("Exception: " + e.getClass().getSimpleName());
                     Thread.sleep(1000);
                 }
             }

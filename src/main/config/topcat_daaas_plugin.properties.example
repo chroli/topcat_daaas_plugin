@@ -2,10 +2,10 @@
 topcatUrl https://localhost:8181
 allowedIcatUrls https://localhost:8181
 
-username elz24996
-domain stfc
+domain default
+username daas-service
 password 
-project b06aa3f5094243a3a998aae294a376e6
+project 5996a30fe7174cdba446d9c23fcdeab9
 
 identityEndpoint https://openstack.nubes.rl.ac.uk:5000
 computeEndpoint https://openstack.nubes.rl.ac.uk:8774
@@ -13,7 +13,7 @@ imageEndpoint http://openstack.nubes.rl.ac.uk:9292
 
 tokensDirectory /vagrant/plugins/topcat_daaas_plugin/tokens
 
-sshKeyPairName elz24996
+sshKeyPairName daas-service
 
 sshUsername daas
 sshPrivateKeyFile /home/vagrant/id_rsa

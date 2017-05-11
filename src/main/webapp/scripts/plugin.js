@@ -13,7 +13,7 @@ registerTopcatPlugin(function(pluginUrl){
 			pluginUrl + 'scripts/controllers/admin-edit-machine-type.js',
 			pluginUrl + 'scripts/controllers/share-machine.js',
 
-			pluginUrl + 'scripts/directives/fullscreen.js',
+			pluginUrl + 'scripts/directives/file-upload.js',
 
 			pluginUrl + 'scripts/services/tc-admin-daaas.js',
 			pluginUrl + 'scripts/services/tc-user-daaas.js'

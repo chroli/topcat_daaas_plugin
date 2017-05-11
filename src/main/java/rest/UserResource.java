@@ -439,6 +439,22 @@ public class UserResource {
         }
     }
 
+    @GET
+    @Path("/machineTypes/{id}/logo")
+    public Response getMachineTypeLogo(
+        @PathParam("id") Integer id) {
+
+        try {
+            MachineType machineType = (MachineType) database.query("select machineType from MachineType machineType where machineType.id = " + id).get(0);
+
+            return Response.ok(machineType.getLogoData(), machineType.getLogoMimeType()).build();
+        } catch(DaaasException e) {
+            return e.toResponse();
+        } catch(Exception e) {
+            return new DaaasException(e.getMessage()).toResponse();
+        }
+    }
+
     private boolean isMachineTypeAllowed(String icatUrl, String sessionId, Long machineTypeId) throws Exception {
         for(MachineType machineType : getAvailableMachineTypes(icatUrl, sessionId)){
             if(machineType.getId().equals(machineTypeId)){
@@ -469,172 +485,4 @@ public class UserResource {
         return user.getString("name");
     }
 
-    // @GET
-    // @Path("/user")
-    // @Produces({MediaType.APPLICATION_JSON})
-    // public Response getUser(
-    //         @QueryParam("sessionId") String sessionId,
-    //         @QueryParam("userId") String userId) {
-        
-    //     try {
-    //         if(userId != null){
-    //             return new CloudClient(sessionId).getUser(Integer.parseInt(userId)).toResponse();
-    //         } else {
-    //             return new CloudClient(sessionId).getUser().toResponse();
-    //         }
-    //     } catch(DaaasException e) {
-    //         return e.toResponse();
-    //     }
-    
-    /*
-    @POST
-    @Path("/machines")
-    @Produces({MediaType.APPLICATION_JSON})
-    public Response createMachine(
-            @FormParam("templateId") String templateId,
-            @FormParam("name") String name) {
-        
-        try {
-            return cloudClient.createMachine(templateId, name).toResponse();
-        } catch(DaaasException e) {
-            return e.toResponse();
-        }
-        
-    }
-    
-    @DELETE
-    @Path("/machines/{machineId}")
-    @Produces({MediaType.APPLICATION_JSON})
-    public Response deleteMachine(
-            @PathParam("machineId") String machineId) {
-        try {
-            return cloudClient.deleteMachine(machineId).toResponse();
-        } catch(DaaasException e) {
-            return e.toResponse();
-        }
-    }
-    
-    
-    @GET
-    @Path("/templates")
-    @Produces({MediaType.APPLICATION_JSON})
-    public Response getTemplates(
-            @QueryParam("sessionId") String sessionId) {
-        
-        try {
-            return cloudClient.getTemplates().toResponse();
-        } catch(DaaasException e) {
-            return e.toResponse();
-        }
-        
-    }
-
-    @GET
-    @Path("/machineTypes")
-    @Produces({MediaType.APPLICATION_JSON})
-    public Response machineTypes(
-            @QueryParam("sessionId") String sessionId) {
-        
-        try {
-            
-            
-            return cloudClient.getTemplates().toResponse();
-        } catch(DaaasException e) {
-            return e.toResponse();
-        }
-        
-    }
-
-    @GET
-    @Path("/test")
-    @Produces({MediaType.TEXT_PLAIN})
-    public Response test(){
-        try {
-            return Response.ok().entity(new SshClient("glassfish", "topcat-dev.esc.rl.ac.uk", "/home/vagrant/id_rsa").exec("ping -c 1 google.com")).build();
-        } catch(Exception e) {
-            return Response.status(400).entity(e.getMessage()).build();
-        }
-    }
-
-    // private String getUsername(String sessionId){
-        
-    // }
-
-    */
 }
-
-
-
-
- // case "${cmd[0]}" in
-    //   "set_resolution")
-    //     arg1=${cmd[1]//[^0-9]/}
-    //     arg2=${cmd[2]//[^0-9]/}
-    //     $SCRIPTS_DIR/set_resolution.sh $arg1 $arg2
-    //     ;;
-    //   get_screenshot)
-    //     $SCRIPTS_DIR/get_screenshot.sh
-    //     ;;
-    //   add_primary_user)
-    //     $SCRIPTS_DIR/add_primary_user.sh ${cmd[1]}
-    //     ;;
-    //   add_secondary_user)
-    //     $SCRIPTS_DIR/add_secondary_user.sh ${cmd[1]}
-    //     ;;
-    //   remove_secondary_user)
-    //     $SCRIPTS_DIR/remove_secondary_user.sh ${cmd[1]}
-    //     ;;
-    //   get_last_activity)
-    //     $SCRIPTS_DIR/get_last_activity.sh
-    //     ;;
-    //   add_websockify_token)
-    //     $SCRIPTS_DIR/add_websockify_token.sh ${cmd[1]}
-    //     ;;
-    //   remove_websockify_token)
-    //     $SCRIPTS_DIR/remove_websockify_token.sh ${cmd[1]}
-    //     ;;
-    //   set_machine_type)
-    //     $SCRIPTS_DIR/set_machine_type.sh ${cmd[1]}
-    //     ;;
-    //   *)
-    //     echo "Unrecognised command"
-    //     exit 1
-    //     ;;
-    // esac
-
-    // public byte[] getScreenshot()  throws Exception {
-    //     return Base64.getDecoder().decode(new SshClient(this.host).exec("get_screenshot"));
-    // }
-
-    // public void setResolution(int width, int height)  throws Exception {
-    //     new SshClient(getHost()).exec("set_resolution " + width + " " + height);
-    // }
-
-    // public void addPrimaryUser(String username) throws Exception {
-    //     new SshClient(getHost()).exec("add_primary_user " + username);
-    // }
-
-    // public void addSecondaryUser(String username) throws Exception {
-    //     new SshClient(getHost()).exec("add_secondary_user " + username);
-    // }
-
-    // public void removeSecondaryUser(String username) throws Exception {
-    //     new SshClient(getHost()).exec("remove_secondary_user " + username);
-    // }
-
-    // public Date getLastActivity() throws Exception {
-    //     return new SimpleDateFormat().parse(new SshClient(getHost()).exec("get_last_activity"));
-    // }
-
-    // public void addWebsockifyToken(String token) throws Exception {
-    //     new SshClient(getHost()).exec("add_websockify_token " + token);
-    // }
-
-    // public void removeWebsockifyToken(String token) throws Exception {
-    //     new SshClient(getHost()).exec("remove_websockify_token " + token);
-    // }
-
-    // public void contextualize() throws Exception {
-    //     //addPrimaryUser(getOwner());
-    //     //addWebsockifyToken(getWebsockifyToken());
-    // }

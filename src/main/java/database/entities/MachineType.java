@@ -6,20 +6,7 @@ import java.util.Date;
 
 import javax.json.Json;
 
-import javax.persistence.CascadeType;
-import javax.persistence.FetchType;
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.PrePersist;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.json.JsonObjectBuilder;
 
@@ -39,6 +26,16 @@ public class MachineType extends Entity implements Serializable {
 
     @Column(name = "NAME", nullable = false)
     private String name;
+
+    @Column(name = "DESCRIPTION", nullable = false, columnDefinition = "text")
+    private String description;
+
+    @Column(name = "LOGO_MIME_TYPE")
+    private String logoMimeType;
+
+    @Lob
+    @Column(name = "LOGO_DATA")
+    private byte[] logoData;
 
     @Column(name = "IMAGE_ID", nullable = false)
     private String imageId;
@@ -91,6 +88,30 @@ public class MachineType extends Entity implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getLogoMimeType() {
+        return logoMimeType;
+    }
+
+    public void setLogoMimeType(String logoMimeType) {
+        this.logoMimeType = logoMimeType;
+    }
+
+    public byte[] getLogoData(){
+        return logoData;
+    }
+
+    public void setLogoData(byte[] logoData) {
+        this.logoData = logoData;
     }
 
     public String getImageId() {

@@ -8,6 +8,7 @@ package org.icatproject.topcatdaaasplugin.rest;
 import java.util.List;
 import java.util.ArrayList;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.io.*;
 
@@ -21,6 +22,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.core.GenericEntity;
@@ -137,7 +139,8 @@ public class AdminResource {
     public Response createMachineType(
         @FormParam("icatUrl") String icatUrl,
         @FormParam("sessionId") String sessionId,
-        @FormParam("json") String json) {
+        @FormParam("json") String json,
+        @FormParam("logoData") String logoData) {
 
         try {
             authorize(icatUrl, sessionId);
@@ -150,6 +153,7 @@ public class AdminResource {
             MachineType machineType = new MachineType();
 
             machineType.setName(jsonObject.getString("name"));
+            machineType.setDescription(jsonObject.getString("description"));
             machineType.setImageId(jsonObject.getString("imageId"));
             machineType.setFlavorId(jsonObject.getString("flavorId"));
             machineType.setAvailabilityZone(jsonObject.getString("availabilityZone"));
@@ -218,6 +222,46 @@ public class AdminResource {
                 machineTypeScopes.add(machineTypeScope);
             }
             machineType.setMachineTypeScopes(machineTypeScopes);
+
+            database.persist(machineType);
+
+            return machineType.toResponse();
+        } catch(DaaasException e) {
+            return e.toResponse();
+        } catch(Exception e) {
+            return new DaaasException(e.getMessage()).toResponse();
+        }
+    }
+
+    @PUT
+    @Path("/machineTypes/{id}/logo")
+    @Consumes(MediaType.APPLICATION_OCTET_STREAM)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateMachineTypeLogo(
+        InputStream body,
+        @PathParam("id") Integer id,
+        @QueryParam("icatUrl") String icatUrl,
+        @QueryParam("sessionId") String sessionId,
+        @QueryParam("mimeType") String mimeType) {
+
+        try {
+            authorize(icatUrl, sessionId);
+
+            MachineType machineType = (MachineType) database.query("select machineType from MachineType machineType where machineType.id = " + id).get(0);
+
+            machineType.setLogoMimeType(mimeType);
+
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+            int nRead;
+            byte[] data = new byte[16384];
+
+            while ((nRead = body.read(data, 0, data.length)) != -1) {
+              buffer.write(data, 0, nRead);
+            }
+
+            buffer.flush();
+            machineType.setLogoData(buffer.toByteArray());
 
             database.persist(machineType);
 

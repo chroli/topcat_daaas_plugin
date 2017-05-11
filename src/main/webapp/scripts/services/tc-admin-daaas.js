@@ -80,12 +80,13 @@
       });
 
       this.createMachineType = helpers.overload({
-        'string, string, string, string, number, string, string, string, string, string, array, object': function(name, imageId, flavorId, availabilityZone, poolSize, aquilonArchetype, aquilonDomain, aquilonPersonality, aquilonSandbox, aquilonOSVersion, scopes, options){
+        'string, string, string, string, string, number, string, string, string, string, string, array, object': function(name, description, imageId, flavorId, availabilityZone, poolSize, aquilonArchetype, aquilonDomain, aquilonPersonality, aquilonSandbox, aquilonOSVersion, scopes, options){
           return this.post('machineTypes', {
             icatUrl: facility.config().icatUrl,
             sessionId: icat.session().sessionId,
             json: JSON.stringify({
               name: name,
+              description: description,
               imageId: imageId,
               flavorId: flavorId,
               availabilityZone: availabilityZone,
@@ -99,11 +100,11 @@
             })
           }, options);
         },
-        'promise, string, string, string, string, number, string, string, string, string, string, array': function(timeout, name, imageId, flavorId, availabilityZone, poolSize, aquilonArchetype, aquilonDomain, aquilonPersonality, aquilonSandbox, aquilonOSVersion, scopes){
-          return this.createMachineType(name, imageId, flavorId, availabilityZone, poolSize, aquilonArchetype, aquilonDomain, aquilonPersonality, aquilonSandbox. aquilonOSVersion, scopes, {timeout: timeout});
+        'promise, string, string, string, string, string, number, string, string, string, string, string, array': function(timeout, name, description, imageId, flavorId, availabilityZone, poolSize, aquilonArchetype, aquilonDomain, aquilonPersonality, aquilonSandbox, aquilonOSVersion, scopes){
+          return this.createMachineType(name, description, imageId, flavorId, availabilityZone, poolSize, aquilonArchetype, aquilonDomain, aquilonPersonality, aquilonSandbox. aquilonOSVersion, scopes, {timeout: timeout});
         },
-        'string, string, string, string, number, string, string, string, string, string, array': function(name, imageId, flavorId, availabilityZone, poolSize, aquilonArchetype, aquilonDomain, aquilonPersonality, aquilonSandbox, aquilonOSVersion, scopes){
-          return this.createMachineType(name, imageId, flavorId, availabilityZone, poolSize, aquilonArchetype, aquilonDomain, aquilonPersonality, aquilonSandbox, aquilonOSVersion, scopes, {});
+        'string, string, string, string, string, number, string, string, string, string, string, array': function(name, description, imageId, flavorId, availabilityZone, poolSize, aquilonArchetype, aquilonDomain, aquilonPersonality, aquilonSandbox, aquilonOSVersion, scopes){
+          return this.createMachineType(name, description, imageId, flavorId, availabilityZone, poolSize, aquilonArchetype, aquilonDomain, aquilonPersonality, aquilonSandbox, aquilonOSVersion, scopes, {});
         }
       });
 
@@ -147,6 +148,31 @@
         },
         'number': function(){
           return this.deleteMachineType(id, {});
+        }
+      });
+
+      this.updateMachineTypeLogo = helpers.overload({
+        'number, string, array, object': function(id, mimeType, data, options){
+
+          options.queryParams = {
+            icatUrl: facility.config().icatUrl,
+            sessionId: icat.session().sessionId,
+            mimeType: mimeType,
+          }
+
+          options.headers =  {
+            'Content-Type': 'application/octet-stream'
+          };
+
+          options.transformRequest = [];
+
+          return this.put('machineTypes/' + id + '/logo', data, options);
+        },
+        'promise, number, array, string': function(timeout, id, mimeType, data){
+          return this.updateMachineTypeLogo(id, mimeType, data, {timeout: timeout});
+        },
+        'number, string, array': function(id, mimeType, data){
+          return this.updateMachineTypeLogo(id, mimeType, data, {});
         }
       });
 

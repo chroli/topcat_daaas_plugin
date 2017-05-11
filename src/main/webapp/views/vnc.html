@@ -127,8 +127,8 @@
 				$('.exit-full-screen').on('click', function(){
                     if (document.exitFullscreen) {
                       document.exitFullscreen();
-                    } else if (document.mozExitFullScreen) {
-                      document.mozExitFullScreen();
+                    } else if (document.mozCancelFullScreen) {
+                      document.mozCancelFullScreen();
                     } else if (document.webkitExitFullscreen) {
                       document.webkitExitFullscreen();
                     } else if (document.msExitFullscreen) {
@@ -146,10 +146,7 @@
 				    } else {
 				    	$(document.body).removeClass('fullscreen');
 				    }
-				 });
-
-
-                
+				});
 
 			})(window.opener.tc, window.opener._);
 		</script>
