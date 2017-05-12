@@ -3,6 +3,8 @@
 	<head>
 		<style>
 			html, body, .clip {
+				top: 0px;
+				left: 0px;
 				margin: 0px;
 				padding: 0px;
 				height: 100%;
@@ -72,7 +74,6 @@
 				var icatUrl = facility.config().icatUrl;
 				var sessionId = icat.session().sessionId;
 
-				console.log('loaded');
 
 				daaas.machines().then(function(machines){
 					_.each(machines, function(machine){
@@ -141,7 +142,7 @@
 				$(canvas).on('mousemove', function(e){
 					var width = $(this).width();
 
-					if(e.pageY < 50 && e.pageX >= width / 3 && e.pageX < width - (width / 3)){
+					if(e.pageY < 14 && e.pageX >= width / 3 && e.pageX < width - (width / 3)){
 						$(fullScreenBar).addClass('show');
 					} else {
 						$(fullScreenBar).removeClass('show');
