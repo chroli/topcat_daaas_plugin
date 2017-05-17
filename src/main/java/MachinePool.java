@@ -95,7 +95,7 @@ public class MachinePool {
     }
 
 
-    @Schedule(hour="*", minute="*", second="0")
+    @Schedule(hour="*", minute="*", second="*")
     public void getScreenShots(){
         try {
             EntityList<Entity> aquiredMachines =  database.query("select machine from Machine machine where machine.state = 'aquired'");

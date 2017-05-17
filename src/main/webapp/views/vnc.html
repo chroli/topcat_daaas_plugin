@@ -12,6 +12,13 @@
 				box-sizing: border-box;
 				overflow: hidden;
 				position: absolute;
+				background: #000;
+			}
+
+			canvas {
+				position: absolute;
+				border-color: #ddd;
+				border-style: solid;
 			}
 
 			.full-screen-bar {
@@ -139,15 +146,17 @@
 
 				var fullScreenBar = $('.full-screen-bar')
 
-				$(canvas).on('mousemove', function(e){
-					var width = $(this).width();
-
+				function mousemove(e){
+					var width = $(document.body).width();
 					if(e.pageY < 14 && e.pageX >= width / 3 && e.pageX < width - (width / 3)){
 						$(fullScreenBar).addClass('show');
 					} else {
 						$(fullScreenBar).removeClass('show');
 					}
-				});
+				}
+
+				$(canvas).on('mousemove', mousemove);
+				$(document.body).on('mousemove', mousemove);
 
 				$('.request-full-screen').on('click', function(){
                     var element = document.body;
@@ -185,6 +194,15 @@
 				    	$(document.body).removeClass('fullscreen');
 				    }
 				});
+
+				if(user.type != 'PRIMARY'){
+					window.setInterval(function(){
+						$(canvas).css({
+							top: ($(window).height() / 2) - ($(canvas).height() / 2),
+							left: ($(window).width() / 2) - ($(canvas).width() / 2)
+						});
+					}, 100);
+				}
 
 			})(window.opener.tc, window.opener._);
 		</script>
