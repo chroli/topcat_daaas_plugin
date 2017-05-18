@@ -23,7 +23,7 @@
 
 			.full-screen-bar {
 				position: absolute;
-				height: 35px;
+				height: 25px;
 				top: -75px;
 				width: 100%;
 				padding: 7px;
@@ -148,9 +148,9 @@
 
 				function mousemove(e){
 					var width = $(document.body).width();
-					if(e.pageY < 14 && e.pageX >= width / 3 && e.pageX < width - (width / 3)){
+					if(e.pageY < 16 && e.pageX >= width / 3 && e.pageX < width - (width / 3)){
 						$(fullScreenBar).addClass('show');
-					} else {
+					} else if($(fullScreenBar).hasClass('show') && e.pageY > $(fullScreenBar).height() && e.pageX >= width / 3 && e.pageX < width - (width / 3)){
 						$(fullScreenBar).removeClass('show');
 					}
 				}

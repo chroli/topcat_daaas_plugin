@@ -35,7 +35,8 @@ import org.icatproject.topcatdaaasplugin.Properties;
 public class MachinePool {
 
     private static final Logger logger = LoggerFactory.getLogger(MachinePool.class);
-    private AtomicBoolean busy = new AtomicBoolean(false);
+    private AtomicBoolean managePoolBusy = new AtomicBoolean(false);
+    private AtomicBoolean getScreenShotsBusy = new AtomicBoolean(false);
 
 	@EJB
     CloudClient cloudClient;
@@ -50,7 +51,7 @@ public class MachinePool {
 
     @Schedule(hour="*", minute="*", second="*")
     public void managePool(){
-        if(!busy.compareAndSet(false, true)){
+        if(!managePoolBusy.compareAndSet(false, true)){
             return;
         }
 
@@ -91,12 +92,16 @@ public class MachinePool {
             logger.error("managePool: " + e.getMessage());
         }
 
-        busy.set(false);
+        managePoolBusy.set(false);
     }
 
 
-    @Schedule(hour="*", minute="*", second="*")
+    @Schedule(hour="*", minute="*", second="0")
     public void getScreenShots(){
+        if(!getScreenShotsBusy.compareAndSet(false, true)){
+            return;
+        }
+        
         try {
             EntityList<Entity> aquiredMachines =  database.query("select machine from Machine machine where machine.state = 'aquired'");
             for(Entity machineEntity : aquiredMachines){
@@ -107,6 +112,8 @@ public class MachinePool {
         } catch(Exception e){
             logger.error("getScreenShots: " + e.getMessage());
         }
+
+        getScreenShotsBusy.set(false);
     }
 
     public synchronized Machine aquireMachine(Long machineTypeId) throws DaaasException {
