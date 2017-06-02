@@ -12,7 +12,7 @@
                 <label class="control-label">Logo</label>
                 <div>
                     <div ng-if="adminEditMachineTypeController.logoMd5">
-                        <img src="{{adminEditMachineTypeController.logoUrl()}}" style="max-width: 200px">
+                        <img ng-src="{{adminEditMachineTypeController.logoUrl()}}" style="max-width: 200px">
                         <br><br>
                         <input type="checkbox" ng-model="adminEditMachineTypeController.deleteLogo"> (delete?)
                         <br><br>
