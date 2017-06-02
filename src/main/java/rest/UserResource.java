@@ -30,6 +30,7 @@ import javax.ws.rs.FormParam;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.CacheControl;
 
 import javax.json.JsonObject;
 import javax.json.JsonArray;
@@ -235,7 +236,9 @@ public class UserResource {
 
             for(MachineUser user : machine.getMachineUsers()){
                 if(user.getUserName().equals(username)){
-                    return Response.ok(machine.getScreenshot()).build();
+                    CacheControl cacheControl = new CacheControl();
+                    cacheControl.setNoStore(true);
+                    return Response.ok(machine.getScreenshot()).cacheControl(cacheControl).build();
                 }
             }
 
