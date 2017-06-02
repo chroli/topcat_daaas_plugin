@@ -36,6 +36,8 @@ import java.util.Base64;
 @XmlRootElement
 public class Machine extends Entity {
     private static final Logger logger = LoggerFactory.getLogger(Machine.class);
+
+    private final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
     
     @Id
     @Column(name = "ID", nullable = false)
@@ -53,6 +55,10 @@ public class Machine extends Entity {
     @Lob
     @Column(name = "SCREENSHOT")
     private byte[] screenshot;
+    
+    @Column(name = "CREATED_AT", nullable=false, updatable=false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name= "MACHINE_TYPE_ID")
@@ -111,6 +117,14 @@ public class Machine extends Entity {
         }
     }
 
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public MachineType getMachineType() {
         return machineType;
     }
@@ -139,6 +153,11 @@ public class Machine extends Entity {
         }
         return null;
     }
+
+    @PrePersist
+    private void createAt() {
+        this.createdAt = new Date();
+    }
     
     public JsonObjectBuilder toJsonObjectBuilder(){
         JsonObjectBuilder out = Json.createObjectBuilder();
@@ -147,6 +166,7 @@ public class Machine extends Entity {
         out.add("state", getState());
         out.add("host", getHost());
         out.add("screenshotMd5", getScreenshotMd5());
+        out.add("createdAt", dateFormat.format(getCreatedAt()));
         out.add("users", getMachineUsers().toJsonArrayBuilder());
         return out;
     }
