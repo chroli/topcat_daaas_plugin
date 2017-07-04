@@ -36,6 +36,7 @@ public class MachinePool {
 
     private static final Logger logger = LoggerFactory.getLogger(MachinePool.class);
     private AtomicBoolean managePoolBusy = new AtomicBoolean(false);
+    private AtomicBoolean checkToSeeIfMachinesHaveFinishedPreparingBusy = new AtomicBoolean(false);
     private AtomicBoolean getScreenShotsBusy = new AtomicBoolean(false);
 
 	@EJB
@@ -77,6 +78,25 @@ public class MachinePool {
                         database.remove(machine);
                     }
                 }
+            }
+        } catch(Exception e){
+            logger.error("managePool: " + e.getMessage());
+        }
+
+        managePoolBusy.set(false);
+    }
+
+    @Schedule(hour="*", minute="*", second="*")
+    public void checkToSeeIfMachinesHaveFinishedPreparing(){
+        if(!checkToSeeIfMachinesHaveFinishedPreparingBusy.compareAndSet(false, true)){
+            return;
+        }
+
+        try {
+            EntityList<Entity> machineTypes = database.query("select machineType from MachineType machineType");
+
+            for(Entity machineTypeEntity : machineTypes){
+                MachineType machineType = (MachineType) machineTypeEntity;
 
                 EntityList<Entity> preparingMachines = database.query("select machine from Machine machine, machine.machineType as machineType where machine.state = 'preparing' and machineType.id = " + machineType.getId());
                 for(Entity machineEntity : preparingMachines){
@@ -89,10 +109,10 @@ public class MachinePool {
                 }
             }
         } catch(Exception e){
-            logger.error("managePool: " + e.getMessage());
+            logger.error("checkToSeeIfMachinesHaveFinishedPreparing: " + e.getMessage());
         }
 
-        managePoolBusy.set(false);
+        checkToSeeIfMachinesHaveFinishedPreparingBusy.set(false);
     }
 
 

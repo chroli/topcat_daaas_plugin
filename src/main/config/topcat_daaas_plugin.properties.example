@@ -11,8 +11,6 @@ identityEndpoint https://openstack.nubes.rl.ac.uk:5000
 computeEndpoint https://openstack.nubes.rl.ac.uk:8774
 imageEndpoint http://openstack.nubes.rl.ac.uk:9292
 
-tokensDirectory /vagrant/plugins/topcat_daaas_plugin/tokens
-
 sshKeyPairName daas-service
 
 sshUsername daas

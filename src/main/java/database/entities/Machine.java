@@ -56,7 +56,7 @@ public class Machine extends Entity {
     @Column(name = "SCREENSHOT")
     private byte[] screenshot;
     
-    @Column(name = "CREATED_AT", nullable=false, updatable=false)
+    @Column(name = "CREATED_AT")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
 
@@ -153,11 +153,6 @@ public class Machine extends Entity {
         }
         return null;
     }
-
-    @PrePersist
-    private void createAt() {
-        this.createdAt = new Date();
-    }
     
     public JsonObjectBuilder toJsonObjectBuilder(){
         JsonObjectBuilder out = Json.createObjectBuilder();
@@ -166,7 +161,9 @@ public class Machine extends Entity {
         out.add("state", getState());
         out.add("host", getHost());
         out.add("screenshotMd5", getScreenshotMd5());
-        out.add("createdAt", dateFormat.format(getCreatedAt()));
+        if(getCreatedAt() != null){
+            out.add("createdAt", dateFormat.format(getCreatedAt()));
+        }
         out.add("users", getMachineUsers().toJsonArrayBuilder());
         return out;
     }

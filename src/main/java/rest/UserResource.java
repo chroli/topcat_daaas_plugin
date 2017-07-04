@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.List;
+import java.util.Date;
 import java.io.ByteArrayOutputStream;
 import java.util.Base64;
 
@@ -112,6 +113,7 @@ public class UserResource {
             sshClient.exec("add_websockify_token " + machineUser.getWebsockifyToken());
 
             machine.setScreenshot(Base64.getMimeDecoder().decode(sshClient.exec("get_screenshot")));
+            machine.setCreatedAt(new Date());
             database.persist(machine);
 
             return machine.toResponse();

@@ -34,7 +34,7 @@ public class SshClient {
                 }
             }
         } catch(InterruptedException e){
-            logger.error("InterruptedException was triggered while waiting for port 22 to open on " + host);
+            logger.debug("InterruptedException was triggered while waiting for port 22 to open on " + host);
         }
 
     }
@@ -63,7 +63,7 @@ public class SshClient {
         int exitVal = process.waitFor();
 
         if(exitVal > 0){
-            logger.info("exec error: " + commandToRun + ": " + error);
+            logger.debug("exec error: " + commandToRun + ": " + error);
         }
 
         return out;
