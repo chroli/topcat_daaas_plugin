@@ -1,16 +1,11 @@
-<br>
-
 <div class="container-fluid">
 	<div class="row">
-		<div class="col-sm-12">
-			<div style="float: right">
+		<div class="col-sm-12" style="margin-bottom:20px">
+			<div style="float:right">
+                <br>
 				<button class="btn btn-sm btn-primary" ng-click="myMachinesController.create()">Create</button>
 			</div>
-
-			<h1>My Machines</h1>
-
-			<br>
-			
+			<h1 style="float:left">Analysis Environments</h1>
 		</div>
 	</div>
 
@@ -40,7 +35,7 @@
 								ng-if="machine.type == 'PRIMARY'"
 								class="btn btn-xs btn-default"
 								ng-click="machine.save()">
-								<span class="glyphicon glyphicon-save"></span>
+								<span class="glyphicon glyphicon-ok"></span>
 							</button>
 						</div>
 

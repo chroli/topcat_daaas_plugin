@@ -24,6 +24,16 @@
 	border-style: solid;
 }
 
+.machine .machinetype {
+	display: inline-block;
+	width: auto;
+}
+
+.machine .machinetype img {
+	height: 120px;
+	margin: 0px;
+	border: 0px;
+}
 
 .machine .main {
 	display: inline-block;

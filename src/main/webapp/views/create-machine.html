@@ -1,19 +1,18 @@
 <div class="modal-content">
     <div class="modal-header">
-        <h3 class="modal-title">Create Machine</h3>
+        <h3 class="modal-title">New Analysis Environment</h3>
     </div>
     <div class="modal-body">
 
         <form novalidate name="createMachineController.form">
             <div class="form-group">
-                <label class="control-label" for="server">Type</label>
                 <div class="machine-types" take-up-remaining-height>
 
                     <div class="machine" ng-class="{selected: createMachineController.machineTypeId == machineType.id}" ng-repeat="machineType in createMachineController.machineTypes">
                         <div class="radio">
                             <input type="radio" name="machineType" ng-model="createMachineController.machineTypeId" ng-value="machineType.id" required>
                         </div>
-                        <div class="screenshot" ng-if="machineType.logoMd5">
+                        <div class="machinetype" ng-if="machineType.logoMd5">
                             <img ng-src="{{machineType.logoUrl()}}">
                         </div>
                         <div class="main">
