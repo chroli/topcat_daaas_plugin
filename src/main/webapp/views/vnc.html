@@ -91,6 +91,8 @@
                 			$(canvas).on('novnc:loaded', resize);
                 			$(window).on('resize', resize);
 
+                            document.title = machine.host;
+
                 			var resizingCounter = 0;
                 			function resize(){
                 				console.log('resize');
