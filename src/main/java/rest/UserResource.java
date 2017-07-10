@@ -142,7 +142,7 @@ public class UserResource {
             if(!machine.getPrimaryUser().getUserName().equals(getUsername(icatUrl, sessionId))){
                 throw new DaaasException("You are not allowed to delete this machine.");
             }
-            cloudClient.deleteMachine(machine.getId());
+            cloudClient.deleteServer(machine.getId());
             database.remove(machine);
             return machine.toResponse();
     } catch(DaaasException e) {

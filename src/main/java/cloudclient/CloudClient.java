@@ -114,7 +114,6 @@ public class CloudClient {
             JsonObjectBuilder project = Json.createObjectBuilder();
             project.add("id", properties.getProperty("project"));
             scope.add("project", project);
-            auth.add("identity", identity);
             auth.add("scope", scope);
 
             String data = Json.createObjectBuilder().add("auth", auth).build().toString();
@@ -327,15 +326,20 @@ public class CloudClient {
             out.setId(id);
             Response response = computeHttpClient.get("servers/" + id, generateStandardHeaders());
             if(response.getCode() == 200){
-                JsonObject serverInfo = parseJson(response.toString()).getJsonObject("server");
-                if(serverInfo.getString("status").equals("ACTIVE")){
-                    for(JsonValue addressInfoValue : serverInfo.getJsonObject("addresses").getJsonArray("public")){
-                        JsonObject addressInfo = (JsonObject) addressInfoValue;
-                        if(addressInfo.getInt("version") == 4){
-                            out.setHost(addressInfo.getString("addr"));
-                        }
+                JsonObject metadata = parseJson(response.toString()).getJsonObject("server").getJsonObject("metadata");
+                
+                out.setStatus(metadata.getString("AQ_STATUS"));
+
+                if(metadata.getString("HOSTNAMES") != null){
+                    String hostnames[] = metadata.getString("HOSTNAMES").split("\\s*,\\s*");
+                    if(hostnames.length == 1){
+                        out.setHost(hostnames[0]);
+                    } else {
+                        out.setStatus("FAILED");
                     }
                 }
+
+                
             } else {
                 throw new BadRequestException(response.toString());
             }
@@ -351,9 +355,9 @@ public class CloudClient {
         }
     }
 
-    public void deleteMachine(String machineId) throws DaaasException {
+    public void deleteServer(String id) throws DaaasException {
         try {
-            Response response = computeHttpClient.delete("servers/" + machineId, generateStandardHeaders());
+            Response response = computeHttpClient.delete("servers/" + id, generateStandardHeaders());
             if(response.getCode() >= 400){
                 throw new BadRequestException(response.toString());
             }
@@ -367,121 +371,6 @@ public class CloudClient {
             throw new UnexpectedException(message);
         }
     }
-
-    // public EntityList<Machine> getMachines()  throws DaaasException {
-    //     EntityList<Machine> out = new EntityList<Machine>();
-        
-    //     try {
-    //         Response response = computeHttpClient.get("servers/detail", generateStandardHeaders());
-    //         if(response.getCode() == 200){
-    //             JsonObject results = parseJson(response.toString());
-    //             for(JsonValue serverValue : results.getJsonArray("servers")){
-    //                 JsonObject server = (JsonObject) serverValue;
-    //                 Machine machine = new Machine();
-    //                 machine.setId(server.getString("id"));
-    //                 machine.setName(server.getString("name"));
-    //                 machine.setState(server.getString("status"));
-    //                 JsonArray addresses = server.getJsonObject("addresses").getJsonArray("public");
-    //                 if(addresses != null){
-    //                     machine.setHost(addresses.getJsonObject(0).getString("addr"));
-    //                     //Websockify.getInstance().getToken("elz24996", getHost()
-    //                 } else {
-    //                     machine.setHost("");
-    //                 }
-
-    //                 out.add(machine);
-    //             }
-    //         } else {
-    //             throw new BadRequestException(response.toString());
-    //         }
-    //     } catch(DaaasException e){
-    //         throw e;
-    //     } catch(Exception e){
-    //         String message = e.getMessage();
-    //         if(message == null){
-    //             message = e.toString();
-    //         }
-    //         throw new UnexpectedException(message);
-    //     }
-
-    //     return out;
-    // }
-
-
-
-    /*
-    
-
-    public EntityList<Template> getTemplates()  throws DaaasException {
-        EntityList<Template> out = new EntityList<Template>();
-        
-        try {
-            Response response = imageHttpClient.get("images", generateStandardHeaders());
-            if(response.getCode() == 200){
-                JsonObject results = parseJson(response.toString());
-                for(JsonValue imageValue : results.getJsonArray("images")){
-                    JsonObject image = (JsonObject) imageValue;
-                    Template template = new Template(this);
-                    template.setId(image.getString("id"));
-                    template.setName(image.getString("name"));
-                    out.add(template);
-                }
-            } else {
-                throw new BadRequestException(response.toString());
-            }
-        } catch(DaaasException e){
-            throw e;
-        } catch(Exception e){
-            String message = e.getMessage();
-            if(message == null){
-                message = e.toString();
-            }
-            throw new UnexpectedException(message);
-        }
-
-        return out;
-    }
-
-     public Void createMachine(String templateId, String name) throws DaaasException {
-        try {
-
-            // {
-            //     "server" => {
-            //         "name" => "auto-allocate-network",
-            //         "imageRef" => "ba123970-efbd-4a91-885a-b069e03e003d",
-            //         "flavorRef" => "http://openstack.nubes.rl.ac.uk:8774/v2.1/8eeb4eaf23a3462dbb18b98ce0f1c6a6/flavors/8a34f302-4cdc-459c-9e45-c5655c94382f",
-            //         "metadata" => {
-            //             "username" => "elz24996"
-            //         }
-            //     }
-            // }
-
-            JsonObjectBuilder server = Json.createObjectBuilder();
-            server.add("name", name);
-            server.add("imageRef", templateId);
-            server.add("flavorRef", "http://openstack.nubes.rl.ac.uk:8774/v2.1/8eeb4eaf23a3462dbb18b98ce0f1c6a6/flavors/8a34f302-4cdc-459c-9e45-c5655c94382f");            
-            JsonObjectBuilder metadata = Json.createObjectBuilder();
-            metadata.add("username", "elz24996");
-            server.add("metadata", metadata);
-
-            String data = Json.createObjectBuilder().add("server", server).build().toString();
-
-            Response response = computeHttpClient.post("servers", generateStandardHeaders(), data);
-            if(response.getCode() > 400){
-                throw new BadRequestException(response.toString());
-            }
-        } catch(DaaasException e){
-            throw e;
-        } catch(Exception e){
-            String message = e.getMessage();
-            if(message == null){
-                message = e.toString();
-            }
-            throw new UnexpectedException(message);
-        }
-        return new Void();
-    }
-    */
 
     private Map<String, String> generateStandardHeaders(){
         Map<String, String> out = new HashMap<String, String>();

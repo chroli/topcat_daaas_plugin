@@ -49,7 +49,7 @@ public class Machine extends Entity {
     @Column(name = "STATE", nullable = false)
     private String state;
 
-    @Column(name = "HOST", nullable = false)
+    @Column(name = "HOST")
     private String host;
 
     @Lob

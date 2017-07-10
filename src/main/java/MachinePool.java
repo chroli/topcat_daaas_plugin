@@ -38,6 +38,7 @@ public class MachinePool {
     private AtomicBoolean managePoolBusy = new AtomicBoolean(false);
     private AtomicBoolean checkToSeeIfMachinesHaveFinishedPreparingBusy = new AtomicBoolean(false);
     private AtomicBoolean getScreenShotsBusy = new AtomicBoolean(false);
+    private AtomicBoolean cleanUpFailedMachinesBusy = new AtomicBoolean(false);
 
 	@EJB
     CloudClient cloudClient;
@@ -64,7 +65,7 @@ public class MachinePool {
 
                 Map<String, String> params = new HashMap<String, String>();
 
-                EntityList<Entity> nonAquiredMachines = database.query("select machine from Machine machine, machine.machineType as machineType where machine.state != 'aquired' and machineType.id = " + machineType.getId());
+                EntityList<Entity> nonAquiredMachines = database.query("select machine from Machine machine, machine.machineType as machineType where machine.state != 'aquired' && machine.state not like 'failed%' and machineType.id = " + machineType.getId());
                 int diff = machineType.getPoolSize() - nonAquiredMachines.size();
                 if(diff > 0){
                     for(int i = 0; i < diff; i++){
@@ -73,9 +74,9 @@ public class MachinePool {
                 } else {
                     for(int i = 0; i < (diff * -1); i++){
                         Machine machine = aquireMachine(machineType.getId());
-                        logger.info("pruned machine: " + machine.getId());
-                        cloudClient.deleteMachine(machine.getId());
+                        cloudClient.deleteServer(machine.getId());
                         database.remove(machine);
+                        logger.info("pruned machine: " + machine.getId());
                     }
                 }
             }
@@ -101,11 +102,23 @@ public class MachinePool {
                 EntityList<Entity> preparingMachines = database.query("select machine from Machine machine, machine.machineType as machineType where machine.state = 'preparing' and machineType.id = " + machineType.getId());
                 for(Entity machineEntity : preparingMachines){
                     Machine machine = (Machine) machineEntity;
-                    SshClient sshClient = new SshClient(machine.getHost());
-                    if(sshClient.exec("is_ready").equals("1\n")){
-                        machine.setState("vacant");
-                        database.persist(machine);
+
+                    Server server = cloudClient.getServer(machine.getId());
+                    
+                    if(server.getHost() != null){
+                        machine.setHost(server.getHost());
                     }
+
+                    if(server.getStatus().equals("SUCCESS")){
+                        SshClient sshClient = new SshClient(machine.getHost());
+                        if(sshClient.exec("is_ready").equals("1\n")){
+                            machine.setState("vacant");
+                        }
+                    } else if(server.getStatus().equals("FAILED")){
+                        machine.setState("failed");
+                    }
+
+                    database.persist(machine);
                 }
             }
         } catch(Exception e){
@@ -114,7 +127,6 @@ public class MachinePool {
 
         checkToSeeIfMachinesHaveFinishedPreparingBusy.set(false);
     }
-
 
     @Schedule(hour="*", minute="*", second="0")
     public void getScreenShots(){
@@ -134,6 +146,28 @@ public class MachinePool {
         }
 
         getScreenShotsBusy.set(false);
+    }
+
+    @Schedule(hour="*", minute="*", second="*")
+    public void cleanUpFailedMachines(){
+        if(!cleanUpFailedMachinesBusy.compareAndSet(false, true)){
+            return;
+        }
+
+        try {
+            EntityList<Entity> failedMachines =  database.query("select machine from Machine machine where machine.state = 'failed'");
+            for(Entity machineEntity : failedMachines){
+                Machine machine = (Machine) machineEntity;
+                cloudClient.deleteServer(machine.getId());
+                machine.setState("failed:cleaned_up");
+                database.persist(machine);
+                logger.info("cleaned failed machine: " + machine.getId());
+            }
+        } catch(Exception e){
+            logger.error("cleanUpFailedMachines: " + e.getMessage());
+        }
+
+        cleanUpFailedMachinesBusy.set(false);
     }
 
     public synchronized Machine aquireMachine(Long machineTypeId) throws DaaasException {
@@ -165,32 +199,12 @@ public class MachinePool {
             metadata.put("AQ_OSVERSION", machineType.getAquilonOSVersion());
 
             Server server = cloudClient.createServer(machineType.getName(), machineType.getImageId(), machineType.getFlavorId(), machineType.getAvailabilityZone(), metadata);
-            while(server.getHost() == null){
-                Thread.sleep(1000);
-                server = cloudClient.getServer(server.getId());
-            }
-
-            Process process = Runtime.getRuntime().exec(new String[] {
-                "/usr/bin/nslookup", server.getHost()
-            });
-
-            process.waitFor();
-
-            String host = IOUtils.toString(process.getInputStream(), StandardCharsets.US_ASCII);
-            host = host.replaceAll("(?s).*name\\s+=\\s+", "").replaceAll("(?s)\\.\\s.*", "");
-
+            
             machine.setId(server.getId());
             machine.setName(machineType.getName());
             machine.setState("preparing");
-            machine.setHost(host);
             machine.setMachineType(machineType);
-            
 
-            //Properties properties = new Properties();
-            //String command = properties.getProperty("ssh_init_command");
-            //SshClient sshClient = new SshClient(machine.getHost());
-
-            //sshClient.exec(command);
             database.persist(machine);
             logger.info("created machine: " + machine.getId());
         } catch(Exception e) {

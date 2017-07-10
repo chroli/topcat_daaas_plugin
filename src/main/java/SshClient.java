@@ -18,29 +18,11 @@ public class SshClient {
     private String host;
 
     public SshClient(String host){
-        logger.info("new SshClient");
-
         this.host = host;
-
-        //wait for port to open
-        try {
-            while(true){
-                try {
-                    SocketChannel.open(new InetSocketAddress(host, 22)).close();
-                    break;
-                } catch(Exception e){
-                    logger.info("Exception: " + e.getClass().getSimpleName());
-                    Thread.sleep(1000);
-                }
-            }
-        } catch(InterruptedException e){
-            logger.debug("InterruptedException was triggered while waiting for port 22 to open on " + host);
-        }
-
     }
 
     public String exec(String commandToRun) throws IOException, InterruptedException {
-        logger.info("exec " + commandToRun);
+        logger.debug("exec " + commandToRun);
 
         
         Properties properties = new Properties();

@@ -13,5 +13,5 @@ imageEndpoint http://openstack.nubes.rl.ac.uk:9292
 
 sshKeyPairName daas-service
 
-sshUsername daas
-sshPrivateKeyFile /home/vagrant/id_rsa
+sshUsername daaas
+sshPrivateKeyFile /home/vagrant/openstack_id_rsa

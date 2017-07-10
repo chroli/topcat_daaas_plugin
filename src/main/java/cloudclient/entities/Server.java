@@ -9,6 +9,7 @@ public class Server extends Entity {
 
     private String id;
     private String host;
+    private String status;
 
     public String getId() {
         return id;
@@ -26,10 +27,23 @@ public class Server extends Entity {
         this.host = host;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
 	public JsonObjectBuilder toJsonObjectBuilder(){
         JsonObjectBuilder out = Json.createObjectBuilder();
         out.add("id", getId());
-        out.add("host", getHost());
+        if(getHost() != null){
+            out.add("host", getHost());
+        }
+        if(getStatus() != null){
+            out.add("status", getStatus());
+        }
         return out;
     }
 
