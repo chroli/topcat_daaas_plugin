@@ -42,11 +42,7 @@ public class SshClient {
         String out = readInputStream(process.getInputStream());
         String error = readInputStream(process.getErrorStream());
 
-        int exitVal = process.waitFor();
-
-        if(exitVal > 0){
-            logger.debug("exec error: " + commandToRun + ": " + error);
-        }
+        process.waitFor();
 
         return out;
     }

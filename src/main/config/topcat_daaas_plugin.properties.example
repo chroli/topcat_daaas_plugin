@@ -15,3 +15,5 @@ sshKeyPairName daas-service
 
 sshUsername daaas
 sshPrivateKeyFile /home/vagrant/openstack_id_rsa
+
+maxPrepareSeconds 600

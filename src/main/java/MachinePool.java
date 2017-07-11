@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.Base64;
+import java.util.Date;
 
 import org.apache.commons.io.IOUtils;
 import java.io.*;
@@ -65,7 +66,7 @@ public class MachinePool {
 
                 Map<String, String> params = new HashMap<String, String>();
 
-                EntityList<Entity> nonAquiredMachines = database.query("select machine from Machine machine, machine.machineType as machineType where machine.state != 'aquired' && machine.state not like 'failed%' and machineType.id = " + machineType.getId());
+                EntityList<Entity> nonAquiredMachines = database.query("select machine from Machine machine, machine.machineType as machineType where machine.state != 'aquired' and machine.state not like 'failed%' and machineType.id = " + machineType.getId());
                 int diff = machineType.getPoolSize() - nonAquiredMachines.size();
                 if(diff > 0){
                     for(int i = 0; i < diff; i++){
@@ -74,9 +75,11 @@ public class MachinePool {
                 } else {
                     for(int i = 0; i < (diff * -1); i++){
                         Machine machine = aquireMachine(machineType.getId());
-                        cloudClient.deleteServer(machine.getId());
-                        database.remove(machine);
-                        logger.info("pruned machine: " + machine.getId());
+                        if(machine != null){
+                            cloudClient.deleteServer(machine.getId());
+                            database.remove(machine);
+                            logger.info("pruned machine: " + machine.getId());
+                        }
                     }
                 }
             }
@@ -104,18 +107,30 @@ public class MachinePool {
                     Machine machine = (Machine) machineEntity;
 
                     Server server = cloudClient.getServer(machine.getId());
-                    
+
                     if(server.getHost() != null){
                         machine.setHost(server.getHost());
                     }
 
-                    if(server.getStatus().equals("SUCCESS")){
-                        SshClient sshClient = new SshClient(machine.getHost());
-                        if(sshClient.exec("is_ready").equals("1\n")){
-                            machine.setState("vacant");
+                    try { 
+                        if(server.getStatus().equals("SUCCESS")){
+                            SshClient sshClient = new SshClient(machine.getHost());
+                            if(sshClient.exec("is_ready").equals("1\n")){
+                                machine.setState("vacant");
+                            }
+                        } else if(server.getStatus().equals("FAILED")){
+                            machine.setState("failed");
                         }
-                    } else if(server.getStatus().equals("FAILED")){
+                    } catch(NullPointerException e){}
+
+
+                    Properties properties = new Properties();
+                    int maxPrepareSeconds = Integer.valueOf(properties.getProperty("maxPrepareSeconds", "600"));
+                    Date now = new Date();
+                    long createdSecondsAgo = (now.getTime() - machine.getCreatedAt().getTime()) / 1000;
+                    if(createdSecondsAgo > maxPrepareSeconds){
                         machine.setState("failed");
+                        logger.info("checkToSeeIfMachinesHaveFinishedPreparing: machine has taken to long to prepare i.e. > " + maxPrepareSeconds + " seconds: " + machine.getId());
                     }
 
                     database.persist(machine);
@@ -161,7 +176,7 @@ public class MachinePool {
                 cloudClient.deleteServer(machine.getId());
                 machine.setState("failed:cleaned_up");
                 database.persist(machine);
-                logger.info("cleaned failed machine: " + machine.getId());
+                logger.info("cleaned up failed machine: " + machine.getId());
             }
         } catch(Exception e){
             logger.error("cleanUpFailedMachines: " + e.getMessage());
@@ -174,9 +189,8 @@ public class MachinePool {
         try {
             String query = "select machine from Machine machine, machine.machineType as machineType where machine.state = 'vacant' and machineType.id = " + machineTypeId;
             EntityList<Entity> vacantMachines = database.query(query);
-            while(vacantMachines.size() < 1){
-                vacantMachines = database.query(query);
-                Thread.sleep(100);
+            if(vacantMachines.size() < 1){
+                return null;
             }
             Machine out = (Machine) vacantMachines.get(0);
             out.setState("aquired");

@@ -91,9 +91,12 @@ public class UserResource {
         @FormParam("machineTypeId") Long machineTypeId){
         try {
             if(!isMachineTypeAllowed(icatUrl, sessionId, machineTypeId)){
-                 throw new DaaasException("You are not allowed to create this machine type.");
+                throw new DaaasException("You are not allowed to create this machine type.");
             }
             Machine machine = machinePool.aquireMachine(machineTypeId);
+            if(machine == null){
+                throw new DaaasException("No more machines of this type are available - please try again later.");
+            }
 
             String userName = getUsername(icatUrl, sessionId);
 

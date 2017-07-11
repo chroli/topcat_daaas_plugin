@@ -299,8 +299,6 @@ public class CloudClient {
 
             String data = Json.createObjectBuilder().add("server", server).build().toString();
 
-            logger.info("data: " + data);
-
             Response response = computeHttpClient.post("servers", generateStandardHeaders(), data);
             if(response.getCode() >= 400){
                 throw new BadRequestException(response.toString());
@@ -328,18 +326,23 @@ public class CloudClient {
             if(response.getCode() == 200){
                 JsonObject metadata = parseJson(response.toString()).getJsonObject("server").getJsonObject("metadata");
                 
-                out.setStatus(metadata.getString("AQ_STATUS"));
 
-                if(metadata.getString("HOSTNAMES") != null){
-                    String hostnames[] = metadata.getString("HOSTNAMES").split("\\s*,\\s*");
-                    if(hostnames.length == 1){
-                        out.setHost(hostnames[0]);
+                try {
+                    out.setStatus(metadata.getString("AQ_STATUS"));
+
+                    if(out.getStatus().equals("FAILED")){
+                       logger.info("getServer: server has failed: AQ_STATUS = 'FAILED': " + id); 
                     } else {
-                        out.setStatus("FAILED");
+                        String hostnames[] = metadata.getString("HOSTNAMES").split("[ ]*,[ ]*");
+                        if(hostnames.length == 1){
+                            out.setHost(hostnames[0]);
+                        } else {
+                            out.setStatus("FAILED");
+                            logger.info("getServer: server has failed: more than one host name has been specified: " + metadata.getString("HOSTNAMES") + ": " + id); 
+                        }
                     }
-                }
+                } catch(NullPointerException e){}
 
-                
             } else {
                 throw new BadRequestException(response.toString());
             }

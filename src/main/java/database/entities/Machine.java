@@ -117,6 +117,11 @@ public class Machine extends Entity {
         }
     }
 
+    @PrePersist
+    private void initCreatedAt() {
+        this.createdAt = new Date();
+    }
+
     public Date getCreatedAt() {
         return createdAt;
     }
