@@ -12,6 +12,8 @@
 		var timeout = $q.defer();
         $scope.$on('$destroy', function(){ timeout.resolve(); });
 
+        this.isCreating = false;
+
         this.machineTypeId = null;
 
         this.machineTypes = [];
@@ -24,6 +26,9 @@
     	});
 
         this.create = function() {
+
+            this.isCreating = true;
+
             daaas.createMachine(timeout.promise, this.machineTypeId).then(function(){
                 $uibModalInstance.dismiss('cancel');
             }, function(response){
