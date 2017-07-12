@@ -4,7 +4,7 @@
 
 	var app = angular.module('topcat');
 
-	app.controller('CreateMachineController', function($q, $scope, $state, $uibModalInstance, $timeout, tc, inform){
+	app.controller('CreateMachineController', function($q, $scope, $state, $uibModalInstance, $timeout, $translate, tc, inform){
 		var that = this;
         var facility = tc.facility($state.params.facilityName);
         var user = facility.user();
@@ -17,8 +17,7 @@
         this.machineTypes = [];
         daaas.machineTypes(timeout).then(function(machineTypes){
             that.machineTypes = machineTypes;
-        })
-
+        });
 
     	$uibModalInstance.rendered.then(function(){
     		that.open = true;
@@ -29,7 +28,7 @@
                 $uibModalInstance.dismiss('cancel');
             }, function(response){
                 $uibModalInstance.dismiss('cancel');
-                inform.add(response.message, {
+                inform.add($translate.instant("DAAAS.MACHINE_NOT_AVAILABLE"), {
                     'ttl': 0,
                     'type': 'info'
                 });
