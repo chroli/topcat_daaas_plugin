@@ -21,7 +21,7 @@ import org.icatproject.topcatdaaasplugin.Entity;
 @Stateless
 public class Database {
 
-	@PersistenceContext(unitName = "topcat")
+	@PersistenceContext(unitName = "topcat_daaas_plugin")
     EntityManager em;
 
     public EntityList<Entity> query(String jpqlQuery, Map<String, String> params)  throws DaaasException {
