@@ -23,7 +23,8 @@
         var machinesHash = JSON.stringify(this.machines);
 
         function pollMachines(){
-            daaas.machines({timeout: timeout.promise, bypassInterceptors: true}).then(function(machines){
+            timeout = $q.defer();
+            daaas.machines({bypassInterceptors: true, timeout: timeout.promise}).then(function(machines){
                 var currentMachinesHash = JSON.stringify(machines);
                 if(currentMachinesHash != machinesHash){
                     that.machines = machines;
