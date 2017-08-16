@@ -24,7 +24,9 @@ registerTopcatPlugin(function(pluginUrl){
 		],
 
 		configSchema: {
-
+			daaas: {
+				createMachineDelaySeconds: {_type: "number"} 
+			}
 		},
 
 		extend: {

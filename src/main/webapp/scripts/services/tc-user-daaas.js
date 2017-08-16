@@ -4,7 +4,7 @@
  
   var app = angular.module('topcat');
 
-  app.service('tcUserDaaas', function($sessionStorage, $rootScope, $timeout, helpers){
+  app.service('tcUserDaaas', function($sessionStorage, $rootScope, $timeout, APP_CONFIG, helpers){
   	
     this.create = function(pluginUrl, user){
       return new UserDaaas(pluginUrl, user);
@@ -18,6 +18,10 @@
 
       this.pluginUrl = function(){
         return pluginUrl;
+      };
+
+      this.config = function(){ 
+        return APP_CONFIG.daaas;
       };
 
     	this.machines = helpers.overload({
@@ -201,7 +205,7 @@
 
       var matches;
       if(matches = pluginUrl.match(/http:\/\/localhost:10080(.*)/)){
-        helpers.generateRestMethods(this, "https://localhost:8181" + matches[1] + "api/user/");
+        helpers.generateRestMethods(this, "http://localhost:8080" + matches[1] + "api/user/");
       } else {
         helpers.generateRestMethods(this, pluginUrl + "api/user/");
       }

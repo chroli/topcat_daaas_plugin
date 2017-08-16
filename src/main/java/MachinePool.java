@@ -130,7 +130,7 @@ public class MachinePool {
                     long createdSecondsAgo = (now.getTime() - machine.getCreatedAt().getTime()) / 1000;
                     if(createdSecondsAgo > maxPrepareSeconds){
                         machine.setState("failed");
-                        logger.info("checkToSeeIfMachinesHaveFinishedPreparing: machine has taken to long to prepare i.e. > " + maxPrepareSeconds + " seconds: " + machine.getId());
+                        logger.info("checkToSeeIfMachinesHaveFinishedPreparing: machine has taken too long to prepare i.e. > " + maxPrepareSeconds + " seconds: " + machine.getId());
                     }
 
                     database.persist(machine);

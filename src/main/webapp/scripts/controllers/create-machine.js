@@ -10,6 +10,7 @@
         var user = facility.user();
         var daaas = user.daaas();
 		var timeout = $q.defer();
+        var delaySeconds = user.daaas().config().createMachineDelaySeconds;
         $scope.$on('$destroy', function(){ timeout.resolve(); });
 
         this.isCreating = false;
@@ -30,7 +31,9 @@
             this.isCreating = true;
 
             daaas.createMachine(timeout.promise, this.machineTypeId).then(function(){
-                $uibModalInstance.dismiss('cancel');
+                $timeout(function(){
+                    $uibModalInstance.dismiss('cancel');
+                }, delaySeconds * 1000);
             }, function(response){
                 $uibModalInstance.dismiss('cancel');
                 inform.add($translate.instant("DAAAS.MACHINE_NOT_AVAILABLE"), {

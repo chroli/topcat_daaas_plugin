@@ -24,6 +24,7 @@
 
         function pollMachines(){
             timeout = $q.defer();
+            timeout.promise.then(function(){ $interval.cancel(pollMachinesPromise); });
             daaas.machines({bypassInterceptors: true, timeout: timeout.promise}).then(function(machines){
                 var currentMachinesHash = JSON.stringify(machines);
                 if(currentMachinesHash != machinesHash){
@@ -52,7 +53,6 @@
             });
         }
         var pollMachinesPromise = $interval(pollMachines, 1000);
-        timeout.promise.then(function(){ $interval.cancel(pollMachinesPromise); });
         pollMachines();
 	    
 

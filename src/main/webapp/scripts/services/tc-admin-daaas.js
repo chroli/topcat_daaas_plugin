@@ -216,7 +216,7 @@
 
       var matches;
       if(matches = pluginUrl.match(/http:\/\/localhost:10080(.*)/)){
-        helpers.generateRestMethods(this, "https://localhost:8181" + matches[1] + "api/admin/");
+        helpers.generateRestMethods(this, "http://localhost:8080" + matches[1] + "api/admin/");
       } else {
         helpers.generateRestMethods(this, pluginUrl + "api/admin/");
       }
