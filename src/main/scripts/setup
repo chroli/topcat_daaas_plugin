@@ -28,6 +28,8 @@ if arg == "INSTALL":
         actions.registerDB("topcat_daaas_plugin", props["db.driver"], props["db.url"], props["db.username"], props["db.password"])
 
         files = []
+
+        if os.path.exists("logback.xml"): files.append(["logback.xml", "WEB-INF/classes"])
         
         actions.deploy(files=files, deploymentorder=145)
 

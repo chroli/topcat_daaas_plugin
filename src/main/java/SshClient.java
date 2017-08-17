@@ -22,7 +22,7 @@ public class SshClient {
     }
 
     public String exec(String commandToRun) throws IOException, InterruptedException {
-        logger.debug("exec " + commandToRun);
+        logger.debug("exec " + host + " :" + commandToRun);
 
         
         Properties properties = new Properties();

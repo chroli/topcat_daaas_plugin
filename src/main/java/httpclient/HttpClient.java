@@ -53,6 +53,21 @@ public class HttpClient {
 
 		HttpURLConnection connection = null;
 
+		StringBuilder debugInfo = new StringBuilder();
+
+		debugInfo.append("send: ");
+		debugInfo.append("method: " + method + "; ");
+		debugInfo.append("url: " + this.url + "/" + offset + "; ");
+		if(!headers.isEmpty()){
+			debugInfo.append("headers:");
+			for (Map.Entry<String, String> entry : headers.entrySet()) {
+			    debugInfo.append(" " + entry.getKey() + " - " + entry.getValue());
+			}
+			debugInfo.append("; ");
+		}
+		debugInfo.append("body: " + body + "; ");
+		logger.debug(debugInfo.toString());
+
 		try {
 		    //Create connection
 		    connection = (HttpURLConnection) (new URL(url.toString())).openConnection();
@@ -88,6 +103,20 @@ public class HttpClient {
 	    			responseBody = inputStreamToString(connection.getErrorStream());
 	    		} catch(Exception e2){}
 	    	}
+
+	    	debugInfo = new StringBuilder("send (response): ");
+	    	debugInfo.append("code: " + responseCode.toString() + "; ");
+	    	if(!responseHeaders.isEmpty()){
+				debugInfo.append("headers:");
+				for (Map.Entry<String, String> entry : responseHeaders.entrySet()) {
+				    debugInfo.append(" " + entry.getKey() + " - " + entry.getValue());
+				}
+				debugInfo.append("; ");
+			}
+			debugInfo.append("body: " + responseBody + ";");
+			logger.debug(debugInfo.toString());
+
+
 
 		    return new Response(responseCode, responseHeaders, responseBody);
     	} finally {
