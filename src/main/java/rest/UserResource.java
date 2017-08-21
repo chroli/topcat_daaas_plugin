@@ -89,6 +89,9 @@ public class UserResource {
         @FormParam("icatUrl") String icatUrl,
         @FormParam("sessionId") String sessionId,
         @FormParam("machineTypeId") Long machineTypeId){
+
+        logger.info("createMachine: user with sessionId " + sessionId + " is creating a machine with machineTypeId " + machineTypeId);
+
         try {
             if(!isMachineTypeAllowed(icatUrl, sessionId, machineTypeId)){
                 throw new DaaasException("You are not allowed to create this machine type.");
@@ -134,6 +137,9 @@ public class UserResource {
         @PathParam("id") String id,
         @QueryParam("icatUrl") String icatUrl,
         @QueryParam("sessionId") String sessionId){
+
+        logger.info("deleteMachine: user with sessionId " + sessionId + " is deleting machine with id " + id);
+
         try {
             Map<String, String> params = new HashMap<String, String>();
             params.put("id", id);
@@ -195,6 +201,9 @@ public class UserResource {
         @FormParam("sessionId") String sessionId,
         @FormParam("width") int width,
         @FormParam("height") int height){
+
+        logger.info("setMachineResolution: user with sessionId " + sessionId + " is setting the width/height of machine with id " + id + " to " + width + "x" + height);
+
         try {
             Map<String, String> params = new HashMap<String, String>();
             params.put("id", id);

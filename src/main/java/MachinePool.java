@@ -78,7 +78,7 @@ public class MachinePool {
                         if(machine != null){
                             cloudClient.deleteServer(machine.getId());
                             database.remove(machine);
-                            logger.info("pruned machine: " + machine.getId());
+                            logger.info("managePool: pruned machine with id " + machine.getId());
                         }
                     }
                 }
@@ -130,7 +130,7 @@ public class MachinePool {
                     long createdSecondsAgo = (now.getTime() - machine.getCreatedAt().getTime()) / 1000;
                     if(createdSecondsAgo > maxPrepareSeconds){
                         machine.setState("failed");
-                        logger.info("checkToSeeIfMachinesHaveFinishedPreparing: machine has taken too long to prepare i.e. > " + maxPrepareSeconds + " seconds: " + machine.getId());
+                        logger.info("checkToSeeIfMachinesHaveFinishedPreparing: machine with id " + machine.getId() + " has taken too long to prepare i.e. > " + maxPrepareSeconds + " seconds");
                     }
 
                     database.persist(machine);
@@ -176,7 +176,7 @@ public class MachinePool {
                 cloudClient.deleteServer(machine.getId());
                 machine.setState("failed:cleaned_up");
                 database.persist(machine);
-                logger.info("cleaned up failed machine: " + machine.getId());
+                logger.info("cleanUpFailedMachines: cleaned up failed machine with id " + machine.getId());
             }
         } catch(Exception e){
             logger.error("cleanUpFailedMachines: " + e.getMessage());
@@ -195,7 +195,7 @@ public class MachinePool {
             Machine out = (Machine) vacantMachines.get(0);
             out.setState("aquired");
             database.persist(out);
-            logger.info("aquired machine: " + out.getId());
+            logger.info("aquireMachine: aquired machine with id " + out.getId());
             return out;
         } catch(Exception e){
             throw new UnexpectedException(e.getMessage());
@@ -204,6 +204,7 @@ public class MachinePool {
 
     private void createMachine(MachineType machineType){
         try {
+            logger.info("createMachine: creating machine with machineType: " + machineType.toJsonObjectBuilder().build().toString());
             Machine machine = new Machine();
             Map<String, String> metadata = new HashMap<String, String>();
             metadata.put("AQ_ARCHETYPE", machineType.getAquilonArchetype());
@@ -220,7 +221,7 @@ public class MachinePool {
             machine.setMachineType(machineType);
 
             database.persist(machine);
-            logger.info("created machine: " + machine.getId());
+            logger.info("createMachine: created machine with id " + machine.getId());
         } catch(Exception e) {
             logger.error("createMachine: " + e.getMessage());
         }

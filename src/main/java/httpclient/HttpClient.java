@@ -53,20 +53,22 @@ public class HttpClient {
 
 		HttpURLConnection connection = null;
 
-		StringBuilder debugInfo = new StringBuilder();
+		StringBuilder traceInfo = new StringBuilder();
 
-		debugInfo.append("send: ");
-		debugInfo.append("method: " + method + "; ");
-		debugInfo.append("url: " + this.url + "/" + offset + "; ");
+		traceInfo.append("send: ");
+		traceInfo.append(method + " ");
+		traceInfo.append(this.url + "/" + offset + " ");
 		if(!headers.isEmpty()){
-			debugInfo.append("headers:");
+			traceInfo.append(" (headers) ");
 			for (Map.Entry<String, String> entry : headers.entrySet()) {
-			    debugInfo.append(" " + entry.getKey() + " - " + entry.getValue());
+			    traceInfo.append(" " + entry.getKey() + " - " + entry.getValue());
 			}
-			debugInfo.append("; ");
+			traceInfo.append(" ");
 		}
-		debugInfo.append("body: " + body + "; ");
-		logger.debug(debugInfo.toString());
+		if(body != null){
+			traceInfo.append(" (body) " + body);
+		}
+		logger.trace(traceInfo.toString());
 
 		try {
 		    //Create connection
@@ -104,17 +106,18 @@ public class HttpClient {
 	    		} catch(Exception e2){}
 	    	}
 
-	    	debugInfo = new StringBuilder("send (response): ");
-	    	debugInfo.append("code: " + responseCode.toString() + "; ");
+	    	traceInfo = new StringBuilder("send (response): ");
+	    	traceInfo.append("(code) " + responseCode.toString());
 	    	if(!responseHeaders.isEmpty()){
-				debugInfo.append("headers:");
+				traceInfo.append("(headers) ");
 				for (Map.Entry<String, String> entry : responseHeaders.entrySet()) {
-				    debugInfo.append(" " + entry.getKey() + " - " + entry.getValue());
+				    traceInfo.append(" " + entry.getKey() + " - " + entry.getValue());
 				}
-				debugInfo.append("; ");
 			}
-			debugInfo.append("body: " + responseBody + ";");
-			logger.debug(debugInfo.toString());
+			if(responseBody != null){
+				traceInfo.append(" (body) " + responseBody);
+			}
+			logger.trace(traceInfo.toString());
 
 
 
