@@ -1,0 +1,73 @@
+<br>
+
+<div class="container-fluid text-center">
+	<form class="form-inline">
+	  <div class="form-group">
+	    <label>State</label>
+	    <select class="form-control" ng-model="adminMachinesController.state" ng-change="adminMachinesController.update()">
+	 		<option value="any">Any</option>
+	 		<option value="aquired">Aquired</option>
+	 		<option value="failed">Failed</option>
+	 		<option value="preparing">Preparing</option>
+	 		<option value="vacant">Vacant</option>
+	 	</select>
+	 </div>
+	  <div class="form-group">
+	    <label>Host</label>
+	    <input type="text" class="form-control" ng-model="adminMachinesController.host" ng-change="adminMachinesController.update()">
+	  </div>
+	</form>
+</div>
+
+<br>
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-sm-8 col-sm-push-2">
+			<div class="machine" ng-repeat="machine in adminMachinesController.machines">
+				<div class="screenshot">
+					<img ng-if="machine.screenshotMd5 != ''" ng-src="{{machine.screenshotUrl()}}">
+				</div>
+				<div class="main">
+					<div class="info">
+						<div class="title">
+							<del ng-if="machine.state != 'vacant' && machine.state != 'aquired' && machine.state != 'preparing'">{{machine.name}}</del>
+							<span ng-if="machine.state == 'vacant' || machine.state == 'aquired' || machine.state == 'preparing'">{{machine.name}}</span>
+						</div>
+
+						<div class="field">
+							<label>State:</label>
+							<div>{{machine.state}}</div>
+						</div>
+						<div class="field">
+							<label>Host:</label>
+							<div>{{machine.host}}</div>
+						</div>
+						<div class="field">
+							<label>Date created:</label>
+							<div>{{machine.createdAt | date: 'yyyy-MM-dd'}}</div>
+						</div>
+						<div class="field">
+							<label>Owner:</label>
+							<div>
+								{{machine.primaryUser.fullName}}
+							</div>
+						</div>
+					</div>
+					<div class="actions" ng-if="machine.state == 'aquired'">
+						<button ng-if="machine.type == undefined" class="btn btn-sm btn-default" ng-click="adminMachinesController.enableAccess(machine)">Enable Access</button>
+						<button ng-if="machine.type == 'PRIMARY'" class="btn btn-sm btn-default" ng-click="adminMachinesController.disableAccess(machine)">Disable Access</button>
+					 	<span class="dropdown" ng-if="machine.type != undefined">
+						  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"> Launch <span class="caret"></span>
+						  </button>
+						  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+						    <li><a ng-click="adminMachinesController.view(machine)">Browser</a></li>
+						    <li><a href="{{machine.rdpUrl()}}" target="_blank">RDP</a></li>
+						  </ul>
+						</span>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

@@ -55,6 +55,10 @@ public class IcatClient {
         return out.build();
     }
 
+    public String getUserName() throws Exception {
+        return query("select user from User user where user.name = :user").getJsonObject(0).getString("name");
+    } 
+
 
     private Map<String, String> generateStandardHeaders(){
         Map<String, String> out = new HashMap<String, String>();

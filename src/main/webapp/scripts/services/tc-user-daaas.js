@@ -93,7 +93,7 @@
                 var url;
                 var matches;
                 if(matches = pluginUrl.match(/http:\/\/localhost:10080(.*)/)){
-                  url = "https://localhost:8181" + matches[1];
+                  url = "http://localhost:8080" + matches[1];
                 } else {
                   url = pluginUrl;
                 }
@@ -147,7 +147,7 @@
                 var url;
                 var matches;
                 if(matches = pluginUrl.match(/http:\/\/localhost:10080(.*)/)){
-                  url = "https://localhost:8181" + matches[1];
+                  url = "http://localhost:8080" + matches[1];
                 } else {
                   url = pluginUrl;
                 }

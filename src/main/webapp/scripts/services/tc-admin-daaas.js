@@ -11,6 +11,7 @@
     };
 
     function AdminDaaas(pluginUrl, admin){
+      var that = this;
 
       var facility = admin.facility();
       var icat = facility.icat();
@@ -76,7 +77,7 @@
                 var url;
                 var matches;
                 if(matches = pluginUrl.match(/http:\/\/localhost:10080(.*)/)){
-                  url = "https://localhost:8181" + matches[1];
+                  url = "http://localhost:8080" + matches[1];
                 } else {
                   url = pluginUrl;
                 }
@@ -210,6 +211,90 @@
         },
         'number, string, array': function(id, mimeType, data){
           return this.updateMachineTypeLogo(id, mimeType, data, {});
+        }
+      });
+
+      this.machines = helpers.overload({
+        'array, object': function(queryOffset, options){
+          return this.get('machines', {
+            icatUrl: facility.config().icatUrl,
+            sessionId: icat.session().sessionId,
+            queryOffset: helpers.buildQuery(queryOffset)
+          }, options).then(function(machines){
+            return _.map(machines, function(machine){
+
+              machine.screenshotUrl = function(){
+                var url;
+                var matches;
+                if(matches = pluginUrl.match(/http:\/\/localhost:10080(.*)/)){
+                  url = "http://localhost:8080" + matches[1];
+                } else {
+                  url = pluginUrl;
+                }
+
+                url += "api/admin/machines/" + this.id + "/screenshot?"
+                url += "icatUrl=" + encodeURIComponent(facility.config().icatUrl);
+                url += "&sessionId=" + encodeURIComponent(icat.session().sessionId);
+                url += "&screenshotMd5=" + encodeURIComponent(this.screenshotMd5);
+
+                return url;
+              };
+
+              machine.enableAccess = helpers.overload({
+                'object': function(options){
+                  return that.get('machines/' + this.id + '/enableAccess', {
+                    icatUrl: facility.config().icatUrl,
+                    sessionId: icat.session().sessionId
+                  }, options);
+                },
+                'promise': function(timeout){
+                  return this.enableAccess({timeout: timeout});
+                },
+                '': function(){
+                  return this.enableAccess({});
+                }
+              });
+
+              machine.disableAccess = helpers.overload({
+                'object': function(options){
+                  return that.get('machines/' + this.id + '/disableAccess', {
+                    icatUrl: facility.config().icatUrl,
+                    sessionId: icat.session().sessionId
+                  }, options);
+                },
+                'promise': function(timeout){
+                  return this.disableAccess({timeout: timeout});
+                },
+                '': function(){
+                  return this.disableAccess({});
+                }
+              });
+
+              return machine;
+            });
+
+          });
+        },
+        'promise, array': function(timeout, queryOffset){
+          return this.machines(queryOffset, {timeout: timeout});
+        },
+        'string, object': function(queryOffset, options){
+          return this.machines([queryOffset], options);
+        },
+        'promise, string': function(timeout, queryOffset){
+          return this.machines([queryOffset], {timeout: timeout});
+        },
+        'array': function(queryOffset){
+          return this.machines(queryOffset, {});
+        },
+        'string': function(queryOffset){
+          return this.machines([queryOffset], {});
+        },
+        'promise': function(timeout){
+          return this.machines([], {timeout: timeout});
+        },
+        '': function(){
+          return this.machines([], {});
         }
       });
 

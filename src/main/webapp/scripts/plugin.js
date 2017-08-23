@@ -9,6 +9,7 @@ registerTopcatPlugin(function(pluginUrl){
 			pluginUrl + 'scripts/controllers/create-machine.js',
 			pluginUrl + 'scripts/controllers/my-machines.js',
 			pluginUrl + 'scripts/controllers/admin-machine-types.js',
+			pluginUrl + 'scripts/controllers/admin-machines.js',
 			pluginUrl + 'scripts/controllers/admin-create-machine-type.js',
 			pluginUrl + 'scripts/controllers/admin-edit-machine-type.js',
 			pluginUrl + 'scripts/controllers/share-machine.js',
@@ -61,6 +62,12 @@ registerTopcatPlugin(function(pluginUrl){
 			tc.ui().registerAdminTab('machine-types', pluginUrl + 'views/admin-machine-types.html', {
 				insertAfter: 'downloads',
 				controller: 'AdminMachineTypesController as adminMachineTypesController',
+				multiFacility: true
+			});
+
+			tc.ui().registerAdminTab('machines', pluginUrl + 'views/admin-machines.html', {
+				insertAfter: 'machine-types',
+				controller: 'AdminMachinesController as adminMachinesController',
 				multiFacility: true
 			});
 
