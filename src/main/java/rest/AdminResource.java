@@ -411,8 +411,14 @@ public class AdminResource {
             machineUser.setMachine(machine);
             database.persist(machineUser);
 
-            // machine.getMachineUsers().add(machineUser);
-            // database.persist(machine);
+            com.stfc.useroffice.webservice.UserOfficeWebService_Service service = new com.stfc.useroffice.webservice.UserOfficeWebService_Service();
+            com.stfc.useroffice.webservice.UserOfficeWebService port = service.getUserOfficeWebServicePort();
+            String fedId = port.getFedIdFromUserId(userName.replace("uows/", ""));
+
+            SshClient sshClient = new SshClient(machine.getHost());
+            sshClient.exec("add_secondary_user " + fedId);
+            sshClient.exec("add_websockify_token " + machineUser.getWebsockifyToken());
+
 
             return machine.toResponse();
         } catch(DaaasException e) {
