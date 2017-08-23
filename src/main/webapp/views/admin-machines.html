@@ -55,15 +55,8 @@
 					</div>
 					<div class="actions" ng-if="machine.state == 'aquired'">
 						<button ng-if="machine.type == undefined" class="btn btn-sm btn-default" ng-click="adminMachinesController.enableAccess(machine)">Enable Access</button>
-						<button ng-if="machine.type == 'PRIMARY'" class="btn btn-sm btn-default" ng-click="adminMachinesController.disableAccess(machine)">Disable Access</button>
-					 	<span class="dropdown" ng-if="machine.type != undefined">
-						  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"> Launch <span class="caret"></span>
-						  </button>
-						  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-						    <li><a ng-click="adminMachinesController.view(machine)">Browser</a></li>
-						    <li><a href="{{machine.rdpUrl()}}" target="_blank">RDP</a></li>
-						  </ul>
-						</span>
+						<button ng-if="machine.type == 'SECONDARY'" class="btn btn-sm btn-default" ng-click="adminMachinesController.disableAccess(machine)">Disable Access</button>
+						<button ng-if="machine.type == 'SECONDARY'" class="btn btn-sm btn-default" ng-click="adminMachinesController.view(machine)">Launch</button>
 					</div>
 
 				</div>

@@ -23,8 +23,6 @@
       this.host = '';
       this.machines = [];
 
-
-
       this.update = function(){
         daaas.machines(timeout.promise, [
           "where 1 = 1",
@@ -44,7 +42,7 @@
           _.each(machines, function(machine){
               _.each(machine.users,  function(user){
 
-                  if(user.userName == facility.icat().session().username){
+                  if(user.userName == facility.icat().session().username && user.type == 'SECONDARY'){
                     machine.type = user.type;
                   }
 
@@ -63,8 +61,23 @@
         });
       };
 
-
       this.update();
+
+      this.enableAccess = function(machine){
+        machine.enableAccess(timeout.promise).then(function(){
+          that.update();
+        });
+      };
+
+      this.disableAccess = function(machine){
+        machine.disableAccess(timeout.promise).then(function(){
+          that.update();
+        });
+      };
+
+      this.view = function(machine){
+        window.open(daaas.pluginUrl() + 'views/vnc.html?facilityName=' + encodeURIComponent($state.params.facilityName)  + '&id=' + machine.id, '_blank', 'height=600,width=800,scrollbars=no,status=no');
+      };
 
     });
 
