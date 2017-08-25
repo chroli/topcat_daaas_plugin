@@ -90,7 +90,7 @@ public class UserResource {
         @FormParam("sessionId") String sessionId,
         @FormParam("machineTypeId") Long machineTypeId){
 
-        logger.info("createMachine: user with sessionId " + sessionId + " is creating a machine with machineTypeId " + machineTypeId);
+        logger.info("createMachine: a user is attempting to create a machine,  machineTypeId = " + machineTypeId + ", sessionId = " + sessionId);
 
         try {
             if(!isMachineTypeAllowed(icatUrl, sessionId, machineTypeId)){
@@ -103,6 +103,8 @@ public class UserResource {
 
             String userName = getUsername(icatUrl, sessionId);
 
+            logger.debug("createMachine: the username is " + username)          
+
             MachineUser machineUser = new MachineUser();
             machineUser.setUserName(userName);
             machineUser.setType("PRIMARY");
@@ -110,22 +112,32 @@ public class UserResource {
             machineUser.setMachine(machine);
             database.persist(machineUser);
 
+            logger.debug("createMachine: added MachineUser");
+
             com.stfc.useroffice.webservice.UserOfficeWebService_Service service = new com.stfc.useroffice.webservice.UserOfficeWebService_Service();
             com.stfc.useroffice.webservice.UserOfficeWebService port = service.getUserOfficeWebServicePort();
             String fedId = port.getFedIdFromUserId(userName.replace("uows/", ""));
 
+            logger.debug("createMachine: the fed id is " + fedId);
+
             SshClient sshClient = new SshClient(machine.getHost());
             sshClient.exec("add_primary_user " + fedId);
+            logger.debug("createMachine: add_primary_user " + fedId);
             sshClient.exec("add_websockify_token " + machineUser.getWebsockifyToken());
+            logger.debug("createMachine: add_websockify_token " + machineUser.getWebsockifyToken())
 
             machine.setScreenshot(Base64.getMimeDecoder().decode(sshClient.exec("get_screenshot")));
             machine.setCreatedAt(new Date());
             database.persist(machine);
 
+            logger.debug("createMachine: database updated");
+
             return machine.toResponse();
         } catch(DaaasException e) {
+            logger.debug("createMachine DaaasException: " + e.getMessage());
             return e.toResponse();
         } catch(Exception e){
+            logger.debug("createMachine Exception: " + e.getMessage());
             return new DaaasException(e.getMessage()).toResponse();
         }
     }
@@ -138,7 +150,7 @@ public class UserResource {
         @QueryParam("icatUrl") String icatUrl,
         @QueryParam("sessionId") String sessionId){
 
-        logger.info("deleteMachine: user with sessionId " + sessionId + " is deleting machine with id " + id);
+        logger.info("deleteMachine: a user is attempting to delete a machine, id = " + id + ", sessionId = " + sessionId);
 
         try {
             Map<String, String> params = new HashMap<String, String>();
@@ -152,11 +164,15 @@ public class UserResource {
                 throw new DaaasException("You are not allowed to delete this machine.");
             }
             cloudClient.deleteServer(machine.getId());
+            logger.debug("deleteMachine: removed machine from cloud");
             database.remove(machine);
+            logger.debug("deleteMachine: removed machine from database");
             return machine.toResponse();
     } catch(DaaasException e) {
+            logger.debug("deleteMachine DaaasException: " + e.getMessage());
             return e.toResponse();
         } catch(Exception e){
+            logger.debug("deleteMachine Exception: " + e.getMessage());
             return new DaaasException(e.getMessage()).toResponse();
         }
     }
@@ -169,6 +185,10 @@ public class UserResource {
         @FormParam("icatUrl") String icatUrl,
         @FormParam("sessionId") String sessionId,
         @FormParam("name") String name){
+
+        logger.info("saveMachine: a user is attempting to save a machine setting it's name to '" + name + "', id = " + id + ", sessionId = " + sessionId);
+
+
         try {
             Map<String, String> params = new HashMap<String, String>();
             params.put("id", id);
@@ -184,10 +204,14 @@ public class UserResource {
             machine.setName(name);
             database.persist(machine);
 
+            logger.debug("saveMachine: database updated");
+
             return machine.toResponse();
     } catch(DaaasException e) {
-            return e.toResponse();
+            logger.debug("saveMachine DaaasException: " + e.getMessage());
+            return e.toResponse(){
         } catch(Exception e){
+            logger.debug("saveMachine Exception: " + e.getMessage());
             return new DaaasException(e.getMessage()).toResponse();
         }
     }
@@ -202,7 +226,7 @@ public class UserResource {
         @FormParam("width") int width,
         @FormParam("height") int height){
 
-        logger.info("setMachineResolution: user with sessionId " + sessionId + " is setting the width/height of machine with id " + id + " to " + width + "x" + height);
+        logger.info("setMachineResolution: a user is attempting to set the width/height of a machine with id to " + width + "x" + height + ", id = " + id + ", sessionId = " + sessionId);
 
         try {
             Map<String, String> params = new HashMap<String, String>();
@@ -218,14 +242,18 @@ public class UserResource {
 
             new SshClient(machine.getHost()).exec("set_resolution " + width + " " + height);
 
+            logger.debug("setMachineResolution: set_resolution " + width + " " + height);
+
             return machine.toResponse();
         } catch(DaaasException e) {
+            logger.debug("setMachineResolution DaaasException: " + e.getMessage());
             return e.toResponse();
         } catch(Exception e){
             String message = e.getMessage();
             if(message == null){
                 message = e.toString();
             }
+            logger.debug("setMachineResolution Exception: " + message);
             return new DaaasException(message).toResponse();
         }
     }
@@ -237,6 +265,10 @@ public class UserResource {
         @PathParam("id") String id,
         @QueryParam("icatUrl") String icatUrl,
         @QueryParam("sessionId") String sessionId){
+
+        logger.info("getMachineScreenshot: a user  is attempting to get a screenshot, id = " + id + ", sessionId = " + sessionId);
+
+
         try {
             Map<String, String> params = new HashMap<String, String>();
             params.put("id", id);
@@ -256,15 +288,18 @@ public class UserResource {
                 }
             }
 
+
             throw new DaaasException("You are not allowed to access this machine.");
             
         } catch(DaaasException e) {
+            logger.debug("getMachineScreenshot DaaasException: " + e.getMessage());
             return e.toResponse();
         } catch(Exception e){
             String message = e.getMessage();
             if(message == null){
                 message = e.toString();
             }
+            logger.debug("getMachineScreenshot DaaasException: " + message);
             return new DaaasException(message).toResponse();
         }
     }
@@ -276,6 +311,9 @@ public class UserResource {
         @PathParam("id") String id,
         @QueryParam("icatUrl") String icatUrl,
         @QueryParam("sessionId") String sessionId){
+
+        logger.info("getRdpFile: a user is attempting to get an rdp file, id = " + id + ", sessionId = " + sessionId);
+
         try {
             Map<String, String> params = new HashMap<String, String>();
             params.put("id", id);
@@ -335,13 +373,15 @@ public class UserResource {
 
             throw new DaaasException("You are not allowed to access this machine.");
             
-        } catch(DaaasException e) {
+        } catch(DaaasException e){
+            logger.debug("getRdpFile DaaasException: " + e.getMessage());
             return e.toResponse();
         } catch(Exception e){
             String message = e.getMessage();
             if(message == null){
                 message = e.toString();
             }
+            logger.debug("getRdpFile Exception: " + message);
             return new DaaasException(message).toResponse();
         }
     }
@@ -354,6 +394,10 @@ public class UserResource {
         @FormParam("icatUrl") String icatUrl,
         @FormParam("sessionId") String sessionId,
         @FormParam("userNames") String userNames) {
+
+        logger.info("getRdpFile: a user is attempting to share a machine, id = " + id + ", sessionId = " + sessionId);
+
+
         try {
             Map<String, String> params = new HashMap<String, String>();
             params.put("id", id);
@@ -431,12 +475,14 @@ public class UserResource {
 
             return machine.toResponse();
         } catch(DaaasException e) {
+            logger.debug("shareMachine DaaasException: " + e.getMessage());
             return e.toResponse();
         } catch(Exception e){
             String message = e.getMessage();
             if(message == null){
                 message = e.toString();
             }
+            logger.debug("shareMachine Exception: " + message);
             return new DaaasException(message).toResponse();
         }
     }
@@ -447,11 +493,16 @@ public class UserResource {
     public Response getMachineTypes(
         @QueryParam("icatUrl") String icatUrl,
         @QueryParam("sessionId") String sessionId){
+
+        logger.info("getMachineTypes: a user is attempting to get the available machine types, sessionId = " + sessionId);
+
         try {
             return getAvailableMachineTypes(icatUrl, sessionId).toResponse();
         } catch(DaaasException e) {
+            logger.debug("getMachineTypes DaaasException: " + e.getMessage());
             return e.toResponse();
         } catch(Exception e){
+            logger.debug("getMachineTypes Exception: " + e.getMessage());
             return new DaaasException(e.getMessage()).toResponse();
         }
     }
@@ -461,13 +512,17 @@ public class UserResource {
     public Response getMachineTypeLogo(
         @PathParam("id") Integer id) {
 
+        logger.info("getMachineTypeLogo: a user is attempting to get a machine type logo, id = " + id + ", sessionId = " + sessionId);
+
         try {
             MachineType machineType = (MachineType) database.query("select machineType from MachineType machineType where machineType.id = " + id).get(0);
 
             return Response.ok(machineType.getLogoData(), machineType.getLogoMimeType()).build();
         } catch(DaaasException e) {
+            logger.debug("getMachineTypeLogo DaaasException: " + e.getMessage());
             return e.toResponse();
         } catch(Exception e) {
+            logger.debug("getMachineTypeLogo Exception: " + e.getMessage());
             return new DaaasException(e.getMessage()).toResponse();
         }
     }

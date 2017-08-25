@@ -73,6 +73,9 @@ public class AdminResource {
     @Produces({MediaType.APPLICATION_JSON})
     public Response getFlavors(
         @QueryParam("icatUrl") String icatUrl,
+
+        logger.info("getFlavors: user with sessionId " + sessionId + " is attempting to get the available flavors");
+
         @QueryParam("sessionId") String sessionId){
         try {
             authorize(icatUrl, sessionId);
@@ -91,6 +94,10 @@ public class AdminResource {
     public Response getImages(
         @QueryParam("icatUrl") String icatUrl,
         @QueryParam("sessionId") String sessionId) {
+
+        logger.info("getImages: a user is attempting to get the available images, sessionId = " + sessionId);
+
+
         try {
             authorize(icatUrl, sessionId);
 
@@ -109,6 +116,9 @@ public class AdminResource {
     public Response getAvailabilityZones(
         @QueryParam("icatUrl") String icatUrl,
         @QueryParam("sessionId") String sessionId) {
+
+        logger.info("getAvailabilityZones: a user is attempting to get the available availability zones, sessionId = " + sessionId);
+
         try {
             authorize(icatUrl, sessionId);
 
@@ -126,6 +136,9 @@ public class AdminResource {
     public Response getMachineTypes(
         @QueryParam("icatUrl") String icatUrl,
         @QueryParam("sessionId") String sessionId) {
+
+        logger.info("getMachineTypes: a user is attempting to get the available machine types, sessionId = " + sessionId);
+
         try {
             authorize(icatUrl, sessionId);
 
@@ -145,6 +158,9 @@ public class AdminResource {
         @FormParam("sessionId") String sessionId,
         @FormParam("json") String json,
         @FormParam("logoData") String logoData) {
+
+        logger.info("createMachineType: a user is attempting to create a new machine type, json = " + json + ", sessionId = " + sessionId);
+
 
         try {
             authorize(icatUrl, sessionId);
@@ -196,6 +212,8 @@ public class AdminResource {
         @FormParam("icatUrl") String icatUrl,
         @FormParam("sessionId") String sessionId,
         @FormParam("json") String json) {
+
+        logger.info("updateMachineType: a user is attempting to update a machine type, json = " + json + ", sessionId = " + sessionId);
 
         try {
             authorize(icatUrl, sessionId);
@@ -249,6 +267,9 @@ public class AdminResource {
         @QueryParam("sessionId") String sessionId,
         @QueryParam("mimeType") String mimeType) {
 
+        logger.info("updateMachineTypeLogo: a user is attempting to update a machine type logo, id = " + id + ", sessionId = " + sessionId);
+
+
         try {
             authorize(icatUrl, sessionId);
 
@@ -286,6 +307,8 @@ public class AdminResource {
         @QueryParam("icatUrl") String icatUrl,
         @QueryParam("sessionId") String sessionId) {
 
+        logger.info("deleteMachineTypeLogo: a user is attempting to delete a machine type logo, id = " + id + ", sessionId = " + sessionId);
+
         try {
             authorize(icatUrl, sessionId);
 
@@ -312,6 +335,9 @@ public class AdminResource {
         @PathParam("id") Integer id,
         @QueryParam("icatUrl") String icatUrl,
         @QueryParam("sessionId") String sessionId) {
+
+        logger.info("deleteMachineType: a user is attempting to delete a machine type, id = " + id + ", " + sessionId);
+
 
         try {
             authorize(icatUrl, sessionId);
@@ -358,6 +384,10 @@ public class AdminResource {
         @PathParam("id") String id,
         @QueryParam("icatUrl") String icatUrl,
         @QueryParam("sessionId") String sessionId){
+
+        logger.info("getMachineScreenshot: a user is attempting to get a screenshot of a machine, id = " + id + ", sessionId = " + sessionId);
+
+
         try {
             authorize(icatUrl, sessionId);
 
@@ -390,6 +420,9 @@ public class AdminResource {
         @PathParam("id") String id,
         @QueryParam("icatUrl") String icatUrl,
         @QueryParam("sessionId") String sessionId){
+
+        logger.info("getMachineScreenshot: a user is attempting to get access to a machine, id = " + id = ", sessionId = " + sessionId);
+
         try {
             authorize(icatUrl, sessionId);
 
