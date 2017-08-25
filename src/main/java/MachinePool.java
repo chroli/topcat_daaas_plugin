@@ -78,7 +78,7 @@ public class MachinePool {
                         if(machine != null){
                             cloudClient.deleteServer(machine.getId());
                             database.remove(machine);
-                            logger.info("managePool: pruned machine with id " + machine.getId());
+                            logger.info("managePool: pruned machine with, id = " + machine.getId());
                         }
                     }
                 }
@@ -130,7 +130,7 @@ public class MachinePool {
                     long createdSecondsAgo = (now.getTime() - machine.getCreatedAt().getTime()) / 1000;
                     if(createdSecondsAgo > maxPrepareSeconds){
                         machine.setState("failed");
-                        logger.info("checkToSeeIfMachinesHaveFinishedPreparing: machine with id " + machine.getId() + " has taken too long to prepare i.e. > " + maxPrepareSeconds + " seconds");
+                        logger.info("checkToSeeIfMachinesHaveFinishedPreparing: machine has taken too long to prepare i.e. > " + maxPrepareSeconds + " seconds, id = " + machine.getId());
                     }
 
                     database.persist(machine);
@@ -176,7 +176,7 @@ public class MachinePool {
                 cloudClient.deleteServer(machine.getId());
                 machine.setState("failed:cleaned_up");
                 database.persist(machine);
-                logger.info("cleanUpFailedMachines: cleaned up failed machine with id " + machine.getId());
+                logger.info("cleanUpFailedMachines: cleaned up failed machine, id = " + machine.getId());
             }
         } catch(Exception e){
             logger.error("cleanUpFailedMachines: " + e.getMessage());
