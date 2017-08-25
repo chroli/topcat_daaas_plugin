@@ -195,7 +195,7 @@ public class MachinePool {
             Machine out = (Machine) vacantMachines.get(0);
             out.setState("aquired");
             database.persist(out);
-            logger.info("aquireMachine: aquired machine with id " + out.getId());
+            logger.info("aquireMachine: aquired machine, id = " + out.getId());
             return out;
         } catch(Exception e){
             throw new UnexpectedException(e.getMessage());
@@ -204,7 +204,7 @@ public class MachinePool {
 
     private void createMachine(MachineType machineType){
         try {
-            logger.info("createMachine: creating machine with machineType: " + machineType.toJsonObjectBuilder().build().toString());
+            logger.info("createMachine: creating machine, machineType = " + machineType.toJsonObjectBuilder().build().toString());
             Machine machine = new Machine();
             Map<String, String> metadata = new HashMap<String, String>();
             metadata.put("AQ_ARCHETYPE", machineType.getAquilonArchetype());
