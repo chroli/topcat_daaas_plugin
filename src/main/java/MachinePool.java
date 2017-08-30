@@ -66,7 +66,7 @@ public class MachinePool {
 
                 Map<String, String> params = new HashMap<String, String>();
 
-                EntityList<Entity> nonAquiredMachines = database.query("select machine from Machine machine, machine.machineType as machineType where machine.state != 'aquired' and machine.state not like 'failed%' and machineType.id = " + machineType.getId());
+                EntityList<Entity> nonAquiredMachines = database.query("select machine from Machine machine, machine.machineType as machineType where (machine.state = 'preparing' or machine.state = 'vacant') and machineType.id = " + machineType.getId());
                 int diff = machineType.getPoolSize() - nonAquiredMachines.size();
                 if(diff > 0){
                     for(int i = 0; i < diff; i++){
@@ -77,7 +77,8 @@ public class MachinePool {
                         Machine machine = aquireMachine(machineType.getId());
                         if(machine != null){
                             cloudClient.deleteServer(machine.getId());
-                            database.remove(machine);
+                            machine.setState("deleted");
+                            database.persist(machine);
                             logger.info("managePool: pruned machine with, id = " + machine.getId());
                         }
                     }

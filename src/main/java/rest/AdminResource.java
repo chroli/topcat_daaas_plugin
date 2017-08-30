@@ -73,10 +73,11 @@ public class AdminResource {
     @Produces({MediaType.APPLICATION_JSON})
     public Response getFlavors(
         @QueryParam("icatUrl") String icatUrl,
-
-        logger.info("getFlavors: user with sessionId " + sessionId + " is attempting to get the available flavors");
-
         @QueryParam("sessionId") String sessionId){
+
+        logger.info("getFlavors: a user is attempting to get the available flavors, sessionId = " + sessionId);
+
+
         try {
             authorize(icatUrl, sessionId);
 
@@ -421,7 +422,7 @@ public class AdminResource {
         @QueryParam("icatUrl") String icatUrl,
         @QueryParam("sessionId") String sessionId){
 
-        logger.info("getMachineScreenshot: a user is attempting to get access to a machine, id = " + id = ", sessionId = " + sessionId);
+        logger.info("getMachineScreenshot: a user is attempting to get access to a machine, id = " + id + ", sessionId = " + sessionId);
 
         try {
             authorize(icatUrl, sessionId);

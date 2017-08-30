@@ -103,7 +103,7 @@ public class UserResource {
 
             String userName = getUsername(icatUrl, sessionId);
 
-            logger.debug("createMachine: the username is " + username)          
+            logger.debug("createMachine: the userName is " + userName);       
 
             MachineUser machineUser = new MachineUser();
             machineUser.setUserName(userName);
@@ -124,7 +124,7 @@ public class UserResource {
             sshClient.exec("add_primary_user " + fedId);
             logger.debug("createMachine: add_primary_user " + fedId);
             sshClient.exec("add_websockify_token " + machineUser.getWebsockifyToken());
-            logger.debug("createMachine: add_websockify_token " + machineUser.getWebsockifyToken())
+            logger.debug("createMachine: add_websockify_token " + machineUser.getWebsockifyToken());
 
             machine.setScreenshot(Base64.getMimeDecoder().decode(sshClient.exec("get_screenshot")));
             machine.setCreatedAt(new Date());
@@ -207,9 +207,9 @@ public class UserResource {
             logger.debug("saveMachine: database updated");
 
             return machine.toResponse();
-    } catch(DaaasException e) {
+        } catch(DaaasException e) {
             logger.debug("saveMachine DaaasException: " + e.getMessage());
-            return e.toResponse(){
+            return e.toResponse();
         } catch(Exception e){
             logger.debug("saveMachine Exception: " + e.getMessage());
             return new DaaasException(e.getMessage()).toResponse();
@@ -512,7 +512,7 @@ public class UserResource {
     public Response getMachineTypeLogo(
         @PathParam("id") Integer id) {
 
-        logger.info("getMachineTypeLogo: a user is attempting to get a machine type logo, id = " + id + ", sessionId = " + sessionId);
+        logger.info("getMachineTypeLogo: a user is attempting to get a machine type logo, id = " + id);
 
         try {
             MachineType machineType = (MachineType) database.query("select machineType from MachineType machineType where machineType.id = " + id).get(0);
