@@ -24,9 +24,6 @@
 	<div class="row">
 		<div class="col-sm-8 col-sm-push-2">
 			<div class="machine" ng-repeat="machine in adminMachinesController.machines">
-				<div class="screenshot">
-					<img ng-if="machine.screenshotMd5 != ''" ng-src="{{machine.screenshotUrl()}}">
-				</div>
 				<div class="main">
 					<div class="info">
 						<div class="title">
@@ -52,11 +49,6 @@
 								{{machine.primaryUser.fullName}}
 							</div>
 						</div>
-					</div>
-					<div class="actions" ng-if="machine.state == 'aquired'">
-						<button ng-if="machine.type == undefined" class="btn btn-sm btn-default" ng-click="adminMachinesController.enableAccess(machine)">Enable Access</button>
-						<button ng-if="machine.type == 'SECONDARY'" class="btn btn-sm btn-default" ng-click="adminMachinesController.disableAccess(machine)">Disable Access</button>
-						<button ng-if="machine.type == 'SECONDARY'" class="btn btn-sm btn-default" ng-click="adminMachinesController.view(machine)">Launch</button>
 					</div>
 
 				</div>
