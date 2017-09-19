@@ -4,7 +4,7 @@
 
     var app = angular.module('topcat');
 
-    app.controller('AdminMachinesController', function($scope, $state, $uibModal, $q, $interval){
+    app.controller('AdminMachinesController', function($scope, $state, $uibModal, $q){
     	var that = this;
       this.facilities = tc.adminFacilities();
 

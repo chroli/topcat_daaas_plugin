@@ -4,7 +4,7 @@
 
     var app = angular.module('topcat');
 
-    app.controller('AdminMachineTypesController', function($scope, $state, $uibModal, $q, $interval){
+    app.controller('AdminMachineTypesController', function($scope, $state, $uibModal, $q){
     	var that = this;
       this.facilities = tc.adminFacilities();
 
@@ -38,27 +38,7 @@
       this.machineTypes = [];
       var machinesTypesHash = JSON.stringify(this.machineTypes);
 
-      $q.all(promises).then(function(){
-        function pollMachineTypes(){
-          daaas.machineTypes({
-            timeout: timeout.promise,
-            bypassInterceptors: true
-          }).then(function(machineTypes){
-            _.each(machineTypes, function(machineType){
-              machineType.image = imageIndex[machineType.imageId];
-              machineType.flavor = flavorIndex[machineType.flavorId];
-            });
-            var currentMachinesTypesHash = JSON.stringify(machineTypes);
-            if(currentMachinesTypesHash != machinesTypesHash){
-              that.machineTypes = machineTypes;
-              machinesTypesHash = currentMachinesTypesHash;
-            }
-          });
-        }
-        var pollMachineTypesPromise = $interval(pollMachineTypes, 1000);
-        timeout.promise.then(function(){ $interval.cancel(pollMachineTypesPromise); });
-        pollMachineTypes();
-      });
+      $q.all(promises).then(refresh);
 
       this.create = function(){
         $uibModal.open({
@@ -76,14 +56,31 @@
             controller: 'AdminEditMachineTypeController as adminEditMachineTypeController',
             size : 'md',
             scope: $scope
-        });
-      };
+        }).closed.then(refresh);;
+      }
 
       this.delete = function(machineType){
         if(confirm("Are you really you want to delete this machine type?")){
           daaas.deleteMachineType(timeout.promise, machineType.id);
         }
       };
+
+      function refresh(){
+         daaas.machineTypes({
+            timeout: timeout.promise,
+            bypassInterceptors: true
+         }).then(function(machineTypes){
+            _.each(machineTypes, function(machineType){
+               machineType.image = imageIndex[machineType.imageId];
+               machineType.flavor = flavorIndex[machineType.flavorId];
+         });
+         var currentMachinesTypesHash = JSON.stringify(machineTypes);
+            if(currentMachinesTypesHash != machinesTypesHash){
+               that.machineTypes = machineTypes;
+               machinesTypesHash = currentMachinesTypesHash;
+            }
+         });
+      }
 
     });
 
