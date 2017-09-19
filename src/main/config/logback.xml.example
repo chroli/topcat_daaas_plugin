@@ -15,7 +15,7 @@
 		</rollingPolicy>
 
 		<encoder>
-			<pattern>%date %level [%thread] %C{0} - %msg%n
+			<pattern>%date %level [%thread] %C{0}.%M - %msg%n
 			</pattern>
 		</encoder>
 	</appender>
