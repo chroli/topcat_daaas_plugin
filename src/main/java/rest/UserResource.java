@@ -74,7 +74,7 @@ public class UserResource {
         try {
             Map<String, String> params = new HashMap<String, String>();
             params.put("primaryUser", getUsername(icatUrl, sessionId));
-            return database.query("select machine from MachineUser machineUser, machineUser.machine as machine where machineUser.userName = :primaryUser", params).toResponse();
+            return database.query("select machine from MachineUser machineUser, machineUser.machine as machine where machineUser.userName = :primaryUser and machine.state = 'aquired'", params).toResponse();
         } catch(DaaasException e) {
             return e.toResponse();
         } catch(Exception e){
@@ -165,7 +165,10 @@ public class UserResource {
             }
             cloudClient.deleteServer(machine.getId());
             logger.debug("deleteMachine: removed machine from cloud");
-            database.remove(machine);
+
+            machine.setState("deleted");
+            database.persist(machine);
+
             logger.debug("deleteMachine: removed machine from database");
             return machine.toResponse();
     } catch(DaaasException e) {
