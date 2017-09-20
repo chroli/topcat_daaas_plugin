@@ -1,24 +1,17 @@
 package org.icatproject.topcatdaaasplugin.filters;
 
-import java.io.IOException;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.annotation.WebFilter;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.util.regex.Pattern;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.*;
+import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.regex.Pattern;
+
 @WebFilter("/*")
-public class CacheControlFilter implements Filter  {
+public class CacheControlFilter implements Filter {
 
     private static final Logger logger = LoggerFactory.getLogger(CacheControlFilter.class);
 
@@ -28,7 +21,7 @@ public class CacheControlFilter implements Filter  {
 
         boolean isIe = false;
         String userAgent = request.getHeader("user-agent");
-        if(userAgent != null){
+        if (userAgent != null) {
             isIe = userAgent.indexOf("MSIE") > 0;
         }
 
@@ -36,7 +29,7 @@ public class CacheControlFilter implements Filter  {
         String uiGridFontPathPattern = ".*ui-grid\\.(eot|svg|woff|ttf)\\z";
         boolean isUiGridFont = Pattern.matches(uiGridFontPathPattern, uriPath);
 
-        if(!(isIe && isUiGridFont)){
+        if (!(isIe && isUiGridFont)) {
             response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
             response.setHeader("Pragma", "no-cache");
             response.setDateHeader("Expires", 0);
@@ -44,7 +37,7 @@ public class CacheControlFilter implements Filter  {
 
         String woffFontPattern = ".*\\.woff\\z";
         boolean isWoffFont = Pattern.matches(woffFontPattern, uriPath);
-        if(isWoffFont){
+        if (isWoffFont) {
             response.setHeader("Content-Type", "application/x-font-woff");
         }
 

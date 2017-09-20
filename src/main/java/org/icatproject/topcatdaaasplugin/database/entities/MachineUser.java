@@ -1,18 +1,13 @@
 package org.icatproject.topcatdaaasplugin.database.entities;
 
-import java.util.List;
-import java.io.Serializable;
-import java.util.Date;
+import org.icatproject.topcatdaaasplugin.Entity;
 
 import javax.json.Json;
-
+import javax.json.JsonObjectBuilder;
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.json.JsonObjectBuilder;
-
-
-import org.icatproject.topcatdaaasplugin.Entity;
-import org.icatproject.topcatdaaasplugin.EntityList;
+import java.io.Serializable;
+import java.util.Date;
 
 @javax.persistence.Entity
 @Table(name = "MACHINEUSER")
@@ -33,12 +28,12 @@ public class MachineUser extends Entity implements Serializable {
     @Column(name = "WEBSOCKIFY_TOKEN", nullable = false)
     private String websockifyToken;
 
-    @Column(name = "CREATED_AT", nullable=false, updatable=false)
+    @Column(name = "CREATED_AT", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name= "MACHINE_ID")
+    @JoinColumn(name = "MACHINE_ID")
     private Machine machine;
 
     public Long getId() {
@@ -62,10 +57,10 @@ public class MachineUser extends Entity implements Serializable {
     }
 
     public void setType(String type) {
-       this.type = type;
+        this.type = type;
     }
 
-    public String getWebsockifyToken(){
+    public String getWebsockifyToken() {
         return websockifyToken;
     }
 
@@ -94,7 +89,7 @@ public class MachineUser extends Entity implements Serializable {
         this.createdAt = new Date();
     }
 
-    public JsonObjectBuilder toJsonObjectBuilder(){
+    public JsonObjectBuilder toJsonObjectBuilder() {
         JsonObjectBuilder out = Json.createObjectBuilder();
         out.add("id", getId());
         out.add("userName", getUserName());

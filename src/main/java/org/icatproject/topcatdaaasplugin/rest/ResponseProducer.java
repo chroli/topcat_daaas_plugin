@@ -8,11 +8,10 @@ package org.icatproject.topcatdaaasplugin.rest;
 import javax.ws.rs.core.Response;
 
 /**
- *
  * @author elz24996
  */
 public interface ResponseProducer {
-    
+
     public Response toResponse();
-    
+
 }

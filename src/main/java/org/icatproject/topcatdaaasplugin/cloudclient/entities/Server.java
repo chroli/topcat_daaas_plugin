@@ -1,9 +1,9 @@
 package org.icatproject.topcatdaaasplugin.cloudclient.entities;
 
+import org.icatproject.topcatdaaasplugin.Entity;
+
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
-
-import org.icatproject.topcatdaaasplugin.Entity;
 
 public class Server extends Entity {
 
@@ -35,13 +35,13 @@ public class Server extends Entity {
         this.status = status;
     }
 
-	public JsonObjectBuilder toJsonObjectBuilder(){
+    public JsonObjectBuilder toJsonObjectBuilder() {
         JsonObjectBuilder out = Json.createObjectBuilder();
         out.add("id", getId());
-        if(getHost() != null){
+        if (getHost() != null) {
             out.add("host", getHost());
         }
-        if(getStatus() != null){
+        if (getStatus() != null) {
             out.add("status", getStatus());
         }
         return out;

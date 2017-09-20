@@ -1,34 +1,22 @@
 package org.icatproject.topcatdaaasplugin;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.Base64;
-import java.util.Date;
-
-import org.apache.commons.io.IOUtils;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-
-import javax.annotation.PostConstruct;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.ejb.Schedule;
-import javax.ejb.EJB;
-import javax.ejb.ConcurrencyManagement;
-import javax.ejb.ConcurrencyManagementType;
-
+import org.icatproject.topcatdaaasplugin.cloudclient.CloudClient;
+import org.icatproject.topcatdaaasplugin.cloudclient.entities.Server;
+import org.icatproject.topcatdaaasplugin.database.Database;
+import org.icatproject.topcatdaaasplugin.database.entities.Machine;
+import org.icatproject.topcatdaaasplugin.database.entities.MachineType;
+import org.icatproject.topcatdaaasplugin.exceptions.DaaasException;
+import org.icatproject.topcatdaaasplugin.exceptions.UnexpectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.icatproject.topcatdaaasplugin.exceptions.*;
-import org.icatproject.topcatdaaasplugin.cloudclient.CloudClient;
-import org.icatproject.topcatdaaasplugin.cloudclient.entities.*;
-import org.icatproject.topcatdaaasplugin.database.Database;
-import org.icatproject.topcatdaaasplugin.database.entities.*;
-import org.icatproject.topcatdaaasplugin.Entity;
-import org.icatproject.topcatdaaasplugin.EntityList;
-import org.icatproject.topcatdaaasplugin.Properties;
+import javax.annotation.PostConstruct;
+import javax.ejb.*;
+import java.util.Base64;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @Singleton
@@ -41,26 +29,25 @@ public class MachinePool {
     private AtomicBoolean getScreenShotsBusy = new AtomicBoolean(false);
     private AtomicBoolean cleanUpFailedMachinesBusy = new AtomicBoolean(false);
 
-	@EJB
+    @EJB
     CloudClient cloudClient;
 
     @EJB
     Database database;
 
-	@PostConstruct
+    @PostConstruct
     public void init() {
-        
+
     }
 
     /**
-     * Periodically check the 
-     *
+     * Periodically check the
      */
-    @Schedule(hour="*", minute="*", second="30")
-    public void managePool(){
+    @Schedule(hour = "*", minute = "*", second = "30")
+    public void managePool() {
         logger.debug("Checking for machine pool updates");
 
-        if(!managePoolBusy.compareAndSet(false, true)){
+        if (!managePoolBusy.compareAndSet(false, true)) {
             logger.debug("Machine pool is busy ... skipping");
             return;
         }
@@ -68,22 +55,22 @@ public class MachinePool {
         try {
             EntityList<Entity> machineTypes = database.query("select machineType from MachineType machineType");
 
-            for(Entity machineTypeEntity : machineTypes){
+            for (Entity machineTypeEntity : machineTypes) {
                 MachineType machineType = (MachineType) machineTypeEntity;
                 EntityList<Entity> nonAquiredMachines = database.query("select machine from Machine machine, machine.machineType as machineType where (machine.state = 'preparing' or machine.state = 'vacant') and machineType.id = " + machineType.getId());
 
                 int diff = machineType.getPoolSize() - nonAquiredMachines.size();
 
-                if(diff > 0){
+                if (diff > 0) {
                     logger.info("Adding {} machines to pool for machine type '{}'", diff, machineType.getName());
-                    for(int i = 0; i < diff; i++){
+                    for (int i = 0; i < diff; i++) {
                         createMachine(machineType);
                     }
                 } else if (diff < 0) {
                     logger.info("Removing {} machines from pool for machine type '{}'", diff, machineType.getName());
-                    for(int i = 0; i < (diff * -1); i++){
+                    for (int i = 0; i < (diff * -1); i++) {
                         Machine machine = aquireMachine(machineType.getId());
-                        if(machine != null){
+                        if (machine != null) {
                             cloudClient.deleteServer(machine.getId());
                             machine.setState("deleted");
                             database.persist(machine);
@@ -92,7 +79,7 @@ public class MachinePool {
                     }
                 }
             }
-        } catch(Exception e){
+        } catch (Exception e) {
             logger.error(e.getMessage());
         }
 
@@ -100,45 +87,46 @@ public class MachinePool {
     }
 
 
-    @Schedule(hour="*", minute="*", second="*")
-    public void checkToSeeIfMachinesHaveFinishedPreparing(){
-        if(!checkToSeeIfMachinesHaveFinishedPreparingBusy.compareAndSet(false, true)){
+    @Schedule(hour = "*", minute = "*", second = "*")
+    public void checkToSeeIfMachinesHaveFinishedPreparing() {
+        if (!checkToSeeIfMachinesHaveFinishedPreparingBusy.compareAndSet(false, true)) {
             return;
         }
 
         try {
             EntityList<Entity> machineTypes = database.query("select machineType from MachineType machineType");
 
-            for(Entity machineTypeEntity : machineTypes){
+            for (Entity machineTypeEntity : machineTypes) {
                 MachineType machineType = (MachineType) machineTypeEntity;
 
                 EntityList<Entity> preparingMachines = database.query("select machine from Machine machine, machine.machineType as machineType where machine.state = 'preparing' and machineType.id = " + machineType.getId());
-                for(Entity machineEntity : preparingMachines){
+                for (Entity machineEntity : preparingMachines) {
                     Machine machine = (Machine) machineEntity;
 
                     Server server = cloudClient.getServer(machine.getId());
 
-                    if(server.getHost() != null){
+                    if (server.getHost() != null) {
                         machine.setHost(server.getHost());
                     }
 
-                    try { 
-                        if(server.getStatus().equals("SUCCESS")){
+                    try {
+                        if (server.getStatus().equals("SUCCESS")) {
                             SshClient sshClient = new SshClient(machine.getHost());
-                            if(sshClient.exec("is_ready").equals("1\n")){
+                            if (sshClient.exec("is_ready").equals("1\n")) {
                                 machine.setState("vacant");
                             }
-                        } else if(server.getStatus().equals("FAILED")){
+                        } else if (server.getStatus().equals("FAILED")) {
                             machine.setState("failed");
                         }
-                    } catch(NullPointerException e){}
+                    } catch (NullPointerException e) {
+                    }
 
 
                     Properties properties = new Properties();
                     int maxPrepareSeconds = Integer.valueOf(properties.getProperty("maxPrepareSeconds", "600"));
                     Date now = new Date();
                     long createdSecondsAgo = (now.getTime() - machine.getCreatedAt().getTime()) / 1000;
-                    if(createdSecondsAgo > maxPrepareSeconds){
+                    if (createdSecondsAgo > maxPrepareSeconds) {
                         machine.setState("failed");
                         logger.info("checkToSeeIfMachinesHaveFinishedPreparing: machine has taken too long to prepare i.e. > " + maxPrepareSeconds + " seconds, id = " + machine.getId());
                     }
@@ -146,27 +134,27 @@ public class MachinePool {
                     database.persist(machine);
                 }
             }
-        } catch(Exception e){
+        } catch (Exception e) {
             logger.error("checkToSeeIfMachinesHaveFinishedPreparing: " + e.getMessage());
         }
 
         checkToSeeIfMachinesHaveFinishedPreparingBusy.set(false);
     }
 
-    @Schedule(hour="*", minute="*", second="0")
-    public void getScreenShots(){
-        if(!getScreenShotsBusy.compareAndSet(false, true)){
+    @Schedule(hour = "*", minute = "*", second = "0")
+    public void getScreenShots() {
+        if (!getScreenShotsBusy.compareAndSet(false, true)) {
             return;
         }
-        
+
         try {
-            EntityList<Entity> aquiredMachines =  database.query("select machine from Machine machine where machine.state = 'aquired'");
-            for(Entity machineEntity : aquiredMachines){
+            EntityList<Entity> aquiredMachines = database.query("select machine from Machine machine where machine.state = 'aquired'");
+            for (Entity machineEntity : aquiredMachines) {
                 Machine machine = (Machine) machineEntity;
                 machine.setScreenshot(Base64.getMimeDecoder().decode(new SshClient(machine.getHost()).exec("get_screenshot")));
                 database.persist(machine);
             }
-        } catch(Exception e){
+        } catch (Exception e) {
             logger.error("getScreenShots: " + e.getMessage());
             e.printStackTrace();
         }
@@ -174,22 +162,22 @@ public class MachinePool {
         getScreenShotsBusy.set(false);
     }
 
-    @Schedule(hour="*", minute="*", second="*")
-    public void cleanUpFailedMachines(){
-        if(!cleanUpFailedMachinesBusy.compareAndSet(false, true)){
+    @Schedule(hour = "*", minute = "*", second = "*")
+    public void cleanUpFailedMachines() {
+        if (!cleanUpFailedMachinesBusy.compareAndSet(false, true)) {
             return;
         }
 
         try {
-            EntityList<Entity> failedMachines =  database.query("select machine from Machine machine where machine.state = 'failed'");
-            for(Entity machineEntity : failedMachines){
+            EntityList<Entity> failedMachines = database.query("select machine from Machine machine where machine.state = 'failed'");
+            for (Entity machineEntity : failedMachines) {
                 Machine machine = (Machine) machineEntity;
                 cloudClient.deleteServer(machine.getId());
                 machine.setState("failed:cleaned_up");
                 database.persist(machine);
                 logger.info("cleanUpFailedMachines: cleaned up failed machine, id = " + machine.getId());
             }
-        } catch(Exception e){
+        } catch (Exception e) {
             logger.error("cleanUpFailedMachines: " + e.getMessage());
         }
 
@@ -200,7 +188,7 @@ public class MachinePool {
         try {
             String query = "select machine from Machine machine, machine.machineType as machineType where machine.state = 'vacant' and machineType.id = " + machineTypeId;
             EntityList<Entity> vacantMachines = database.query(query);
-            if(vacantMachines.size() < 1){
+            if (vacantMachines.size() < 1) {
                 return null;
             }
             Machine out = (Machine) vacantMachines.get(0);
@@ -208,12 +196,12 @@ public class MachinePool {
             database.persist(out);
             logger.info("aquireMachine: aquired machine, id = " + out.getId());
             return out;
-        } catch(Exception e){
+        } catch (Exception e) {
             throw new UnexpectedException(e.getMessage());
         }
     }
 
-    private void createMachine(MachineType machineType){
+    private void createMachine(MachineType machineType) {
         try {
             logger.info("Attempting to create new machine for machineType {}", machineType.getName());
             logger.info(machineType.toJsonObjectBuilder().build().toString());
@@ -227,7 +215,7 @@ public class MachinePool {
             metadata.put("AQ_OSVERSION", machineType.getAquilonOSVersion());
 
             Server server = cloudClient.createServer(machineType.getName(), machineType.getImageId(), machineType.getFlavorId(), machineType.getAvailabilityZone(), metadata);
-            
+
             machine.setId(server.getId());
             machine.setName(machineType.getName());
             machine.setState("preparing");
@@ -235,7 +223,7 @@ public class MachinePool {
             database.persist(machine);
 
             logger.info("Successfully create new machine: id={}", machine.getId());
-        } catch(Exception e) {
+        } catch (Exception e) {
             logger.error("Failed to create new machine: {}", e.getMessage());
             e.printStackTrace();
         }

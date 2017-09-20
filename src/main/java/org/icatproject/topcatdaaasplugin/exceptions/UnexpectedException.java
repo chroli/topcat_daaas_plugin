@@ -6,14 +6,13 @@
 package org.icatproject.topcatdaaasplugin.exceptions;
 
 /**
- *
  * @author elz24996
  */
 public class UnexpectedException extends DaaasException {
-    
-    public UnexpectedException(String message){
+
+    public UnexpectedException(String message) {
         super(message);
         this.status = 500;
     }
-    
+
 }

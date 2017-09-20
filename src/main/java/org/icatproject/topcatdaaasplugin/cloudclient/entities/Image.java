@@ -1,9 +1,9 @@
 package org.icatproject.topcatdaaasplugin.cloudclient.entities;
 
+import org.icatproject.topcatdaaasplugin.Entity;
+
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
-
-import org.icatproject.topcatdaaasplugin.Entity;
 
 public class Image extends Entity {
 
@@ -35,7 +35,7 @@ public class Image extends Entity {
         this.size = size;
     }
 
-	public JsonObjectBuilder toJsonObjectBuilder(){
+    public JsonObjectBuilder toJsonObjectBuilder() {
         JsonObjectBuilder out = Json.createObjectBuilder();
         out.add("id", getId());
         out.add("name", getName());

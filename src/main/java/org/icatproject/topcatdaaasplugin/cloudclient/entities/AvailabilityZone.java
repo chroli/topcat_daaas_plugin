@@ -1,9 +1,9 @@
 package org.icatproject.topcatdaaasplugin.cloudclient.entities;
 
+import org.icatproject.topcatdaaasplugin.Entity;
+
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
-
-import org.icatproject.topcatdaaasplugin.Entity;
 
 public class AvailabilityZone extends Entity {
 
@@ -27,7 +27,7 @@ public class AvailabilityZone extends Entity {
         this.isAvailable = isAvailable;
     }
 
-	public JsonObjectBuilder toJsonObjectBuilder(){
+    public JsonObjectBuilder toJsonObjectBuilder() {
         JsonObjectBuilder out = Json.createObjectBuilder();
         out.add("name", getName());
         out.add("isAvailable", getIsAvailable());

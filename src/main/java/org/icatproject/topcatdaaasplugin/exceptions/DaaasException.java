@@ -5,41 +5,39 @@
  */
 package org.icatproject.topcatdaaasplugin.exceptions;
 
-import javax.ws.rs.core.Response;
+import org.icatproject.topcatdaaasplugin.rest.ResponseProducer;
 
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
-
-import org.icatproject.topcatdaaasplugin.rest.ResponseProducer;
+import javax.ws.rs.core.Response;
 
 /**
- *
  * @author elz24996
  */
 public class DaaasException extends Exception implements ResponseProducer {
-    
+
     private String message;
     protected int status;
-    
-    public DaaasException(String message){
+
+    public DaaasException(String message) {
         this.status = 400;
         this.message = message;
     }
-    
-    public String getMessage(){
+
+    public String getMessage() {
         return this.message;
     }
 
-    public JsonObjectBuilder toJsonObjectBuilder(){
+    public JsonObjectBuilder toJsonObjectBuilder() {
         return Json.createObjectBuilder().add("message", (String) getMessage());
     }
-    
-    public String toString(){
+
+    public String toString() {
         return toJsonObjectBuilder().build().toString();
     }
-    
-    public Response toResponse(){
+
+    public Response toResponse() {
         return Response.status(status).entity(toString()).build();
     }
-    
+
 }

@@ -5,55 +5,35 @@
  */
 package org.icatproject.topcatdaaasplugin.rest;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.UUID;
-import java.util.List;
-import java.util.Date;
-import java.io.ByteArrayOutputStream;
-import java.util.Base64;
-
-import javax.ejb.Stateless;
-import javax.ejb.LocalBean;
+import org.icatproject.topcatdaaasplugin.*;
+import org.icatproject.topcatdaaasplugin.cloudclient.CloudClient;
+import org.icatproject.topcatdaaasplugin.database.Database;
+import org.icatproject.topcatdaaasplugin.database.entities.Machine;
+import org.icatproject.topcatdaaasplugin.database.entities.MachineType;
+import org.icatproject.topcatdaaasplugin.database.entities.MachineTypeScope;
+import org.icatproject.topcatdaaasplugin.database.entities.MachineUser;
+import org.icatproject.topcatdaaasplugin.exceptions.DaaasException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.core.GenericEntity;
+import javax.json.JsonObject;
+import javax.ws.rs.*;
+import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.CacheControl;
-
-import javax.json.JsonObject;
-import javax.json.JsonArray;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.icatproject.topcatdaaasplugin.cloudclient.CloudClient;
-import org.icatproject.topcatdaaasplugin.database.Database;
-import org.icatproject.topcatdaaasplugin.database.entities.*;
-import org.icatproject.topcatdaaasplugin.exceptions.DaaasException;
-import org.icatproject.topcatdaaasplugin.*;
+import java.util.*;
 
 /**
- *
  * @author elz24996
  */
 @Stateless
 @LocalBean
 @Path("user")
 public class UserResource {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(UserResource.class);
 
     @EJB
@@ -69,15 +49,15 @@ public class UserResource {
     @Path("/machines")
     @Produces({MediaType.APPLICATION_JSON})
     public Response getMachines(
-        @QueryParam("icatUrl") String icatUrl,
-        @QueryParam("sessionId") String sessionId){
+            @QueryParam("icatUrl") String icatUrl,
+            @QueryParam("sessionId") String sessionId) {
         try {
             Map<String, String> params = new HashMap<String, String>();
             params.put("primaryUser", getUsername(icatUrl, sessionId));
             return database.query("select machine from MachineUser machineUser, machineUser.machine as machine where machineUser.userName = :primaryUser and machine.state = 'aquired'", params).toResponse();
-        } catch(DaaasException e) {
+        } catch (DaaasException e) {
             return e.toResponse();
-        } catch(Exception e){
+        } catch (Exception e) {
             return new DaaasException(e.getMessage()).toResponse();
         }
     }
@@ -86,24 +66,24 @@ public class UserResource {
     @Path("/machines")
     @Produces({MediaType.APPLICATION_JSON})
     public Response createMachine(
-        @FormParam("icatUrl") String icatUrl,
-        @FormParam("sessionId") String sessionId,
-        @FormParam("machineTypeId") Long machineTypeId){
+            @FormParam("icatUrl") String icatUrl,
+            @FormParam("sessionId") String sessionId,
+            @FormParam("machineTypeId") Long machineTypeId) {
 
         logger.info("createMachine: a user is attempting to create a machine,  machineTypeId = " + machineTypeId + ", sessionId = " + sessionId);
 
         try {
-            if(!isMachineTypeAllowed(icatUrl, sessionId, machineTypeId)){
+            if (!isMachineTypeAllowed(icatUrl, sessionId, machineTypeId)) {
                 throw new DaaasException("You are not allowed to create this machine type.");
             }
             Machine machine = machinePool.aquireMachine(machineTypeId);
-            if(machine == null){
+            if (machine == null) {
                 throw new DaaasException("No more machines of this type are available - please try again later.");
             }
 
             String userName = getUsername(icatUrl, sessionId);
 
-            logger.debug("createMachine: the userName is " + userName);       
+            logger.debug("createMachine: the userName is " + userName);
 
             MachineUser machineUser = new MachineUser();
             machineUser.setUserName(userName);
@@ -133,10 +113,10 @@ public class UserResource {
             logger.debug("createMachine: database updated");
 
             return machine.toResponse();
-        } catch(DaaasException e) {
+        } catch (DaaasException e) {
             logger.debug("createMachine DaaasException: " + e.getMessage());
             return e.toResponse();
-        } catch(Exception e){
+        } catch (Exception e) {
             logger.debug("createMachine Exception: " + e.getMessage());
             return new DaaasException(e.getMessage()).toResponse();
         }
@@ -146,9 +126,9 @@ public class UserResource {
     @Path("/machines/{id}")
     @Produces({MediaType.APPLICATION_JSON})
     public Response deleteMachine(
-        @PathParam("id") String id,
-        @QueryParam("icatUrl") String icatUrl,
-        @QueryParam("sessionId") String sessionId){
+            @PathParam("id") String id,
+            @QueryParam("icatUrl") String icatUrl,
+            @QueryParam("sessionId") String sessionId) {
 
         logger.info("deleteMachine: a user is attempting to delete a machine, id = " + id + ", sessionId = " + sessionId);
 
@@ -157,10 +137,10 @@ public class UserResource {
             params.put("id", id);
 
             Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);
-            if(machine == null){
+            if (machine == null) {
                 throw new DaaasException("No such machine.");
             }
-            if(!machine.getPrimaryUser().getUserName().equals(getUsername(icatUrl, sessionId))){
+            if (!machine.getPrimaryUser().getUserName().equals(getUsername(icatUrl, sessionId))) {
                 throw new DaaasException("You are not allowed to delete this machine.");
             }
             cloudClient.deleteServer(machine.getId());
@@ -171,10 +151,10 @@ public class UserResource {
 
             logger.debug("deleteMachine: removed machine from database");
             return machine.toResponse();
-    } catch(DaaasException e) {
+        } catch (DaaasException e) {
             logger.debug("deleteMachine DaaasException: " + e.getMessage());
             return e.toResponse();
-        } catch(Exception e){
+        } catch (Exception e) {
             logger.debug("deleteMachine Exception: " + e.getMessage());
             return new DaaasException(e.getMessage()).toResponse();
         }
@@ -184,10 +164,10 @@ public class UserResource {
     @Path("/machines/{id}")
     @Produces({MediaType.APPLICATION_JSON})
     public Response saveMachine(
-        @PathParam("id") String id,
-        @FormParam("icatUrl") String icatUrl,
-        @FormParam("sessionId") String sessionId,
-        @FormParam("name") String name){
+            @PathParam("id") String id,
+            @FormParam("icatUrl") String icatUrl,
+            @FormParam("sessionId") String sessionId,
+            @FormParam("name") String name) {
 
         logger.info("saveMachine: a user is attempting to save a machine setting it's name to '" + name + "', id = " + id + ", sessionId = " + sessionId);
 
@@ -197,23 +177,23 @@ public class UserResource {
             params.put("id", id);
 
             Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);
-            if(machine == null){
+            if (machine == null) {
                 throw new DaaasException("No such machine.");
             }
-            if(!machine.getPrimaryUser().getUserName().equals(getUsername(icatUrl, sessionId))){
+            if (!machine.getPrimaryUser().getUserName().equals(getUsername(icatUrl, sessionId))) {
                 throw new DaaasException("You are not allowed to save this machine.");
             }
-            
+
             machine.setName(name);
             database.persist(machine);
 
             logger.debug("saveMachine: database updated");
 
             return machine.toResponse();
-        } catch(DaaasException e) {
+        } catch (DaaasException e) {
             logger.debug("saveMachine DaaasException: " + e.getMessage());
             return e.toResponse();
-        } catch(Exception e){
+        } catch (Exception e) {
             logger.debug("saveMachine Exception: " + e.getMessage());
             return new DaaasException(e.getMessage()).toResponse();
         }
@@ -223,11 +203,11 @@ public class UserResource {
     @Path("/machines/{id}/resolution")
     @Produces({MediaType.APPLICATION_JSON})
     public Response setMachineResolution(
-        @PathParam("id") String id,
-        @FormParam("icatUrl") String icatUrl,
-        @FormParam("sessionId") String sessionId,
-        @FormParam("width") int width,
-        @FormParam("height") int height){
+            @PathParam("id") String id,
+            @FormParam("icatUrl") String icatUrl,
+            @FormParam("sessionId") String sessionId,
+            @FormParam("width") int width,
+            @FormParam("height") int height) {
 
         logger.info("setMachineResolution: a user is attempting to set the width/height of a machine with id to " + width + "x" + height + ", id = " + id + ", sessionId = " + sessionId);
 
@@ -236,10 +216,10 @@ public class UserResource {
             params.put("id", id);
 
             Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);
-            if(machine == null){
+            if (machine == null) {
                 throw new DaaasException("No such machine.");
             }
-            if(!machine.getPrimaryUser().getUserName().equals(getUsername(icatUrl, sessionId))){
+            if (!machine.getPrimaryUser().getUserName().equals(getUsername(icatUrl, sessionId))) {
                 throw new DaaasException("You are not allowed to access this machine.");
             }
 
@@ -248,12 +228,12 @@ public class UserResource {
             logger.debug("setMachineResolution: set_resolution " + width + " " + height);
 
             return machine.toResponse();
-        } catch(DaaasException e) {
+        } catch (DaaasException e) {
             logger.debug("setMachineResolution DaaasException: " + e.getMessage());
             return e.toResponse();
-        } catch(Exception e){
+        } catch (Exception e) {
             String message = e.getMessage();
-            if(message == null){
+            if (message == null) {
                 message = e.toString();
             }
             logger.debug("setMachineResolution Exception: " + message);
@@ -265,9 +245,9 @@ public class UserResource {
     @Path("/machines/{id}/screenshot")
     @Produces("image/png")
     public Response getMachineScreenshot(
-        @PathParam("id") String id,
-        @QueryParam("icatUrl") String icatUrl,
-        @QueryParam("sessionId") String sessionId){
+            @PathParam("id") String id,
+            @QueryParam("icatUrl") String icatUrl,
+            @QueryParam("sessionId") String sessionId) {
 
         logger.info("getMachineScreenshot: a user  is attempting to get a screenshot, id = " + id + ", sessionId = " + sessionId);
 
@@ -277,14 +257,14 @@ public class UserResource {
             params.put("id", id);
 
             Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);
-            if(machine == null){
+            if (machine == null) {
                 throw new DaaasException("No such machine.");
             }
 
             String username = getUsername(icatUrl, sessionId);
 
-            for(MachineUser user : machine.getMachineUsers()){
-                if(user.getUserName().equals(username)){
+            for (MachineUser user : machine.getMachineUsers()) {
+                if (user.getUserName().equals(username)) {
                     CacheControl cacheControl = new CacheControl();
                     cacheControl.setNoStore(true);
                     return Response.ok(machine.getScreenshot()).cacheControl(cacheControl).build();
@@ -293,13 +273,13 @@ public class UserResource {
 
 
             throw new DaaasException("You are not allowed to access this machine.");
-            
-        } catch(DaaasException e) {
+
+        } catch (DaaasException e) {
             logger.debug("getMachineScreenshot DaaasException: " + e.getMessage());
             return e.toResponse();
-        } catch(Exception e){
+        } catch (Exception e) {
             String message = e.getMessage();
-            if(message == null){
+            if (message == null) {
                 message = e.toString();
             }
             logger.debug("getMachineScreenshot DaaasException: " + message);
@@ -311,9 +291,9 @@ public class UserResource {
     @Path("/machines/{id}/rdp")
     @Produces("application/x-rdp")
     public Response getRdpFile(
-        @PathParam("id") String id,
-        @QueryParam("icatUrl") String icatUrl,
-        @QueryParam("sessionId") String sessionId){
+            @PathParam("id") String id,
+            @QueryParam("icatUrl") String icatUrl,
+            @QueryParam("sessionId") String sessionId) {
 
         logger.info("getRdpFile: a user is attempting to get an rdp file, id = " + id + ", sessionId = " + sessionId);
 
@@ -322,14 +302,14 @@ public class UserResource {
             params.put("id", id);
 
             Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);
-            if(machine == null){
+            if (machine == null) {
                 throw new DaaasException("No such machine.");
             }
 
             String username = getUsername(icatUrl, sessionId);
 
-            for(MachineUser user : machine.getMachineUsers()){
-                if(user.getUserName().equals(username)){
+            for (MachineUser user : machine.getMachineUsers()) {
+                if (user.getUserName().equals(username)) {
                     StringBuffer out = new StringBuffer();
 
                     out.append("screen mode id:i:2\n");
@@ -375,13 +355,13 @@ public class UserResource {
             }
 
             throw new DaaasException("You are not allowed to access this machine.");
-            
-        } catch(DaaasException e){
+
+        } catch (DaaasException e) {
             logger.debug("getRdpFile DaaasException: " + e.getMessage());
             return e.toResponse();
-        } catch(Exception e){
+        } catch (Exception e) {
             String message = e.getMessage();
-            if(message == null){
+            if (message == null) {
                 message = e.toString();
             }
             logger.debug("getRdpFile Exception: " + message);
@@ -393,10 +373,10 @@ public class UserResource {
     @Path("/machines/{id}/share")
     @Produces({MediaType.APPLICATION_JSON})
     public Response shareMachine(
-        @PathParam("id") String id,
-        @FormParam("icatUrl") String icatUrl,
-        @FormParam("sessionId") String sessionId,
-        @FormParam("userNames") String userNames) {
+            @PathParam("id") String id,
+            @FormParam("icatUrl") String icatUrl,
+            @FormParam("sessionId") String sessionId,
+            @FormParam("userNames") String userNames) {
 
         logger.info("getRdpFile: a user is attempting to share a machine, id = " + id + ", sessionId = " + sessionId);
 
@@ -406,10 +386,10 @@ public class UserResource {
             params.put("id", id);
 
             Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);
-            if(machine == null){
+            if (machine == null) {
                 throw new DaaasException("No such machine.");
             }
-            if(!machine.getPrimaryUser().getUserName().equals(getUsername(icatUrl, sessionId))){
+            if (!machine.getPrimaryUser().getUserName().equals(getUsername(icatUrl, sessionId))) {
                 throw new DaaasException("You are not allowed to access this machine.");
             }
 
@@ -421,28 +401,28 @@ public class UserResource {
             com.stfc.useroffice.webservice.UserOfficeWebService_Service service = new com.stfc.useroffice.webservice.UserOfficeWebService_Service();
             com.stfc.useroffice.webservice.UserOfficeWebService port = service.getUserOfficeWebServicePort();
 
-            for(MachineUser machineUser : machine.getMachineUsers()){
-                if(machineUser.getType().equals("PRIMARY")){
+            for (MachineUser machineUser : machine.getMachineUsers()) {
+                if (machineUser.getType().equals("PRIMARY")) {
                     newMachineUsers.add(machineUser);
                 }
             }
 
-            for(String userName : userNamesList){
-                if(userName.equals("")){
+            for (String userName : userNamesList) {
+                if (userName.equals("")) {
                     continue;
                 }
 
                 boolean isExistingUser = false;
 
-                for(MachineUser machineUser : machine.getMachineUsers()){
-                    if(machineUser.getUserName().equals(userName)){
+                for (MachineUser machineUser : machine.getMachineUsers()) {
+                    if (machineUser.getUserName().equals(userName)) {
                         newMachineUsers.add(machineUser);
                         isExistingUser = true;
                         break;
                     }
                 }
 
-                if(!isExistingUser){
+                if (!isExistingUser) {
                     MachineUser newMachineUser = new MachineUser();
                     newMachineUser.setUserName(userName);
                     newMachineUser.setType("SECONDARY");
@@ -457,15 +437,15 @@ public class UserResource {
                 }
             }
 
-            for(MachineUser machineUser : machine.getMachineUsers()){
+            for (MachineUser machineUser : machine.getMachineUsers()) {
                 boolean isRemoved = true;
-                for(String userName : userNamesList){
-                    if(machineUser.getUserName().equals(userName) || machineUser.getType().equals("PRIMARY")){
+                for (String userName : userNamesList) {
+                    if (machineUser.getUserName().equals(userName) || machineUser.getType().equals("PRIMARY")) {
                         isRemoved = false;
                     }
                 }
 
-                if(isRemoved){
+                if (isRemoved) {
                     String fedId = port.getFedIdFromUserId(machineUser.getUserName().replace("uows/", ""));
                     sshClient.exec("remove_secondary_user " + fedId);
                     sshClient.exec("remove_websockify_token " + machineUser.getWebsockifyToken());
@@ -477,12 +457,12 @@ public class UserResource {
             database.persist(machine);
 
             return machine.toResponse();
-        } catch(DaaasException e) {
+        } catch (DaaasException e) {
             logger.debug("shareMachine DaaasException: " + e.getMessage());
             return e.toResponse();
-        } catch(Exception e){
+        } catch (Exception e) {
             String message = e.getMessage();
-            if(message == null){
+            if (message == null) {
                 message = e.toString();
             }
             logger.debug("shareMachine Exception: " + message);
@@ -494,17 +474,17 @@ public class UserResource {
     @Path("/machineTypes")
     @Produces({MediaType.APPLICATION_JSON})
     public Response getMachineTypes(
-        @QueryParam("icatUrl") String icatUrl,
-        @QueryParam("sessionId") String sessionId){
+            @QueryParam("icatUrl") String icatUrl,
+            @QueryParam("sessionId") String sessionId) {
 
         logger.info("getMachineTypes: a user is attempting to get the available machine types, sessionId = " + sessionId);
 
         try {
             return getAvailableMachineTypes(icatUrl, sessionId).toResponse();
-        } catch(DaaasException e) {
+        } catch (DaaasException e) {
             logger.debug("getMachineTypes DaaasException: " + e.getMessage());
             return e.toResponse();
-        } catch(Exception e){
+        } catch (Exception e) {
             logger.debug("getMachineTypes Exception: " + e.getMessage());
             return new DaaasException(e.getMessage()).toResponse();
         }
@@ -513,7 +493,7 @@ public class UserResource {
     @GET
     @Path("/machineTypes/{id}/logo")
     public Response getMachineTypeLogo(
-        @PathParam("id") Integer id) {
+            @PathParam("id") Integer id) {
 
         logger.info("getMachineTypeLogo: a user is attempting to get a machine type logo, id = " + id);
 
@@ -521,18 +501,18 @@ public class UserResource {
             MachineType machineType = (MachineType) database.query("select machineType from MachineType machineType where machineType.id = " + id).get(0);
 
             return Response.ok(machineType.getLogoData(), machineType.getLogoMimeType()).build();
-        } catch(DaaasException e) {
+        } catch (DaaasException e) {
             logger.debug("getMachineTypeLogo DaaasException: " + e.getMessage());
             return e.toResponse();
-        } catch(Exception e) {
+        } catch (Exception e) {
             logger.debug("getMachineTypeLogo Exception: " + e.getMessage());
             return new DaaasException(e.getMessage()).toResponse();
         }
     }
 
     private boolean isMachineTypeAllowed(String icatUrl, String sessionId, Long machineTypeId) throws Exception {
-        for(MachineType machineType : getAvailableMachineTypes(icatUrl, sessionId)){
-            if(machineType.getId().equals(machineTypeId)){
+        for (MachineType machineType : getAvailableMachineTypes(icatUrl, sessionId)) {
+            if (machineType.getId().equals(machineTypeId)) {
                 return true;
             }
         }
@@ -542,10 +522,10 @@ public class UserResource {
     private EntityList<MachineType> getAvailableMachineTypes(String icatUrl, String sessionId) throws Exception {
         EntityList<MachineType> out = new EntityList<MachineType>();
         IcatClient icatClient = new IcatClient(icatUrl, sessionId);
-        for(Entity machineTypeEntity : database.query("select machineType from MachineType machineType")){
+        for (Entity machineTypeEntity : database.query("select machineType from MachineType machineType")) {
             MachineType machineType = (MachineType) machineTypeEntity;
-            for(MachineTypeScope machineTypeScope : machineType.getMachineTypeScopes()){
-                if(icatClient.query(machineTypeScope.getQuery()).size() > 0){
+            for (MachineTypeScope machineTypeScope : machineType.getMachineTypeScopes()) {
+                if (icatClient.query(machineTypeScope.getQuery()).size() > 0) {
                     out.add(machineType);
                     break;
                 }

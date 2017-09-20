@@ -5,27 +5,26 @@
  */
 package org.icatproject.topcatdaaasplugin;
 
-import javax.ws.rs.core.Response;
-import javax.json.JsonObjectBuilder;
-
 import org.icatproject.topcatdaaasplugin.rest.ResponseProducer;
 
+import javax.json.JsonObjectBuilder;
+import javax.ws.rs.core.Response;
+
 /**
- *
  * @author elz24996
  */
 public abstract class Entity implements ResponseProducer {
-   
+
     public abstract JsonObjectBuilder toJsonObjectBuilder();
-    
+
     @Override
-    public String toString(){
+    public String toString() {
         return toJsonObjectBuilder().build().toString();
     }
-    
+
     @Override
-    public Response toResponse(){
+    public Response toResponse() {
         return Response.ok().entity(toString()).build();
     }
-    
+
 }

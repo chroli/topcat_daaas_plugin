@@ -1,21 +1,17 @@
 package org.icatproject.topcatdaaasplugin.database.entities;
 
-import java.util.List;
-import java.io.Serializable;
-import java.util.Date;
-
-import javax.json.Json;
-
-import javax.persistence.*;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.json.JsonObjectBuilder;
-
-
 import org.icatproject.topcatdaaasplugin.Entity;
 import org.icatproject.topcatdaaasplugin.EntityList;
 
-import java.security.*;
+import javax.json.Json;
+import javax.json.JsonObjectBuilder;
+import javax.persistence.*;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
+import java.security.MessageDigest;
 import java.util.Base64;
+import java.util.Date;
+import java.util.List;
 
 @javax.persistence.Entity
 @Table(name = "MACHINETYPE")
@@ -67,7 +63,7 @@ public class MachineType extends Entity implements Serializable {
     @Column(name = "AQUILON_OS_VERSION")
     private String aquilonOSVersion;
 
-    @Column(name = "CREATED_AT", nullable=false, updatable=false)
+    @Column(name = "CREATED_AT", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
 
@@ -109,7 +105,7 @@ public class MachineType extends Entity implements Serializable {
         this.logoMimeType = logoMimeType;
     }
 
-    public byte[] getLogoData(){
+    public byte[] getLogoData() {
         return logoData;
     }
 
@@ -117,13 +113,14 @@ public class MachineType extends Entity implements Serializable {
         this.logoData = logoData;
     }
 
-    public String getLogoMd5(){
-        if(getLogoData() != null && getLogoData().length > 0){
+    public String getLogoMd5() {
+        if (getLogoData() != null && getLogoData().length > 0) {
             try {
                 MessageDigest messageDigest = MessageDigest.getInstance("MD5");
                 byte[] md5 = messageDigest.digest(getLogoData());
                 return Base64.getEncoder().encodeToString(md5);
-            } catch(Exception e){}
+            } catch (Exception e) {
+            }
         }
         return "";
     }
@@ -161,7 +158,7 @@ public class MachineType extends Entity implements Serializable {
     }
 
     public void setAquilonArchetype(String aquilonArchetype) {
-       this.aquilonArchetype = aquilonArchetype;
+        this.aquilonArchetype = aquilonArchetype;
     }
 
     public String getAquilonArchetype() {
@@ -173,7 +170,7 @@ public class MachineType extends Entity implements Serializable {
     }
 
     public void setAquilonDomain(String aquilonDomain) {
-       this.aquilonDomain = aquilonDomain;
+        this.aquilonDomain = aquilonDomain;
     }
 
     public String getAquilonPersonality() {
@@ -181,7 +178,7 @@ public class MachineType extends Entity implements Serializable {
     }
 
     public void setAquilonPersonality(String aquilonPersonality) {
-       this.aquilonPersonality = aquilonPersonality;
+        this.aquilonPersonality = aquilonPersonality;
     }
 
     public String getAquilonSandbox() {
@@ -189,7 +186,7 @@ public class MachineType extends Entity implements Serializable {
     }
 
     public void setAquilonSandbox(String aquilonSandbox) {
-       this.aquilonSandbox = aquilonSandbox;
+        this.aquilonSandbox = aquilonSandbox;
     }
 
     public String getAquilonOSVersion() {
@@ -197,7 +194,7 @@ public class MachineType extends Entity implements Serializable {
     }
 
     public void setAquilonOSVersion(String aquilonOSVersion) {
-       this.aquilonOSVersion = aquilonOSVersion;
+        this.aquilonOSVersion = aquilonOSVersion;
     }
 
     public Date getCreatedAt() {
@@ -208,9 +205,9 @@ public class MachineType extends Entity implements Serializable {
         this.createdAt = createdAt;
     }
 
-    public EntityList<MachineTypeScope> getMachineTypeScopes(){
+    public EntityList<MachineTypeScope> getMachineTypeScopes() {
         EntityList<MachineTypeScope> out = new EntityList<MachineTypeScope>();
-        for(MachineTypeScope machineTypeScope : machineTypeScopes){
+        for (MachineTypeScope machineTypeScope : machineTypeScopes) {
             out.add(machineTypeScope);
         }
         return out;
@@ -220,9 +217,9 @@ public class MachineType extends Entity implements Serializable {
         this.machineTypeScopes = machineTypeScopes;
     }
 
-    public EntityList<Machine> getMachines(){
+    public EntityList<Machine> getMachines() {
         EntityList<Machine> out = new EntityList<Machine>();
-        for(Machine machine : machines){
+        for (Machine machine : machines) {
             out.add(machine);
         }
         return out;
@@ -237,17 +234,17 @@ public class MachineType extends Entity implements Serializable {
         this.createdAt = new Date();
     }
 
-    public JsonObjectBuilder toJsonObjectBuilder(){
+    public JsonObjectBuilder toJsonObjectBuilder() {
         JsonObjectBuilder out = Json.createObjectBuilder();
         out.add("id", getId());
         out.add("name", getName());
         out.add("description", getDescription());
 
-        if(getLogoMimeType() != null){
+        if (getLogoMimeType() != null) {
             out.add("logoMimeType", getLogoMimeType());
         }
-        
-        if(!getLogoMd5().equals("")){
+
+        if (!getLogoMd5().equals("")) {
             out.add("logoMd5", getLogoMd5());
         }
 

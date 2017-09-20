@@ -1,39 +1,39 @@
 package org.icatproject.topcatdaaasplugin.httpclient;
 
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 
 public class Response {
 
-	private static final Logger logger = LoggerFactory.getLogger(Response.class);
+    private static final Logger logger = LoggerFactory.getLogger(Response.class);
 
-	private Integer code;
-	private Map<String, String> headers;
-	private String body;
+    private Integer code;
+    private Map<String, String> headers;
+    private String body;
 
-	public Response(Integer code, Map<String, String> headers, String body){
-		this.code = code;
-		this.headers = headers;
-		this.body = body;
-	}
+    public Response(Integer code, Map<String, String> headers, String body) {
+        this.code = code;
+        this.headers = headers;
+        this.body = body;
+    }
 
-	public Integer getCode(){
-		return code;
-	}
+    public Integer getCode() {
+        return code;
+    }
 
-	public Map<String, String> getHeaders(){
-		return headers;
-	}
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
 
-	public String getHeader(String name){
-		return headers.get(name);
-	}
+    public String getHeader(String name) {
+        return headers.get(name);
+    }
 
-	public String toString(){
-		return body;
-	}
+    public String toString() {
+        return body;
+    }
 
 }

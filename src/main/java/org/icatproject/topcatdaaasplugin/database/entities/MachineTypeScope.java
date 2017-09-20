@@ -1,31 +1,13 @@
 package org.icatproject.topcatdaaasplugin.database.entities;
 
 
-import java.io.Serializable;
-import java.util.Date;
+import org.icatproject.topcatdaaasplugin.Entity;
 
 import javax.json.Json;
-
-import javax.persistence.CascadeType;
-import javax.persistence.FetchType;
-import javax.persistence.Column;
-import javax.persistence.JoinColumn;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.ManyToOne;
-import javax.persistence.PrePersist;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.UniqueConstraint;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.json.JsonObjectBuilder;
-
-
-import org.icatproject.topcatdaaasplugin.Entity;
+import javax.persistence.*;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 
 
 @javax.persistence.Entity
@@ -42,7 +24,7 @@ public class MachineTypeScope extends Entity implements Serializable {
     private String query;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name= "MACHINE_TYPE_ID")
+    @JoinColumn(name = "MACHINE_TYPE_ID")
     private MachineType machineType;
 
     public Long getId() {
@@ -70,7 +52,7 @@ public class MachineTypeScope extends Entity implements Serializable {
     }
 
 
-    public JsonObjectBuilder toJsonObjectBuilder(){
+    public JsonObjectBuilder toJsonObjectBuilder() {
         JsonObjectBuilder out = Json.createObjectBuilder();
         out.add("id", getId());
         out.add("query", getQuery());

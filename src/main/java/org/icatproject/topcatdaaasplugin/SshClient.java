@@ -1,46 +1,44 @@
 package org.icatproject.topcatdaaasplugin;
 
 
-import org.apache.commons.io.IOUtils;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-
-import java.nio.channels.SocketChannel;
-import java.net.InetSocketAddress;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 
 public class SshClient {
     private static final Logger logger = LoggerFactory.getLogger(MachinePool.class);
-    
+
     private String host;
 
-    public SshClient(String host){
+    public SshClient(String host) {
         this.host = host;
     }
 
     public String exec(String commandToRun) throws IOException, InterruptedException {
         //logger.trace("exec " + host + " :" + commandToRun);
 
-        
+
         Properties properties = new Properties();
         String sshPrivateKeyFile = properties.getProperty("sshPrivateKeyFile");
         String sshUsername = properties.getProperty("sshUsername");
 
-        String[] command = new String[] {
-            "/usr/bin/ssh", sshUsername + "@" + host,
-            "-i", sshPrivateKeyFile,
-            "-o", "StrictHostKeyChecking no",
-            "-o", "UserKnownHostsFile /dev/null",
-            "-o", "PreferredAuthentications publickey",
-            "-o", "ConnectTimeout 3",
-            commandToRun
+        String[] command = new String[]{
+                "/usr/bin/ssh", sshUsername + "@" + host,
+                "-i", sshPrivateKeyFile,
+                "-o", "StrictHostKeyChecking no",
+                "-o", "UserKnownHostsFile /dev/null",
+                "-o", "PreferredAuthentications publickey",
+                "-o", "ConnectTimeout 3",
+                commandToRun
         };
 
         String cmdout = "";
-        for(String s : command) {
+        for (String s : command) {
             cmdout += " " + s;
         }
         logger.trace("Running command :" + cmdout);
@@ -63,7 +61,7 @@ public class SshClient {
         return out;
     }
 
-    private String readInputStream(InputStream inputStream) throws  IOException {
+    private String readInputStream(InputStream inputStream) throws IOException {
         StringBuffer out = new StringBuffer();
         BufferedInputStream in = new BufferedInputStream(inputStream);
         byte[] bytes = new byte[1];

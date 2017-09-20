@@ -6,13 +6,12 @@
 package org.icatproject.topcatdaaasplugin.exceptions;
 
 /**
- *
  * @author elz24996
  */
 public class BadRequestException extends DaaasException {
-    
-    public BadRequestException(String message){
+
+    public BadRequestException(String message) {
         super(message);
     }
-    
+
 }

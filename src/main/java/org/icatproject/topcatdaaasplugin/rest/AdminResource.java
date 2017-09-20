@@ -5,58 +5,45 @@
  */
 package org.icatproject.topcatdaaasplugin.rest;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.UUID;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.nio.charset.StandardCharsets;
-import java.io.*;
-
-import javax.ejb.Stateless;
-import javax.ejb.LocalBean;
-import javax.ejb.EJB;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.CacheControl;
-
-import javax.json.Json;
-import javax.json.JsonValue;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-
-
+import org.icatproject.topcatdaaasplugin.EntityList;
+import org.icatproject.topcatdaaasplugin.IcatClient;
+import org.icatproject.topcatdaaasplugin.SshClient;
+import org.icatproject.topcatdaaasplugin.TopcatClient;
+import org.icatproject.topcatdaaasplugin.cloudclient.CloudClient;
+import org.icatproject.topcatdaaasplugin.database.Database;
+import org.icatproject.topcatdaaasplugin.database.entities.Machine;
+import org.icatproject.topcatdaaasplugin.database.entities.MachineType;
+import org.icatproject.topcatdaaasplugin.database.entities.MachineTypeScope;
+import org.icatproject.topcatdaaasplugin.database.entities.MachineUser;
+import org.icatproject.topcatdaaasplugin.exceptions.DaaasException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.icatproject.topcatdaaasplugin.cloudclient.CloudClient;
-import org.icatproject.topcatdaaasplugin.exceptions.DaaasException;
-import org.icatproject.topcatdaaasplugin.database.Database;
-import org.icatproject.topcatdaaasplugin.database.entities.*;
-import org.icatproject.topcatdaaasplugin.*;
+import javax.ejb.EJB;
+import javax.ejb.LocalBean;
+import javax.ejb.Stateless;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.json.JsonValue;
+import javax.ws.rs.*;
+import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 /**
- *
  * @author elz24996
  */
 @Stateless
 @LocalBean
 @Path("admin")
 public class AdminResource {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(UserResource.class);
 
     @EJB
@@ -72,8 +59,8 @@ public class AdminResource {
     @Path("/flavors")
     @Produces({MediaType.APPLICATION_JSON})
     public Response getFlavors(
-        @QueryParam("icatUrl") String icatUrl,
-        @QueryParam("sessionId") String sessionId){
+            @QueryParam("icatUrl") String icatUrl,
+            @QueryParam("sessionId") String sessionId) {
 
         logger.info("getFlavors: a user is attempting to get the available flavors, sessionId = " + sessionId);
 
@@ -82,9 +69,9 @@ public class AdminResource {
             authorize(icatUrl, sessionId);
 
             return cloudClient.getFlavors().toResponse();
-        } catch(DaaasException e) {
+        } catch (DaaasException e) {
             return e.toResponse();
-        } catch(Exception e) {
+        } catch (Exception e) {
             return new DaaasException(e.getMessage()).toResponse();
         }
     }
@@ -93,8 +80,8 @@ public class AdminResource {
     @Path("/images")
     @Produces({MediaType.APPLICATION_JSON})
     public Response getImages(
-        @QueryParam("icatUrl") String icatUrl,
-        @QueryParam("sessionId") String sessionId) {
+            @QueryParam("icatUrl") String icatUrl,
+            @QueryParam("sessionId") String sessionId) {
 
         logger.info("getImages: a user is attempting to get the available images, sessionId = " + sessionId);
 
@@ -103,9 +90,9 @@ public class AdminResource {
             authorize(icatUrl, sessionId);
 
             return cloudClient.getImages().toResponse();
-        } catch(DaaasException e) {
+        } catch (DaaasException e) {
             return e.toResponse();
-        } catch(Exception e) {
+        } catch (Exception e) {
             return new DaaasException(e.getMessage()).toResponse();
         }
     }
@@ -115,8 +102,8 @@ public class AdminResource {
     @Path("/availabilityZones")
     @Produces({MediaType.APPLICATION_JSON})
     public Response getAvailabilityZones(
-        @QueryParam("icatUrl") String icatUrl,
-        @QueryParam("sessionId") String sessionId) {
+            @QueryParam("icatUrl") String icatUrl,
+            @QueryParam("sessionId") String sessionId) {
 
         logger.info("getAvailabilityZones: a user is attempting to get the available availability zones, sessionId = " + sessionId);
 
@@ -124,9 +111,9 @@ public class AdminResource {
             authorize(icatUrl, sessionId);
 
             return cloudClient.getAvailabilityZones().toResponse();
-        } catch(DaaasException e) {
+        } catch (DaaasException e) {
             return e.toResponse();
-        } catch(Exception e) {
+        } catch (Exception e) {
             return new DaaasException(e.getMessage()).toResponse();
         }
     }
@@ -135,8 +122,8 @@ public class AdminResource {
     @Path("/machineTypes")
     @Produces({MediaType.APPLICATION_JSON})
     public Response getMachineTypes(
-        @QueryParam("icatUrl") String icatUrl,
-        @QueryParam("sessionId") String sessionId) {
+            @QueryParam("icatUrl") String icatUrl,
+            @QueryParam("sessionId") String sessionId) {
 
         logger.info("getMachineTypes: a user is attempting to get the available machine types, sessionId = " + sessionId);
 
@@ -144,9 +131,9 @@ public class AdminResource {
             authorize(icatUrl, sessionId);
 
             return database.query("select machineType from MachineType machineType").toResponse();
-        } catch(DaaasException e) {
+        } catch (DaaasException e) {
             return e.toResponse();
-        } catch(Exception e) {
+        } catch (Exception e) {
             return new DaaasException(e.getMessage()).toResponse();
         }
     }
@@ -155,10 +142,10 @@ public class AdminResource {
     @Path("/machineTypes")
     @Produces({MediaType.APPLICATION_JSON})
     public Response createMachineType(
-        @FormParam("icatUrl") String icatUrl,
-        @FormParam("sessionId") String sessionId,
-        @FormParam("json") String json,
-        @FormParam("logoData") String logoData) {
+            @FormParam("icatUrl") String icatUrl,
+            @FormParam("sessionId") String sessionId,
+            @FormParam("json") String json,
+            @FormParam("logoData") String logoData) {
 
         logger.info("createMachineType: a user is attempting to create a new machine type, json = " + json + ", sessionId = " + sessionId);
 
@@ -187,7 +174,7 @@ public class AdminResource {
 
 
             List<MachineTypeScope> machineTypeScopes = new ArrayList<MachineTypeScope>();
-            for(JsonValue machineTypeScopeValue : jsonObject.getJsonArray("scopes")){
+            for (JsonValue machineTypeScopeValue : jsonObject.getJsonArray("scopes")) {
                 MachineTypeScope machineTypeScope = new MachineTypeScope();
                 machineTypeScope.setMachineType(machineType);
                 machineTypeScope.setQuery(((JsonObject) machineTypeScopeValue).getString("query"));
@@ -198,9 +185,9 @@ public class AdminResource {
             database.persist(machineType);
 
             return machineType.toResponse();
-        } catch(DaaasException e) {
+        } catch (DaaasException e) {
             return e.toResponse();
-        } catch(Exception e) {
+        } catch (Exception e) {
             return new DaaasException(e.getMessage()).toResponse();
         }
     }
@@ -209,10 +196,10 @@ public class AdminResource {
     @Path("/machineTypes/{id}")
     @Produces({MediaType.APPLICATION_JSON})
     public Response updateMachineType(
-        @PathParam("id") Integer id,
-        @FormParam("icatUrl") String icatUrl,
-        @FormParam("sessionId") String sessionId,
-        @FormParam("json") String json) {
+            @PathParam("id") Integer id,
+            @FormParam("icatUrl") String icatUrl,
+            @FormParam("sessionId") String sessionId,
+            @FormParam("json") String json) {
 
         logger.info("updateMachineType: a user is attempting to update a machine type, json = " + json + ", sessionId = " + sessionId);
 
@@ -237,9 +224,9 @@ public class AdminResource {
             machineType.setAquilonPersonality(jsonObject.getString("aquilonPersonality"));
             machineType.setAquilonSandbox(jsonObject.getString("aquilonSandbox"));
             machineType.setAquilonOSVersion(jsonObject.getString("aquilonOSVersion"));
-            
+
             List<MachineTypeScope> machineTypeScopes = new ArrayList<MachineTypeScope>();
-            for(JsonValue machineTypeScopeValue : jsonObject.getJsonArray("scopes")){
+            for (JsonValue machineTypeScopeValue : jsonObject.getJsonArray("scopes")) {
                 MachineTypeScope machineTypeScope = new MachineTypeScope();
                 machineTypeScope.setMachineType(machineType);
                 machineTypeScope.setQuery(((JsonObject) machineTypeScopeValue).getString("query"));
@@ -250,9 +237,9 @@ public class AdminResource {
             database.persist(machineType);
 
             return machineType.toResponse();
-        } catch(DaaasException e) {
+        } catch (DaaasException e) {
             return e.toResponse();
-        } catch(Exception e) {
+        } catch (Exception e) {
             return new DaaasException(e.getMessage()).toResponse();
         }
     }
@@ -262,11 +249,11 @@ public class AdminResource {
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateMachineTypeLogo(
-        InputStream body,
-        @PathParam("id") Integer id,
-        @QueryParam("icatUrl") String icatUrl,
-        @QueryParam("sessionId") String sessionId,
-        @QueryParam("mimeType") String mimeType) {
+            InputStream body,
+            @PathParam("id") Integer id,
+            @QueryParam("icatUrl") String icatUrl,
+            @QueryParam("sessionId") String sessionId,
+            @QueryParam("mimeType") String mimeType) {
 
         logger.info("updateMachineTypeLogo: a user is attempting to update a machine type logo, id = " + id + ", sessionId = " + sessionId);
 
@@ -284,7 +271,7 @@ public class AdminResource {
             byte[] data = new byte[16384];
 
             while ((nRead = body.read(data, 0, data.length)) != -1) {
-              buffer.write(data, 0, nRead);
+                buffer.write(data, 0, nRead);
             }
 
             buffer.flush();
@@ -293,9 +280,9 @@ public class AdminResource {
             database.persist(machineType);
 
             return machineType.toResponse();
-        } catch(DaaasException e) {
+        } catch (DaaasException e) {
             return e.toResponse();
-        } catch(Exception e) {
+        } catch (Exception e) {
             return new DaaasException(e.getMessage()).toResponse();
         }
     }
@@ -304,9 +291,9 @@ public class AdminResource {
     @Path("/machineTypes/{id}/logo")
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteMachineTypeLogo(
-        @PathParam("id") Integer id,
-        @QueryParam("icatUrl") String icatUrl,
-        @QueryParam("sessionId") String sessionId) {
+            @PathParam("id") Integer id,
+            @QueryParam("icatUrl") String icatUrl,
+            @QueryParam("sessionId") String sessionId) {
 
         logger.info("deleteMachineTypeLogo: a user is attempting to delete a machine type logo, id = " + id + ", sessionId = " + sessionId);
 
@@ -321,9 +308,9 @@ public class AdminResource {
             database.persist(machineType);
 
             return machineType.toResponse();
-        } catch(DaaasException e) {
+        } catch (DaaasException e) {
             return e.toResponse();
-        } catch(Exception e) {
+        } catch (Exception e) {
             return new DaaasException(e.getMessage()).toResponse();
         }
     }
@@ -333,9 +320,9 @@ public class AdminResource {
     @Path("/machineTypes/{id}")
     @Produces({MediaType.APPLICATION_JSON})
     public Response deleteMachineType(
-        @PathParam("id") Integer id,
-        @QueryParam("icatUrl") String icatUrl,
-        @QueryParam("sessionId") String sessionId) {
+            @PathParam("id") Integer id,
+            @QueryParam("icatUrl") String icatUrl,
+            @QueryParam("sessionId") String sessionId) {
 
         logger.info("deleteMachineType: a user is attempting to delete a machine type, id = " + id + ", " + sessionId);
 
@@ -346,9 +333,9 @@ public class AdminResource {
             MachineType machineType = (MachineType) database.query("select machineType from MachineType machineType where machineType.id = " + id).get(0);
             database.remove(machineType);
             return Response.ok().build();
-        } catch(DaaasException e) {
+        } catch (DaaasException e) {
             return e.toResponse();
-        } catch(Exception e) {
+        } catch (Exception e) {
             return new DaaasException(e.getMessage()).toResponse();
         }
     }
@@ -357,9 +344,9 @@ public class AdminResource {
     @Path("/machines")
     @Produces({MediaType.APPLICATION_JSON})
     public Response getMachines(
-        @QueryParam("icatUrl") String icatUrl,
-        @QueryParam("sessionId") String sessionId,
-        @QueryParam("queryOffset") String queryOffset){
+            @QueryParam("icatUrl") String icatUrl,
+            @QueryParam("sessionId") String sessionId,
+            @QueryParam("queryOffset") String queryOffset) {
         try {
             authorize(icatUrl, sessionId);
 
@@ -371,9 +358,9 @@ public class AdminResource {
             }
 
             return database.query(query.toString()).toResponse();
-        } catch(DaaasException e) {
+        } catch (DaaasException e) {
             return e.toResponse();
-        } catch(Exception e){
+        } catch (Exception e) {
             return new DaaasException(e.getMessage()).toResponse();
         }
     }
@@ -382,9 +369,9 @@ public class AdminResource {
     @Path("/machines/{id}/screenshot")
     @Produces("image/png")
     public Response getMachineScreenshot(
-        @PathParam("id") String id,
-        @QueryParam("icatUrl") String icatUrl,
-        @QueryParam("sessionId") String sessionId){
+            @PathParam("id") String id,
+            @QueryParam("icatUrl") String icatUrl,
+            @QueryParam("sessionId") String sessionId) {
 
         logger.info("getMachineScreenshot: a user is attempting to get a screenshot of a machine, id = " + id + ", sessionId = " + sessionId);
 
@@ -396,18 +383,18 @@ public class AdminResource {
             params.put("id", id);
 
             Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);
-            if(machine == null){
+            if (machine == null) {
                 throw new DaaasException("No such machine.");
             }
 
             CacheControl cacheControl = new CacheControl();
             cacheControl.setNoStore(true);
-            return Response.ok(machine.getScreenshot()).cacheControl(cacheControl).build();    
-        } catch(DaaasException e) {
+            return Response.ok(machine.getScreenshot()).cacheControl(cacheControl).build();
+        } catch (DaaasException e) {
             return e.toResponse();
-        } catch(Exception e){
+        } catch (Exception e) {
             String message = e.getMessage();
-            if(message == null){
+            if (message == null) {
                 message = e.toString();
             }
             return new DaaasException(message).toResponse();
@@ -418,9 +405,9 @@ public class AdminResource {
     @Path("/machines/{id}/enableAccess")
     @Produces({MediaType.APPLICATION_JSON})
     public Response enableAccessToMachine(
-        @PathParam("id") String id,
-        @QueryParam("icatUrl") String icatUrl,
-        @QueryParam("sessionId") String sessionId){
+            @PathParam("id") String id,
+            @QueryParam("icatUrl") String icatUrl,
+            @QueryParam("sessionId") String sessionId) {
 
         logger.info("getMachineScreenshot: a user is attempting to get access to a machine, id = " + id + ", sessionId = " + sessionId);
 
@@ -431,7 +418,7 @@ public class AdminResource {
             params.put("id", id);
 
             Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);
-            if(machine == null){
+            if (machine == null) {
                 throw new DaaasException("No such machine.");
             }
 
@@ -455,11 +442,11 @@ public class AdminResource {
 
 
             return machine.toResponse();
-        } catch(DaaasException e) {
+        } catch (DaaasException e) {
             return e.toResponse();
-        } catch(Exception e){
+        } catch (Exception e) {
             String message = e.getMessage();
-            if(message == null){
+            if (message == null) {
                 message = e.toString();
             }
             return new DaaasException(message).toResponse();
@@ -470,9 +457,9 @@ public class AdminResource {
     @Path("/machines/{id}/disableAccess")
     @Produces({MediaType.APPLICATION_JSON})
     public Response disableAccessToMachine(
-        @PathParam("id") String id,
-        @QueryParam("icatUrl") String icatUrl,
-        @QueryParam("sessionId") String sessionId){
+            @PathParam("id") String id,
+            @QueryParam("icatUrl") String icatUrl,
+            @QueryParam("sessionId") String sessionId) {
         try {
             authorize(icatUrl, sessionId);
 
@@ -480,7 +467,7 @@ public class AdminResource {
             params.put("id", id);
 
             Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);
-            if(machine == null){
+            if (machine == null) {
                 throw new DaaasException("No such machine.");
             }
 
@@ -489,8 +476,8 @@ public class AdminResource {
 
             EntityList<MachineUser> newMachineUsers = new EntityList<MachineUser>();
 
-            for(MachineUser machineUser : machine.getMachineUsers()){
-                if(machineUser.getType().equals("PRIMARY") || !machineUser.getUserName().equals(userName)){
+            for (MachineUser machineUser : machine.getMachineUsers()) {
+                if (machineUser.getType().equals("PRIMARY") || !machineUser.getUserName().equals(userName)) {
                     newMachineUsers.add(machineUser);
                 } else {
                     com.stfc.useroffice.webservice.UserOfficeWebService_Service service = new com.stfc.useroffice.webservice.UserOfficeWebService_Service();
@@ -507,11 +494,11 @@ public class AdminResource {
             database.persist(machine);
 
             return machine.toResponse();
-        } catch(DaaasException e) {
+        } catch (DaaasException e) {
             return e.toResponse();
-        } catch(Exception e){
+        } catch (Exception e) {
             String message = e.getMessage();
-            if(message == null){
+            if (message == null) {
                 message = e.toString();
             }
             return new DaaasException(message).toResponse();
@@ -519,9 +506,9 @@ public class AdminResource {
     }
 
     private void authorize(String icatUrl, String sessionId) throws Exception {
-        if(!topcatClient.isAdmin(icatUrl, sessionId)){
+        if (!topcatClient.isAdmin(icatUrl, sessionId)) {
             throw new DaaasException("You must be a Topcat admin user to do this.");
         }
     }
-    
+
 }

@@ -1,9 +1,9 @@
 package org.icatproject.topcatdaaasplugin.cloudclient.entities;
 
+import org.icatproject.topcatdaaasplugin.Entity;
+
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
-
-import org.icatproject.topcatdaaasplugin.Entity;
 
 public class Flavor extends Entity {
 
@@ -53,7 +53,7 @@ public class Flavor extends Entity {
         this.ram = ram;
     }
 
-	public JsonObjectBuilder toJsonObjectBuilder(){
+    public JsonObjectBuilder toJsonObjectBuilder() {
         JsonObjectBuilder out = Json.createObjectBuilder();
         out.add("id", getId());
         out.add("name", getName());
