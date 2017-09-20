@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.icatproject.topcatdaaasplugin.cloudclient;
 
 import java.util.Map;
@@ -45,10 +40,7 @@ import org.icatproject.topcatdaaasplugin.cloudclient.entities.*;
 import org.icatproject.topcatdaaasplugin.exceptions.*;
 import org.icatproject.topcatdaaasplugin.EntityList;
 
-/**
- *
- * @author elz24996
- */
+
 @DependsOn("TrustManagerInstaller")
 @Singleton
 @Startup
@@ -266,40 +258,44 @@ public class CloudClient {
         return out;
     }
 
+
+    // {
+    //     "server" => {
+    //         "name" => "auto-allocate-network",
+    //         "imageRef" => "ba123970-efbd-4a91-885a-b069e03e003d",
+    //         "flavorRef" => "8a34f302-4cdc-459c-9e45-c5655c94382f",
+    //         "availability_zone" => "ceph"
+    //         "metadata" => {
+    //             "AQ_ARCHETYPE" => "ral-tier1",
+    //             "AQ_DOMAIN" => "",
+    //             "AQ_PERSONALITY" => "daaas-common",
+    //             "AQ_SANDBOX" => "sap86629/daas-excitations",
+    //             "AQ_OSVERSION" => "7x-x86_6"
+    //         }
+    //     }
+    // }
     public Server createServer(String name, String imageRef, String flavorRef, String availabilityZone, Map<String, String> metadata) throws DaaasException {
         try {
             logger.info("createServer: " + name + ", " + imageRef + ", " + flavorRef + ", " + availabilityZone);
-            // {
-            //     "server" => {
-            //         "name" => "auto-allocate-network",
-            //         "imageRef" => "ba123970-efbd-4a91-885a-b069e03e003d",
-            //         "flavorRef" => "8a34f302-4cdc-459c-9e45-c5655c94382f",
-            //         "availability_zone" => "ceph"
-            //         "metadata" => {
-            //             "AQ_ARCHETYPE" => "ral-tier1",
-            //             "AQ_DOMAIN" => "",
-            //             "AQ_PERSONALITY" => "daaas-common",
-            //             "AQ_SANDBOX" => "sap86629/daas-excitations",
-            //             "AQ_OSVERSION" => "7x-x86_6"
-            //         }
-            //     }
-            // }
+
             JsonObjectBuilder server = Json.createObjectBuilder();
             server.add("name", name);
             server.add("imageRef", imageRef);
             server.add("flavorRef", flavorRef);
             server.add("availability_zone", availabilityZone);
+
             JsonObjectBuilder metadataNode = Json.createObjectBuilder();
             for(Map.Entry<String, String> entry : metadata.entrySet()) {
                 metadataNode.add(entry.getKey(), entry.getValue());
             }
             server.add("metadata",  metadataNode);
+
             Properties properties = new Properties();
             server.add("key_name", properties.getProperty("sshKeyPairName"));
 
             String data = Json.createObjectBuilder().add("server", server).build().toString();
-
             Response response = computeHttpClient.post("servers", generateStandardHeaders(), data);
+
             if(response.getCode() >= 400){
                 throw new BadRequestException(response.toString());
             }
@@ -308,16 +304,15 @@ public class CloudClient {
             out.setId(parseJson(response.toString()).getJsonObject("server").getString("id"));
             return out;
         } catch(DaaasException e){
+            logger.error("Failed to create new VM: {}", e.getMessage());
             throw e;
         } catch(Exception e){
-            String message = e.getMessage();
-            if(message == null){
-                message = e.toString();
-            }
-            throw new UnexpectedException(message);
+            logger.error("Failed to create new VM: {}", e.getMessage());
+            throw new UnexpectedException(e.getMessage());
         }
     }
 
+    
     public Server getServer(String id) throws DaaasException {
         try {
             Server out = new Server();

@@ -22,14 +22,14 @@ public class SshClient {
     }
 
     public String exec(String commandToRun) throws IOException, InterruptedException {
-        logger.trace("exec " + host + " :" + commandToRun);
+        //logger.trace("exec " + host + " :" + commandToRun);
 
         
         Properties properties = new Properties();
         String sshPrivateKeyFile = properties.getProperty("sshPrivateKeyFile");
         String sshUsername = properties.getProperty("sshUsername");
 
-        Process process = Runtime.getRuntime().exec(new String[] {
+        String[] command = new String[] {
             "/usr/bin/ssh", sshUsername + "@" + host,
             "-i", sshPrivateKeyFile,
             "-o", "StrictHostKeyChecking no",
@@ -37,13 +37,29 @@ public class SshClient {
             "-o", "PreferredAuthentications publickey",
             "-o", "ConnectTimeout 3",
             commandToRun
-        });
+        };
+
+        String cmdout = "";
+        for(String s : command) {
+            cmdout += " " + s;
+        }
+        logger.trace("Running command :" + cmdout);
+
+
+        Process process = Runtime.getRuntime().exec(command);
+
+        logger.trace("Finished running command");
 
         String out = readInputStream(process.getInputStream());
         String error = readInputStream(process.getErrorStream());
 
+        //logger.trace("Out-> " + out);
+        logger.trace("Error-> " + error);
+
         process.waitFor();
 
+
+        logger.trace("Returning...");
         return out;
     }
 

@@ -52,9 +52,16 @@ public class MachinePool {
         
     }
 
-    @Schedule(hour="*", minute="*", second="*")
+    /**
+     * Periodically check the 
+     *
+     */
+    @Schedule(hour="*", minute="*", second="30")
     public void managePool(){
+        logger.debug("Checking for machine pool updates");
+
         if(!managePoolBusy.compareAndSet(false, true)){
+            logger.debug("Machine pool is busy ... skipping");
             return;
         }
 
@@ -63,33 +70,35 @@ public class MachinePool {
 
             for(Entity machineTypeEntity : machineTypes){
                 MachineType machineType = (MachineType) machineTypeEntity;
-
-                Map<String, String> params = new HashMap<String, String>();
-
                 EntityList<Entity> nonAquiredMachines = database.query("select machine from Machine machine, machine.machineType as machineType where (machine.state = 'preparing' or machine.state = 'vacant') and machineType.id = " + machineType.getId());
+
                 int diff = machineType.getPoolSize() - nonAquiredMachines.size();
+
                 if(diff > 0){
+                    logger.info("Adding {} machines to pool for machine type '{}'", diff, machineType.getName());
                     for(int i = 0; i < diff; i++){
                         createMachine(machineType);
                     }
-                } else {
+                } else if (diff < 0) {
+                    logger.info("Removing {} machines from pool for machine type '{}'", diff, machineType.getName());
                     for(int i = 0; i < (diff * -1); i++){
                         Machine machine = aquireMachine(machineType.getId());
                         if(machine != null){
                             cloudClient.deleteServer(machine.getId());
                             machine.setState("deleted");
                             database.persist(machine);
-                            logger.info("managePool: pruned machine with, id = " + machine.getId());
+                            logger.info("Pruned machine with, id = " + machine.getId());
                         }
                     }
                 }
             }
         } catch(Exception e){
-            logger.error("managePool: " + e.getMessage());
+            logger.error(e.getMessage());
         }
 
         managePoolBusy.set(false);
     }
+
 
     @Schedule(hour="*", minute="*", second="*")
     public void checkToSeeIfMachinesHaveFinishedPreparing(){
@@ -159,6 +168,7 @@ public class MachinePool {
             }
         } catch(Exception e){
             logger.error("getScreenShots: " + e.getMessage());
+            e.printStackTrace();
         }
 
         getScreenShotsBusy.set(false);
@@ -205,7 +215,9 @@ public class MachinePool {
 
     private void createMachine(MachineType machineType){
         try {
-            logger.info("createMachine: creating machine, machineType = " + machineType.toJsonObjectBuilder().build().toString());
+            logger.info("Attempting to create new machine for machineType {}", machineType.getName());
+            logger.info(machineType.toJsonObjectBuilder().build().toString());
+
             Machine machine = new Machine();
             Map<String, String> metadata = new HashMap<String, String>();
             metadata.put("AQ_ARCHETYPE", machineType.getAquilonArchetype());
@@ -220,11 +232,12 @@ public class MachinePool {
             machine.setName(machineType.getName());
             machine.setState("preparing");
             machine.setMachineType(machineType);
-
             database.persist(machine);
-            logger.info("createMachine: created machine with id " + machine.getId());
+
+            logger.info("Successfully create new machine: id={}", machine.getId());
         } catch(Exception e) {
-            logger.error("createMachine: " + e.getMessage());
+            logger.error("Failed to create new machine: {}", e.getMessage());
+            e.printStackTrace();
         }
     }
 

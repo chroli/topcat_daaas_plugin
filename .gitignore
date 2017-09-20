@@ -6,3 +6,5 @@ tokens
 nb-configuration.xml
 /config
 *~
+.idea*
+*.iml

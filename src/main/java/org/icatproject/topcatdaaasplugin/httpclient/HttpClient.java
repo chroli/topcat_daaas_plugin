@@ -68,7 +68,7 @@ public class HttpClient {
 		if(body != null){
 			traceInfo.append(" (body) " + body);
 		}
-		logger.trace(traceInfo.toString());
+//		logger.trace(traceInfo.toString());
 
 		try {
 		    //Create connection
@@ -117,7 +117,7 @@ public class HttpClient {
 			if(responseBody != null){
 				traceInfo.append(" (body) " + responseBody);
 			}
-			logger.trace(traceInfo.toString());
+			//logger.trace(traceInfo.toString());
 
 
 
