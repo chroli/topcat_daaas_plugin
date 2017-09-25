@@ -14,11 +14,10 @@ import org.icatproject.topcatdaaasplugin.httpclient.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
 import javax.ejb.DependsOn;
-import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import javax.ejb.Stateless;
 import javax.json.*;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -30,19 +29,14 @@ import java.util.Map;
 @DependsOn("TrustManagerInstaller")
 @Singleton
 @Startup
+@Stateless
 public class CloudClient {
 
     private static final Logger logger = LoggerFactory.getLogger(CloudClient.class);
 
     private String authToken;
-    private String project;
-    private HttpClient identityHttpClient;
-    private HttpClient computeHttpClient;
-    private HttpClient imageHttpClient;
 
-    @Schedule(hour = "*", minute = "*")
-    public void createSession() throws Exception {
-
+    private void createSession() throws Exception {
         try {
             Properties properties = new Properties();
 
@@ -95,7 +89,7 @@ public class CloudClient {
             auth.add("scope", scope);
 
             String data = Json.createObjectBuilder().add("auth", auth).build().toString();
-
+            HttpClient identityHttpClient = new HttpClient(properties.getProperty("identityEndpoint") + "/v3");
             this.authToken = identityHttpClient.post("auth/tokens", headers, data).getHeader("X-Subject-Token");
 
         } catch (Exception e) {
@@ -103,26 +97,30 @@ public class CloudClient {
         }
     }
 
-    @PostConstruct
-    public void init() {
+    private HttpClient getHTTPClient(String type) {
+        logger.debug("Creating new {} HTTP client", type);
+        HttpClient client = null;
         try {
             Properties properties = new Properties();
-            project = properties.getProperty("project");
-            identityHttpClient = new HttpClient(properties.getProperty("identityEndpoint") + "/v3");
-            computeHttpClient = new HttpClient(properties.getProperty("computeEndpoint") + "/v2/" + project);
-            imageHttpClient = new HttpClient(properties.getProperty("imageEndpoint") + "/v2");
-
             createSession();
+            if ("COMPUTE".equals(type)) {
+                client = new HttpClient(properties.getProperty("computeEndpoint") + "/v2/" + properties.getProperty("project"));
+            } else if ("IMAGE".equals(type)) {
+                client = new HttpClient(properties.getProperty("imageEndpoint") + "/v2");
+            } else {
+                throw new IllegalStateException("Unknown client type: " + type.toString());
+            }
         } catch (Exception e) {
-            throw new IllegalStateException(e.getMessage());
+            throw new IllegalStateException(e.getMessage(), e);
         }
+        return client;
     }
 
     public EntityList<Flavor> getFlavors() throws DaaasException {
         EntityList<Flavor> out = new EntityList<Flavor>();
 
         try {
-            Response response = computeHttpClient.get("flavors/detail", generateStandardHeaders());
+            Response response = getHTTPClient("COMPUTE").get("flavors/detail", generateStandardHeaders());
             if (response.getCode() == 200) {
                 JsonObject results = parseJson(response.toString());
                 for (JsonValue flavorValue : results.getJsonArray("flavors")) {
@@ -156,7 +154,7 @@ public class CloudClient {
         Flavor out = new Flavor();
 
         try {
-            Response response = computeHttpClient.get("flavors/" + id, generateStandardHeaders());
+            Response response = getHTTPClient("COMPUTE").get("flavors/" + id, generateStandardHeaders());
             if (response.getCode() == 200) {
                 JsonObject results = parseJson(response.toString());
                 JsonObject cloudFlavor = results.getJsonObject("flavor");
@@ -185,7 +183,7 @@ public class CloudClient {
         EntityList<Image> out = new EntityList<Image>();
 
         try {
-            Response response = imageHttpClient.get("images", generateStandardHeaders());
+            Response response = getHTTPClient("IMAGE").get("images", generateStandardHeaders());
             if (response.getCode() == 200) {
                 JsonObject results = parseJson(response.toString());
                 for (JsonValue imageValue : results.getJsonArray("images")) {
@@ -217,7 +215,7 @@ public class CloudClient {
         EntityList<AvailabilityZone> out = new EntityList<AvailabilityZone>();
 
         try {
-            Response response = computeHttpClient.get("os-availability-zone", generateStandardHeaders());
+            Response response = getHTTPClient("COMPUTE").get("os-availability-zone", generateStandardHeaders());
             if (response.getCode() == 200) {
                 JsonObject results = parseJson(response.toString());
                 for (JsonValue availabilityZoneInfoValue : results.getJsonArray("availabilityZoneInfo")) {
@@ -280,7 +278,7 @@ public class CloudClient {
             server.add("key_name", properties.getProperty("sshKeyPairName"));
 
             String data = Json.createObjectBuilder().add("server", server).build().toString();
-            Response response = computeHttpClient.post("servers", generateStandardHeaders(), data);
+            Response response = getHTTPClient("COMPUTE").post("servers", generateStandardHeaders(), data);
 
             if (response.getCode() >= 400) {
                 throw new BadRequestException(response.toString());
@@ -298,51 +296,31 @@ public class CloudClient {
         }
     }
 
-
+    /**
+     * Get and store metadata associated to the cloud VM.
+     */
     public Server getServer(String id) throws DaaasException {
         try {
-            Server out = new Server();
-            out.setId(id);
-            Response response = computeHttpClient.get("servers/" + id, generateStandardHeaders());
-            if (response.getCode() == 200) {
-                JsonObject metadata = parseJson(response.toString()).getJsonObject("server").getJsonObject("metadata");
-
-
-                try {
-                    out.setStatus(metadata.getString("AQ_STATUS"));
-
-                    if (out.getStatus().equals("FAILED")) {
-                        logger.info("getServer: server has failed: AQ_STATUS = 'FAILED': " + id);
-                    } else {
-                        String hostnames[] = metadata.getString("HOSTNAMES").split("[ ]*,[ ]*");
-                        if (hostnames.length == 1) {
-                            out.setHost(hostnames[0]);
-                        } else {
-                            out.setStatus("FAILED");
-                            logger.info("getServer: server has failed: more than one host name has been specified: " + metadata.getString("HOSTNAMES") + ": " + id);
-                        }
-                    }
-                } catch (NullPointerException e) {
-                }
-
-            } else {
+            Response response = getHTTPClient("COMPUTE").get("servers/" + id, generateStandardHeaders());
+            if (response.getCode() != 200) {
+                logger.error("Cloud HTTP request for machine {} failed", id);
                 throw new BadRequestException(response.toString());
             }
+            JsonObject metadata = parseJson(response.toString()).getJsonObject("server").getJsonObject("metadata");
+            Server out = new Server();
+            out.setId(id);
+            out.setStatus(metadata.getString("AQ_STATUS"));
+            out.setHost(metadata.getString("HOSTNAMES"));
             return out;
-        } catch (DaaasException e) {
-            throw e;
         } catch (Exception e) {
-            String message = e.getMessage();
-            if (message == null) {
-                message = e.toString();
-            }
-            throw new UnexpectedException(message);
+            logger.error("Failed to get machine information for machine {}", id);
+            throw new UnexpectedException(e.getMessage());
         }
     }
 
     public void deleteServer(String id) throws DaaasException {
         try {
-            Response response = computeHttpClient.delete("servers/" + id, generateStandardHeaders());
+            Response response = getHTTPClient("COMPUTE").delete("servers/" + id, generateStandardHeaders());
             if (response.getCode() >= 400) {
                 throw new BadRequestException(response.toString());
             }
