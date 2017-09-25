@@ -29,6 +29,10 @@ public class MachinePool {
 
     private static final Logger logger = LoggerFactory.getLogger(MachinePool.class);
 
+    public enum STATE {
+        VACANT, PREPARING, ACQUIRED, FAILED, DELETED;
+    }
+
     @EJB
     CloudClient cloudClient;
 
@@ -40,8 +44,11 @@ public class MachinePool {
 
     }
 
+
     /**
-     * Periodically check the
+     * Periodically check the machine pool to either create or remove machines. Creation may occur to machines being
+     * removed from the pool by users acquiring them or the pool size being increase. Deletion may occur due to the
+     * pool size being decreased.
      */
     @Schedule(hour = "*", minute = "*/1")
     public void managePool() {
@@ -52,9 +59,9 @@ public class MachinePool {
 
             for (Entity machineTypeEntity : machineTypes) {
                 MachineType machineType = (MachineType) machineTypeEntity;
-                EntityList<Entity> nonAquiredMachines = database.query("select machine from Machine machine, machine.machineType as machineType where (machine.state = 'preparing' or machine.state = 'vacant') and machineType.id = " + machineType.getId());
+                EntityList<Entity> nonAcquiredMachines = database.query("select machine from Machine machine, machine.machineType as machineType where (machine.state = 'PREPARING' or machine.state = 'VACANT') and machineType.id = " + machineType.getId());
 
-                int diff = machineType.getPoolSize() - nonAquiredMachines.size();
+                int diff = machineType.getPoolSize() - nonAcquiredMachines.size();
 
                 if (diff > 0) {
                     logger.info("Adding {} machines to pool for machine type '{}'", diff, machineType.getName());
@@ -64,7 +71,7 @@ public class MachinePool {
                 } else if (diff < 0) {
                     logger.info("Removing {} machines from pool for machine type '{}'", diff, machineType.getName());
                     for (int i = 0; i < (diff * -1); i++) {
-                        Machine machine = aquireMachine(machineType.getId());
+                        Machine machine = acquireMachine(machineType.getId());
                         deleteMachine(machine, "DELETED");
                     }
                 }
@@ -105,8 +112,8 @@ public class MachinePool {
 
                     Server server = cloudClient.getServer(machine.getId());
 
-                    // Sometimes cloud VMs will be assigned two hostnames for some reason.
-                    // If this occurs, just mark the machine as failed.
+                    // Sometimes cloud VMs will be assigned two hostnames for some reason. If this occurs, just mark the
+                    // machine as failed.
                     String hostnames[] = server.getHost().split("[ ]*,[ ]*");
                     if (machine.getHost() == null && server.getHost() != null && hostnames.length == 1) {
                         logger.info("Setting hostname of machine {} to {}", machine.getId(), server.getHost());
@@ -117,8 +124,8 @@ public class MachinePool {
                         throw new DaaasException("Machine failed");
                     }
 
-                    // Check the Aquilon Metadata attached to the VM to see if AQ_STATUS
-                    // is set as SUCCESS or FAILED (or empty)
+                    // Check the Aquilon Metadata attached to the VM to see if AQ_STATUS is set as SUCCESS or FAILED
+                    // (or not set)
                     if (!server.getStatus().equals("SUCCESS")) {
                         logger.error("Machine {} failed...", machine.getId());
                         throw new DaaasException("Machine failed");
@@ -133,12 +140,11 @@ public class MachinePool {
                         throw new DaaasException("Machine failed");
                     }
 
-                    // Check to see if machine is actually ready. If so, mark it as VACANT so it is
-                    // available to users.
+                    // Check to see if machine is actually ready. If so, mark it as VACANT so it is available to users.
                     SshClient sshClient = new SshClient(machine.getHost());
                     if (sshClient.exec("is_ready").equals("1\n")) {
                         logger.info("Machine {} has finished configuring. Setting state to vacant", machine.getId());
-                        machine.setState("vacant");
+                        machine.setState("VACANT");
                         database.persist(machine);
                     } else {
                         logger.debug("Machine {} is not ready yet", machine.getId());
@@ -161,8 +167,8 @@ public class MachinePool {
     @Schedule(hour = "*", minute = "*/5")
     public void getScreenShots() {
         try {
-            EntityList<Entity> aquiredMachines = database.query("select machine from Machine machine where machine.state = 'aquired'");
-            for (Entity machineEntity : aquiredMachines) {
+            EntityList<Entity> acquiredMachines = database.query("select machine from Machine machine where machine.state = 'ACQUIRED'");
+            for (Entity machineEntity : acquiredMachines) {
                 Machine machine = (Machine) machineEntity;
                 machine.setScreenshot(Base64.getMimeDecoder().decode(new SshClient(machine.getHost()).exec("get_screenshot")));
                 database.persist(machine);
@@ -173,31 +179,16 @@ public class MachinePool {
         }
     }
 
-    @Schedule(hour = "*", minute = "*/1")
-    public void cleanUpFailedMachines() {
-        try {
-            EntityList<Entity> failedMachines = database.query("select machine from Machine machine where machine.state = 'failed'");
-            for (Entity machineEntity : failedMachines) {
-                Machine machine = (Machine) machineEntity;
-                cloudClient.deleteServer(machine.getId());
-                machine.setState("failed:cleaned_up");
-                database.persist(machine);
-                logger.info("cleanUpFailedMachines: cleaned up failed machine, id = " + machine.getId());
-            }
-        } catch (Exception e) {
-            logger.error("cleanUpFailedMachines: " + e.getMessage());
-        }
-    }
 
-    public synchronized Machine aquireMachine(Long machineTypeId) throws DaaasException {
+    public synchronized Machine acquireMachine(Long machineTypeId) throws DaaasException {
         try {
-            String query = "select machine from Machine machine, machine.machineType as machineType where machine.state = 'vacant' and machineType.id = " + machineTypeId;
+            String query = "select machine from Machine machine, machine.machineType as machineType where machine.state = 'VACANT' and machineType.id = " + machineTypeId;
             EntityList<Entity> vacantMachines = database.query(query);
             if (vacantMachines.size() < 1) {
                 return null;
             }
             Machine out = (Machine) vacantMachines.get(0);
-            out.setState("aquired");
+            out.setState("ACQUIRED");
             database.persist(out);
             logger.info("Machine {} has been acquired", out.getId());
             return out;
@@ -206,7 +197,7 @@ public class MachinePool {
         }
     }
 
-    private void deleteMachine(Machine machine, String state) {
+    public void deleteMachine(Machine machine, String state) {
         try {
             logger.info("Deleting machine {}", machine.getId());
             cloudClient.deleteServer(machine.getId());
@@ -235,7 +226,7 @@ public class MachinePool {
 
             machine.setId(server.getId());
             machine.setName(machineType.getName());
-            machine.setState("preparing");
+            machine.setState("PREPARING");
             machine.setMachineType(machineType);
             database.persist(machine);
 

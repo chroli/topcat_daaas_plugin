@@ -19,7 +19,7 @@
       var timeout = $q.defer();
       $scope.$on('$destroy', function(){ timeout.resolve(); });
 
-      this.state = 'aquired';
+      this.state = 'ACQUIRED';
       this.host = '';
       this.machines = [];
 
