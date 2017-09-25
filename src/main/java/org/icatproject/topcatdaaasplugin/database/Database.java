@@ -25,6 +25,7 @@ public class Database {
             Integer limitPageSize = null;
             Integer limitOffset = null;
 
+            // strip off any prefixing LIMIT options
             Pattern pattern = Pattern.compile("(?i)^(.*)LIMIT\\s+(\\d+)\\s*,\\s*(\\d+)\\s*$");
             Matcher matches = pattern.matcher(jpqlQuery);
             if (matches.find()) {
@@ -39,6 +40,7 @@ public class Database {
                 query.setParameter(entry.getKey(), entry.getValue());
             }
 
+            // re-add limit options via jpa methods
             if (limitOffset != null) {
                 query.setFirstResult(limitOffset);
                 query.setMaxResults(limitPageSize);
