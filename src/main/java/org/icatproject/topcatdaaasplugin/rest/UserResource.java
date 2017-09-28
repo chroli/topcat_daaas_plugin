@@ -134,7 +134,6 @@ public class UserResource {
 
             Map<String, String> params = new HashMap<String, String>();
             params.put("id", id);
-
             Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);
             if (machine == null) {
                 logger.error("Machine {} not found", id);
@@ -146,7 +145,7 @@ public class UserResource {
                 throw new DaaasException("You are not allowed to delete this machine.");
             }
 
-            machinePool.deleteMachine(machine, "DELETED");
+            machinePool.deleteMachine(machine, MachinePool.STATE.DELETED.name());
 
             return machine.toResponse();
         } catch (DaaasException e) {

@@ -17,10 +17,6 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.Arrays;
-
-import java.util.concurrent.TimeUnit;
 
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @Singleton
@@ -44,11 +40,10 @@ public class MachinePool {
 
     }
 
-
     /**
-     * Periodically check the machine pool to either create or remove machines. Creation may occur to machines being
-     * removed from the pool by users acquiring them or the pool size being increase. Deletion may occur due to the
-     * pool size being decreased.
+     * Periodically check the machine pool to either create or remove machines. Machine creation occurs from users
+     * acquiring machines or the pool size being increase. Machine deletion may occur due to the pool size being
+     * decreased.
      */
     @Schedule(hour = "*", minute = "*/1")
     public void managePool() {
@@ -59,10 +54,14 @@ public class MachinePool {
 
             for (Entity machineTypeEntity : machineTypes) {
                 MachineType machineType = (MachineType) machineTypeEntity;
-                EntityList<Entity> nonAcquiredMachines = database.query("select machine from Machine machine, machine.machineType as machineType where (machine.state = 'PREPARING' or machine.state = 'VACANT') and machineType.id = " + machineType.getId());
+
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("machineTypeId", machineType.getId().toString());
+                params.put("state1", STATE.PREPARING.name());
+                params.put("state2", STATE.VACANT.name());
+                EntityList<Entity> nonAcquiredMachines = database.query("select machine from Machine machine, machine.machineType as machineType where (machine.state = :state1 or machine.state = :state2) and machineType.id = :machineTypeID");
 
                 int diff = machineType.getPoolSize() - nonAcquiredMachines.size();
-
                 if (diff > 0) {
                     logger.info("Adding {} machines to pool for machine type '{}'", diff, machineType.getName());
                     for (int i = 0; i < diff; i++) {
@@ -72,7 +71,11 @@ public class MachinePool {
                     logger.info("Removing {} machines from pool for machine type '{}'", diff, machineType.getName());
                     for (int i = 0; i < (diff * -1); i++) {
                         Machine machine = acquireMachine(machineType.getId());
-                        deleteMachine(machine, "DELETED");
+                        if (machine != null) {
+                            deleteMachine(machine, STATE.DELETED.name());
+                        } else {
+                            throw new DaaasException("Failed to acquire machine. Unable to remove machine from pool.");
+                        }
                     }
                 }
             }
@@ -83,23 +86,25 @@ public class MachinePool {
 
 
     /**
-     * Check to see if a machine is ready to be marked as VACANT. This will be subject to
-     * three checks:
-     * <p>
-     * - The machine has been assigned only _one_ hostname (weird bug with the cloud).
-     * <p>
-     * - The AQ_STATUS metadata - which indicates if the state if of the Aquilon request -
-     * is set to SUCCESS.
-     * <p>
-     * - The time taken for the machine to configure itself, indicated by the SSH API
-     * is_ready call, has not taken longer than the maxPrepareSeconds config option.
+     * Check to see if a machine is ready to be marked as VACANT. This will be subject to three checks:
+     *
+     * 1. The machine has been assigned only _one_ hostname (to counter weird bug with the cloud).
+     *
+     * 2. The AQ_STATUS metadata - which indicates if the state of the Aquilon request - is set to SUCCESS.
+     *
+     * 3. The time taken for the machine to configure itself, indicated by the SSH API is_ready call, has not taken
+     *    longer than the maxPrepareSeconds config option.
+     *
+     * If any of these conditions fail. The machine will be marked as FAILED and deleted.
      */
     @Schedule(hour = "*", minute = "*/1")
     public void checkPreparing() throws DaaasException, IOException, InterruptedException {
         logger.debug("Checking for machines that have finished preparing");
 
         try {
-            EntityList<Entity> preparingMachines = database.query("select machine from Machine machine, machine.machineType as machineType where machine.state = 'preparing'");
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("state", STATE.PREPARING.name());
+            EntityList<Entity> preparingMachines = database.query("select machine from Machine machine, machine.machineType as machineType where machine.state = :state", params);
             for (Entity machineEntity : preparingMachines) {
                 Machine machine = (Machine) machineEntity;
 
@@ -144,14 +149,14 @@ public class MachinePool {
                     SshClient sshClient = new SshClient(machine.getHost());
                     if (sshClient.exec("is_ready").equals("1\n")) {
                         logger.info("Machine {} has finished configuring. Setting state to vacant", machine.getId());
-                        machine.setState("VACANT");
+                        machine.setState(STATE.VACANT.name());
                         database.persist(machine);
                     } else {
                         logger.debug("Machine {} is not ready yet", machine.getId());
                     }
                 } catch (DaaasException e) {
                     logger.error("Something went wrong with the preparing machine {}. Deleting.", machine.getId());
-                    deleteMachine(machine, "FAILED");
+                    deleteMachine(machine, STATE.FAILED.name());
                 } catch (Exception e) {
                     logger.error("Something when wrong checking a preparing machine. Skipping.");
                     logger.error(e.getMessage());
@@ -167,28 +172,31 @@ public class MachinePool {
     @Schedule(hour = "*", minute = "*/5")
     public void getScreenShots() {
         try {
-            EntityList<Entity> acquiredMachines = database.query("select machine from Machine machine where machine.state = 'ACQUIRED'");
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("state", STATE.ACQUIRED.name());
+            EntityList<Entity> acquiredMachines = database.query("select machine from Machine machine where machine.state = :state", params);
             for (Entity machineEntity : acquiredMachines) {
                 Machine machine = (Machine) machineEntity;
                 machine.setScreenshot(Base64.getMimeDecoder().decode(new SshClient(machine.getHost()).exec("get_screenshot")));
                 database.persist(machine);
             }
         } catch (Exception e) {
-            logger.error("getScreenShots: " + e.getMessage());
+            logger.error(e.getMessage());
             e.printStackTrace();
         }
     }
 
-
     public synchronized Machine acquireMachine(Long machineTypeId) throws DaaasException {
         try {
-            String query = "select machine from Machine machine, machine.machineType as machineType where machine.state = 'VACANT' and machineType.id = " + machineTypeId;
-            EntityList<Entity> vacantMachines = database.query(query);
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("state", STATE.VACANT.name());
+            params.put("machineTypeId", machineTypeId.toString());
+            EntityList<Entity> vacantMachines = database.query("select machine from Machine machine, machine.machineType as machineType where machine.state = :state and machineType.id = :machienTypeId", params);
             if (vacantMachines.size() < 1) {
                 return null;
             }
             Machine out = (Machine) vacantMachines.get(0);
-            out.setState("ACQUIRED");
+            out.setState(STATE.ACQUIRED.name());
             database.persist(out);
             logger.info("Machine {} has been acquired", out.getId());
             return out;
@@ -226,7 +234,7 @@ public class MachinePool {
 
             machine.setId(server.getId());
             machine.setName(machineType.getName());
-            machine.setState("PREPARING");
+            machine.setState(STATE.PREPARING.name());
             machine.setMachineType(machineType);
             database.persist(machine);
 
@@ -236,5 +244,4 @@ public class MachinePool {
             e.printStackTrace();
         }
     }
-
 }

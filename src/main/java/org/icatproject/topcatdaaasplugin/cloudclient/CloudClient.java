@@ -20,6 +20,7 @@ import javax.ejb.Startup;
 import javax.ejb.Stateless;
 import javax.json.*;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -121,91 +122,49 @@ public class CloudClient {
 
         try {
             Response response = getHTTPClient("COMPUTE").get("flavors/detail", generateStandardHeaders());
-            if (response.getCode() == 200) {
-                JsonObject results = parseJson(response.toString());
-                for (JsonValue flavorValue : results.getJsonArray("flavors")) {
-                    JsonObject cloudFlavor = (JsonObject) flavorValue;
-                    Flavor flavor = new Flavor();
-                    flavor.setId(cloudFlavor.getString("id"));
-                    flavor.setName(cloudFlavor.getString("name"));
-                    flavor.setCpus(cloudFlavor.getInt("vcpus"));
-                    flavor.setRam(cloudFlavor.getInt("ram"));
-                    flavor.setDisk(cloudFlavor.getInt("disk"));
-
-                    out.add(flavor);
-                }
-            } else {
+            if (response.getCode() != 200) {
                 throw new BadRequestException(response.toString());
             }
-        } catch (DaaasException e) {
-            throw e;
-        } catch (Exception e) {
-            String message = e.getMessage();
-            if (message == null) {
-                message = e.toString();
+            JsonObject results = parseJson(response.toString());
+            for (JsonValue flavorValue : results.getJsonArray("flavors")) {
+                JsonObject cloudFlavor = (JsonObject) flavorValue;
+                Flavor flavor = new Flavor();
+                flavor.setId(cloudFlavor.getString("id"));
+                flavor.setName(cloudFlavor.getString("name"));
+                flavor.setCpus(cloudFlavor.getInt("vcpus"));
+                flavor.setRam(cloudFlavor.getInt("ram"));
+                flavor.setDisk(cloudFlavor.getInt("disk"));
+                out.add(flavor);
             }
-            throw new UnexpectedException(message);
+        } catch (Exception e) {
+            logger.error("Failed to get list of flavors");
+            throw new UnexpectedException(e.getMessage());
         }
 
         return out;
     }
 
-    public Flavor getFlavor(String id) throws DaaasException {
-        Flavor out = new Flavor();
-
-        try {
-            Response response = getHTTPClient("COMPUTE").get("flavors/" + id, generateStandardHeaders());
-            if (response.getCode() == 200) {
-                JsonObject results = parseJson(response.toString());
-                JsonObject cloudFlavor = results.getJsonObject("flavor");
-                out.setId(cloudFlavor.getString("id"));
-                out.setName(cloudFlavor.getString("name"));
-                out.setCpus(cloudFlavor.getInt("vcpus"));
-                out.setRam(cloudFlavor.getInt("ram"));
-                out.setDisk(cloudFlavor.getInt("disk"));
-            } else {
-                throw new BadRequestException(response.toString());
-            }
-        } catch (DaaasException e) {
-            throw e;
-        } catch (Exception e) {
-            String message = e.getMessage();
-            if (message == null) {
-                message = e.toString();
-            }
-            throw new UnexpectedException(message);
-        }
-
-        return out;
-    }
 
     public EntityList<Image> getImages() throws DaaasException {
         EntityList<Image> out = new EntityList<Image>();
 
         try {
             Response response = getHTTPClient("IMAGE").get("images", generateStandardHeaders());
-            if (response.getCode() == 200) {
-                JsonObject results = parseJson(response.toString());
-                for (JsonValue imageValue : results.getJsonArray("images")) {
-                    JsonObject cloudImage = (JsonObject) imageValue;
-                    Image image = new Image();
-                    image.setId(cloudImage.getString("id"));
-                    image.setName(cloudImage.getString("name"));
-                    image.setSize(cloudImage.getInt("size"));
-
-                    out.add(image);
-                }
-            } else {
+            if (response.getCode() != 200) {
                 throw new BadRequestException(response.toString());
             }
-        } catch (DaaasException e) {
-            throw e;
-        } catch (Exception e) {
-            String message = e.getMessage();
-            if (message == null) {
-                message = e.toString();
+            JsonObject results = parseJson(response.toString());
+            for (JsonValue imageValue : results.getJsonArray("images")) {
+                JsonObject cloudImage = (JsonObject) imageValue;
+                Image image = new Image();
+                image.setId(cloudImage.getString("id"));
+                image.setName(cloudImage.getString("name"));
+                image.setSize(cloudImage.getInt("size"));
+                out.add(image);
             }
-            throw new UnexpectedException(message);
+        } catch (Exception e) {
+            logger.error("Failed to get list of images");
+            throw new UnexpectedException(e.getMessage());
         }
 
         return out;
@@ -216,27 +175,20 @@ public class CloudClient {
 
         try {
             Response response = getHTTPClient("COMPUTE").get("os-availability-zone", generateStandardHeaders());
-            if (response.getCode() == 200) {
-                JsonObject results = parseJson(response.toString());
-                for (JsonValue availabilityZoneInfoValue : results.getJsonArray("availabilityZoneInfo")) {
-                    JsonObject availabilityZoneInfo = (JsonObject) availabilityZoneInfoValue;
-                    AvailabilityZone availabilityZone = new AvailabilityZone();
-                    availabilityZone.setName(availabilityZoneInfo.getString("zoneName"));
-                    availabilityZone.setIsAvailable(availabilityZoneInfo.getJsonObject("zoneState").getBoolean("available"));
-
-                    out.add(availabilityZone);
-                }
-            } else {
+            if (response.getCode() != 200) {
                 throw new BadRequestException(response.toString());
             }
-        } catch (DaaasException e) {
-            throw e;
-        } catch (Exception e) {
-            String message = e.getMessage();
-            if (message == null) {
-                message = e.toString();
+            JsonObject results = parseJson(response.toString());
+            for (JsonValue availabilityZoneInfoValue : results.getJsonArray("availabilityZoneInfo")) {
+                JsonObject availabilityZoneInfo = (JsonObject) availabilityZoneInfoValue;
+                AvailabilityZone availabilityZone = new AvailabilityZone();
+                availabilityZone.setName(availabilityZoneInfo.getString("zoneName"));
+                availabilityZone.setIsAvailable(availabilityZoneInfo.getJsonObject("zoneState").getBoolean("available"));
+                out.add(availabilityZone);
             }
-            throw new UnexpectedException(message);
+        } catch (Exception e) {
+            logger.error("Failed to get availability zones");
+            throw new UnexpectedException(e.getMessage());
         }
 
         return out;
@@ -287,11 +239,8 @@ public class CloudClient {
             Server out = new Server();
             out.setId(parseJson(response.toString()).getJsonObject("server").getString("id"));
             return out;
-        } catch (DaaasException e) {
-            logger.error("Failed to create new VM: {}", e.getMessage());
-            throw e;
         } catch (Exception e) {
-            logger.error("Failed to create new VM: {}", e.getMessage());
+            logger.error("Failed to create new VM");
             throw new UnexpectedException(e.getMessage());
         }
     }
@@ -303,7 +252,7 @@ public class CloudClient {
         try {
             Response response = getHTTPClient("COMPUTE").get("servers/" + id, generateStandardHeaders());
             if (response.getCode() != 200) {
-                logger.error("Cloud HTTP request for machine {} failed", id);
+                logger.error("Cloud HTTP request for VM {} failed", id);
                 throw new BadRequestException(response.toString());
             }
             JsonObject metadata = parseJson(response.toString()).getJsonObject("server").getJsonObject("metadata");
@@ -313,25 +262,22 @@ public class CloudClient {
             out.setHost(metadata.getString("HOSTNAMES"));
             return out;
         } catch (Exception e) {
-            logger.error("Failed to get machine information for machine {}", id);
+            logger.error("Failed to get VM information for {}", id);
             throw new UnexpectedException(e.getMessage());
         }
     }
 
     public void deleteServer(String id) throws DaaasException {
         try {
+            logger.debug("Sending delete request to OpenStack for VM {}", id)
             Response response = getHTTPClient("COMPUTE").delete("servers/" + id, generateStandardHeaders());
             if (response.getCode() >= 400) {
                 throw new BadRequestException(response.toString());
             }
-        } catch (DaaasException e) {
-            throw e;
+            logger.debug("Successfully deleted VM {} from OpenStack", id);
         } catch (Exception e) {
-            String message = e.getMessage();
-            if (message == null) {
-                message = e.toString();
-            }
-            throw new UnexpectedException(message);
+            logger.error("Failed to delete VM {}", id);
+            throw new UnexpectedException(e.getMessage());
         }
     }
 
