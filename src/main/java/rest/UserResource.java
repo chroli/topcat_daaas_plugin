@@ -114,9 +114,16 @@ public class UserResource {
 
             logger.debug("createMachine: added MachineUser");
 
-            com.stfc.useroffice.webservice.UserOfficeWebService_Service service = new com.stfc.useroffice.webservice.UserOfficeWebService_Service();
-            com.stfc.useroffice.webservice.UserOfficeWebService port = service.getUserOfficeWebServicePort();
-            String fedId = port.getFedIdFromUserId(userName.replace("uows/", ""));
+            Properties properties = new Properties();
+            String uoc = properties.getProperty("uoc");
+            String fedId = "";
+            if(uoc == "true") {
+                com.stfc.useroffice.webservice.UserOfficeWebService_Service service = new com.stfc.useroffice.webservice.UserOfficeWebService_Service();
+                com.stfc.useroffice.webservice.UserOfficeWebService port = service.getUserOfficeWebServicePort();
+                fedId = port.getFedIdFromUserId(userName.replace("uows/", ""));
+            } else {
+                fedId = userName.replace("uows/", "");
+            }
 
             logger.debug("createMachine: the fed id is " + fedId);
 
