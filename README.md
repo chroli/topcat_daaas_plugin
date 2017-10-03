@@ -7,13 +7,15 @@ The front end interface for accessing the Science and Technology Facilities Coun
 
 1. Do a Bower install:
 
-```cd topcat_daaas_plugin/src/main/webapp
+```
+cd topcat_daaas_plugin/src/main/webapp
 bower install
 ```
 
 2. Build the plugin:
 
-```cd topcat_daaas_plugin/
+```
+cd topcat_daaas_plugin/
 mvn install
 ```
 
@@ -21,26 +23,29 @@ mvn install
 
 4. Install the plugin:
 
-```./setup install
+```
+./setup install
 ```
 
 ## Configuring TOPCAT
 
 1. In `topcat.json` add the following lines to make the 'My Machines' tab appear:
 
-```"plugins":[
+```
+"plugins":[
         "<server_name>/topcat_daaas_plugin"
     ],
-	"daaas": {
+    "daaas": {
         "createMachineDelaySeconds": 5
     }
 ```
 	
 2. Modify `lang.json` to give the tab the right name. Under ADMIN, add the following:
 
-```"MAIN_TAB": {
-			"MACHINE_TYPES": "Machine Tab"
-		}
+```
+"MAIN_TAB": {
+            "MACHINE_TYPES": "Machine Tab"
+        }
 ```
 3. Run another setup-install on TOPCAT and refresh your browser.
 
