@@ -25,6 +25,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.FormParam;
@@ -114,9 +115,18 @@ public class UserResource {
 
             logger.debug("createMachine: added MachineUser");
 
-            com.stfc.useroffice.webservice.UserOfficeWebService_Service service = new com.stfc.useroffice.webservice.UserOfficeWebService_Service();
-            com.stfc.useroffice.webservice.UserOfficeWebService port = service.getUserOfficeWebServicePort();
-            String fedId = port.getFedIdFromUserId(userName.replace("uows/", ""));
+            Properties properties = new Properties();
+            String uoc = properties.getProperty("uoc");
+			boolean uoc_b = Boolean.parseBoolean(uoc);
+            String fedId = "";
+            if(uoc_b) {
+				logger.debug("resolving federal ID from User Office ID");
+                com.stfc.useroffice.webservice.UserOfficeWebService_Service service = new com.stfc.useroffice.webservice.UserOfficeWebService_Service();
+                com.stfc.useroffice.webservice.UserOfficeWebService port = service.getUserOfficeWebServicePort();
+                fedId = port.getFedIdFromUserId(userName.replace("uows/", ""));
+            } else {
+				fedId = (userName.split("/"))[1];
+            }
 
             logger.debug("createMachine: the fed id is " + fedId);
 
