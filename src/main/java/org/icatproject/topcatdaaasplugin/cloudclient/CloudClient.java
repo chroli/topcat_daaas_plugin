@@ -109,7 +109,7 @@ public class CloudClient {
             } else if ("IMAGE".equals(type)) {
                 client = new HttpClient(properties.getProperty("imageEndpoint") + "/v2");
             } else {
-                throw new IllegalStateException("Unknown client type: " + type.toString());
+                throw new IllegalStateException("Unknown client type: " + type);
             }
         } catch (Exception e) {
             throw new IllegalStateException(e.getMessage(), e);
@@ -269,7 +269,7 @@ public class CloudClient {
 
     public void deleteServer(String id) throws DaaasException {
         try {
-            logger.debug("Sending delete request to OpenStack for VM {}", id)
+            logger.debug("Sending delete request to OpenStack for VM {}", id);
             Response response = getHTTPClient("COMPUTE").delete("servers/" + id, generateStandardHeaders());
             if (response.getCode() >= 400) {
                 throw new BadRequestException(response.toString());

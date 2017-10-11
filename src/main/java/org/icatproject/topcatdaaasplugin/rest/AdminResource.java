@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.icatproject.topcatdaaasplugin.rest;
 
 import org.icatproject.topcatdaaasplugin.EntityList;
@@ -61,10 +56,6 @@ public class AdminResource {
     public Response getFlavors(
             @QueryParam("icatUrl") String icatUrl,
             @QueryParam("sessionId") String sessionId) {
-
-        logger.info("getFlavors: a user is attempting to get the available flavors, sessionId = " + sessionId);
-
-
         try {
             authorize(icatUrl, sessionId);
 
@@ -82,13 +73,8 @@ public class AdminResource {
     public Response getImages(
             @QueryParam("icatUrl") String icatUrl,
             @QueryParam("sessionId") String sessionId) {
-
-        logger.info("getImages: a user is attempting to get the available images, sessionId = " + sessionId);
-
-
         try {
             authorize(icatUrl, sessionId);
-
             return cloudClient.getImages().toResponse();
         } catch (DaaasException e) {
             return e.toResponse();
@@ -104,9 +90,6 @@ public class AdminResource {
     public Response getAvailabilityZones(
             @QueryParam("icatUrl") String icatUrl,
             @QueryParam("sessionId") String sessionId) {
-
-        logger.info("getAvailabilityZones: a user is attempting to get the available availability zones, sessionId = " + sessionId);
-
         try {
             authorize(icatUrl, sessionId);
 
@@ -124,9 +107,6 @@ public class AdminResource {
     public Response getMachineTypes(
             @QueryParam("icatUrl") String icatUrl,
             @QueryParam("sessionId") String sessionId) {
-
-        logger.info("getMachineTypes: a user is attempting to get the available machine types, sessionId = " + sessionId);
-
         try {
             authorize(icatUrl, sessionId);
 
@@ -147,8 +127,7 @@ public class AdminResource {
             @FormParam("json") String json,
             @FormParam("logoData") String logoData) {
 
-        logger.info("createMachineType: a user is attempting to create a new machine type, json = " + json + ", sessionId = " + sessionId);
-
+        logger.info("Attempting to create a new machine type: {}", json );
 
         try {
             authorize(icatUrl, sessionId);
@@ -201,7 +180,7 @@ public class AdminResource {
             @FormParam("sessionId") String sessionId,
             @FormParam("json") String json) {
 
-        logger.info("updateMachineType: a user is attempting to update a machine type, json = " + json + ", sessionId = " + sessionId);
+        logger.info("Attempting to update a machine type: {}", json);
 
         try {
             authorize(icatUrl, sessionId);
@@ -255,8 +234,7 @@ public class AdminResource {
             @QueryParam("sessionId") String sessionId,
             @QueryParam("mimeType") String mimeType) {
 
-        logger.info("updateMachineTypeLogo: a user is attempting to update a machine type logo, id = " + id + ", sessionId = " + sessionId);
-
+        logger.info("Attempting to update a machine type logo: {} ", id);
 
         try {
             authorize(icatUrl, sessionId);
@@ -295,7 +273,7 @@ public class AdminResource {
             @QueryParam("icatUrl") String icatUrl,
             @QueryParam("sessionId") String sessionId) {
 
-        logger.info("deleteMachineTypeLogo: a user is attempting to delete a machine type logo, id = " + id + ", sessionId = " + sessionId);
+        logger.info("Attempting to delete a machine logo: {}", id);
 
         try {
             authorize(icatUrl, sessionId);
@@ -324,8 +302,7 @@ public class AdminResource {
             @QueryParam("icatUrl") String icatUrl,
             @QueryParam("sessionId") String sessionId) {
 
-        logger.info("deleteMachineType: a user is attempting to delete a machine type, id = " + id + ", " + sessionId);
-
+        logger.info("Attempting to delete a machine type: {}", id);
 
         try {
             authorize(icatUrl, sessionId);
@@ -372,14 +349,10 @@ public class AdminResource {
             @PathParam("id") String id,
             @QueryParam("icatUrl") String icatUrl,
             @QueryParam("sessionId") String sessionId) {
-
-        logger.info("getMachineScreenshot: a user is attempting to get a screenshot of a machine, id = " + id + ", sessionId = " + sessionId);
-
-
         try {
             authorize(icatUrl, sessionId);
 
-            Map<String, String> params = new HashMap<String, String>();
+            Map<String, Object> params = new HashMap<String, Object>();
             params.put("id", id);
 
             Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);
@@ -409,12 +382,12 @@ public class AdminResource {
             @QueryParam("icatUrl") String icatUrl,
             @QueryParam("sessionId") String sessionId) {
 
-        logger.info("getMachineScreenshot: a user is attempting to get access to a machine, id = " + id + ", sessionId = " + sessionId);
+        logger.info("Attempting to get access to a machine: {}", id);
 
         try {
             authorize(icatUrl, sessionId);
 
-            Map<String, String> params = new HashMap<String, String>();
+            Map<String, Object> params = new HashMap<String, Object>();
             params.put("id", id);
 
             Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);
@@ -463,7 +436,7 @@ public class AdminResource {
         try {
             authorize(icatUrl, sessionId);
 
-            Map<String, String> params = new HashMap<String, String>();
+            Map<String, Object> params = new HashMap<String, Object>();
             params.put("id", id);
 
             Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);

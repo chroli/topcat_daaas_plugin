@@ -20,7 +20,7 @@ public class Database {
     @PersistenceContext(unitName = "topcat_daaas_plugin")
     EntityManager em;
 
-    public EntityList<Entity> query(String jpqlQuery, Map<String, String> params) throws DaaasException {
+    public EntityList<Entity> query(String jpqlQuery, Map<String, Object> params) throws DaaasException {
         try {
             Integer limitPageSize = null;
             Integer limitOffset = null;
@@ -36,7 +36,7 @@ public class Database {
 
             Query query = em.createQuery(jpqlQuery);
 
-            for (Map.Entry<String, String> entry : params.entrySet()) {
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
                 query.setParameter(entry.getKey(), entry.getValue());
             }
 
@@ -59,7 +59,7 @@ public class Database {
     }
 
     public EntityList<Entity> query(String jpqlQuery) throws DaaasException {
-        return query(jpqlQuery, new HashMap<String, String>());
+        return query(jpqlQuery, new HashMap<String, Object>());
     }
 
     public void persist(Object entity) {

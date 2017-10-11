@@ -54,7 +54,7 @@ public class UserResource {
             @QueryParam("sessionId") String sessionId) {
         try {
             String username = getUsername(icatUrl, sessionId);
-            Map<String, String> params = new HashMap<String, String>();
+            Map<String, Object> params = new HashMap<String, Object>();
             params.put("user", username);
             EntityList<Entity> machine_list = database.query("select machine from MachineUser machineUser, machineUser.machine as machine where machineUser.userName = :user and machine.state = 'ACQUIRED'", params);
             for (Entity e : machine_list) {
@@ -153,7 +153,7 @@ public class UserResource {
             String username = getUsername(icatUrl, sessionId);
             logger.info("User {} is attempting to delete a machine {}", username, id);
 
-            Map<String, String> params = new HashMap<String, String>();
+            Map<String, Object> params = new HashMap<String, Object>();
             params.put("id", id);
             Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);
             if (machine == null) {
@@ -189,7 +189,7 @@ public class UserResource {
         logger.info("A user is attempting to save a machine setting it's name to '" + name + "', id = " + id);
 
         try {
-            Map<String, String> params = new HashMap<String, String>();
+            Map<String, Object> params = new HashMap<String, Object>();
             params.put("id", id);
 
             Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);
@@ -227,7 +227,7 @@ public class UserResource {
         logger.info("A user is attempting to set the width/height of a machine with id to " + width + "x" + height + ", id = " + id);
 
         try {
-            Map<String, String> params = new HashMap<String, String>();
+            Map<String, Object> params = new HashMap<String, Object>();
             params.put("id", id);
 
             Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);
@@ -264,7 +264,7 @@ public class UserResource {
             @QueryParam("icatUrl") String icatUrl,
             @QueryParam("sessionId") String sessionId) {
         try {
-            Map<String, String> params = new HashMap<String, String>();
+            Map<String, Object> params = new HashMap<String, Object>();
             params.put("id", id);
 
             Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);
@@ -309,7 +309,7 @@ public class UserResource {
         logger.info("A user is attempting to get an rdp file, id = " + id);
 
         try {
-            Map<String, String> params = new HashMap<String, String>();
+            Map<String, Object> params = new HashMap<String, Object>();
             params.put("id", id);
 
             Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);
@@ -392,7 +392,7 @@ public class UserResource {
         logger.info("A user is attempting to share a machine, id = " + id);
 
         try {
-            Map<String, String> params = new HashMap<String, String>();
+            Map<String, Object> params = new HashMap<String, Object>();
             params.put("id", id);
 
             Machine machine = (Machine) database.query("select machine from Machine machine where machine.id = :id", params).get(0);

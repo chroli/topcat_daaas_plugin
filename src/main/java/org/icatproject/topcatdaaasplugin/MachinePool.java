@@ -55,11 +55,11 @@ public class MachinePool {
             for (Entity machineTypeEntity : machineTypes) {
                 MachineType machineType = (MachineType) machineTypeEntity;
 
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("machineTypeId", machineType.getId().toString());
+                Map<String, Object> params = new HashMap<String, Object>();
+                params.put("machineTypeId", machineType.getId());
                 params.put("state1", STATE.PREPARING.name());
                 params.put("state2", STATE.VACANT.name());
-                EntityList<Entity> nonAcquiredMachines = database.query("select machine from Machine machine, machine.machineType as machineType where (machine.state = :state1 or machine.state = :state2) and machineType.id = :machineTypeID");
+                EntityList<Entity> nonAcquiredMachines = database.query("select machine from Machine machine, machine.machineType as machineType where (machine.state = :state1 or machine.state = :state2) and machineType.id = :machineTypeId", params);
 
                 int diff = machineType.getPoolSize() - nonAcquiredMachines.size();
                 if (diff > 0) {
@@ -68,13 +68,13 @@ public class MachinePool {
                         createMachine(machineType);
                     }
                 } else if (diff < 0) {
-                    logger.info("Removing {} machines from pool for machine type '{}'", diff, machineType.getName());
+                    logger.info("Removing {} machines from pool for machine type '{}'", (diff * -1), machineType.getName());
                     for (int i = 0; i < (diff * -1); i++) {
                         Machine machine = acquireMachine(machineType.getId());
                         if (machine != null) {
                             deleteMachine(machine, STATE.DELETED.name());
                         } else {
-                            throw new DaaasException("Failed to acquire machine. Unable to remove machine from pool.");
+                            throw new DaaasException("Failed to acquire machine. Spare machines may still be in PREPARING state");
                         }
                     }
                 }
@@ -102,7 +102,7 @@ public class MachinePool {
         logger.debug("Checking for machines that have finished preparing");
 
         try {
-            Map<String, String> params = new HashMap<String, String>();
+            Map<String, Object> params = new HashMap<String, Object>();
             params.put("state", STATE.PREPARING.name());
             EntityList<Entity> preparingMachines = database.query("select machine from Machine machine, machine.machineType as machineType where machine.state = :state", params);
             for (Entity machineEntity : preparingMachines) {
@@ -172,7 +172,7 @@ public class MachinePool {
     @Schedule(hour = "*", minute = "*/5")
     public void getScreenShots() {
         try {
-            Map<String, String> params = new HashMap<String, String>();
+            Map<String, Object> params = new HashMap<String, Object>();
             params.put("state", STATE.ACQUIRED.name());
             EntityList<Entity> acquiredMachines = database.query("select machine from Machine machine where machine.state = :state", params);
             for (Entity machineEntity : acquiredMachines) {
@@ -188,10 +188,10 @@ public class MachinePool {
 
     public synchronized Machine acquireMachine(Long machineTypeId) throws DaaasException {
         try {
-            Map<String, String> params = new HashMap<String, String>();
+            Map<String, Object> params = new HashMap<String, Object>();
             params.put("state", STATE.VACANT.name());
-            params.put("machineTypeId", machineTypeId.toString());
-            EntityList<Entity> vacantMachines = database.query("select machine from Machine machine, machine.machineType as machineType where machine.state = :state and machineType.id = :machienTypeId", params);
+            params.put("machineTypeId", machineTypeId);
+            EntityList<Entity> vacantMachines = database.query("select machine from Machine machine, machine.machineType as machineType where machine.state = :state and machineType.id = :machineTypeId", params);
             if (vacantMachines.size() < 1) {
                 return null;
             }
