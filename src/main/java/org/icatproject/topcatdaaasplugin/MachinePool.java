@@ -53,30 +53,34 @@ public class MachinePool {
             EntityList<Entity> machineTypes = database.query("select machineType from MachineType machineType");
 
             for (Entity machineTypeEntity : machineTypes) {
-                MachineType machineType = (MachineType) machineTypeEntity;
+                try {
+                    MachineType machineType = (MachineType) machineTypeEntity;
 
-                Map<String, Object> params = new HashMap<String, Object>();
-                params.put("machineTypeId", machineType.getId());
-                params.put("state1", STATE.PREPARING.name());
-                params.put("state2", STATE.VACANT.name());
-                EntityList<Entity> nonAcquiredMachines = database.query("select machine from Machine machine, machine.machineType as machineType where (machine.state = :state1 or machine.state = :state2) and machineType.id = :machineTypeId", params);
+                    Map<String, Object> params = new HashMap<String, Object>();
+                    params.put("machineTypeId", machineType.getId());
+                    params.put("state1", STATE.PREPARING.name());
+                    params.put("state2", STATE.VACANT.name());
+                    EntityList<Entity> nonAcquiredMachines = database.query("select machine from Machine machine, machine.machineType as machineType where (machine.state = :state1 or machine.state = :state2) and machineType.id = :machineTypeId", params);
 
-                int diff = machineType.getPoolSize() - nonAcquiredMachines.size();
-                if (diff > 0) {
-                    logger.info("Adding {} machines to pool for machine type '{}'", diff, machineType.getName());
-                    for (int i = 0; i < diff; i++) {
-                        createMachine(machineType);
-                    }
-                } else if (diff < 0) {
-                    logger.info("Removing {} machines from pool for machine type '{}'", (diff * -1), machineType.getName());
-                    for (int i = 0; i < (diff * -1); i++) {
-                        Machine machine = acquireMachine(machineType.getId());
-                        if (machine != null) {
-                            deleteMachine(machine, STATE.DELETED.name());
-                        } else {
-                            throw new DaaasException("Failed to acquire machine. Spare machines may still be in PREPARING state");
+                    int diff = machineType.getPoolSize() - nonAcquiredMachines.size();
+                    if (diff > 0) {
+                        logger.info("Adding {} machines to pool for machine type '{}'", diff, machineType.getName());
+                        for (int i = 0; i < diff; i++) {
+                            createMachine(machineType);
+                        }
+                    } else if (diff < 0) {
+                        logger.info("Removing {} machines from pool for machine type '{}'", (diff * -1), machineType.getName());
+                        for (int i = 0; i < (diff * -1); i++) {
+                            Machine machine = acquireMachine(machineType.getId());
+                            if (machine != null) {
+                                deleteMachine(machine, STATE.DELETED.name());
+                            } else {
+                                throw new DaaasException("Failed to acquire machine. Spare machines may still be in PREPARING state");
+                            }
                         }
                     }
+                } catch (Exception e) {
+                    logger.error(e.getMessage());
                 }
             }
         } catch (Exception e) {

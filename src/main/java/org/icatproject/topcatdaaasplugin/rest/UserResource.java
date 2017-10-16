@@ -224,7 +224,7 @@ public class UserResource {
             @FormParam("sessionId") String sessionId,
             @FormParam("width") int width,
             @FormParam("height") int height) {
-        logger.info("A user is attempting to set the width/height of a machine with id to " + width + "x" + height + ", id = " + id);
+        //logger.info("A user is attempting to set the width/height of a machine with id to " + width + "x" + height + ", id = " + id);
 
         try {
             Map<String, Object> params = new HashMap<String, Object>();
@@ -240,7 +240,7 @@ public class UserResource {
 
             new SshClient(machine.getHost()).exec("set_resolution " + width + " " + height);
 
-            logger.debug("setMachineResolution: set_resolution " + width + " " + height);
+            //logger.debug("setMachineResolution: set_resolution " + width + " " + height);
 
             return machine.toResponse();
         } catch (DaaasException e) {
