@@ -51,7 +51,7 @@ mvn install
 
 4. Make everything secure by using https rather than http so that noVNC works correctly.
 
-5. Modify `lang.json` by adding a `DAAAS` JSON where you specify alternative names for the tabs. For example:
+5. Modify `lang.json` by adding a `DAAAS` JSON where you specify alternative names for associated placeholders. For example:
 
 ```
 "DAAAS": {
